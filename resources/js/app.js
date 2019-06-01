@@ -5,15 +5,17 @@
  * includes Vue and other libraries. It is a great starting point when
  * building robust, powerful web applications using Vue and Laravel.
  */
-
-require('./bootstrap');
-
-window.Vue = require('vue');
 import App from '@/page/app.vue';
 import router from '@/router';
 
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
+
+
+require('./bootstrap');
+
+window.Vue = require('vue');
+
 
 Vue.use(ElementUI);
 
