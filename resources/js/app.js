@@ -1,24 +1,28 @@
-// import app from 'page/app.vue';
+import * as bootstrap from './bootstrap'; // 为了保证顺序执行，bootstrap 和 config 必须使用 import from 语法
+
+import Vue from 'vue'
 
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when
  * building robust, powerful web applications using Vue and Laravel.
  */
-import App from '@/page/app.vue';
+import App from '@/views/app.vue';
 import router from '@/router';
+import store from '@/store';
+import VueCookie from 'vue-cookie' ;
 
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 
-
-require('./bootstrap');
+import '@/icons' // icon
 
 window.Vue = require('vue');
 
-
 Vue.use(ElementUI);
+Vue.use(VueCookie);
 
+// require('./bootstrap');
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue
@@ -42,6 +46,7 @@ Vue.use(ElementUI);
 new Vue({
     el: '#app',
     router,
+    store,
     render: h => h(App),
 });
 

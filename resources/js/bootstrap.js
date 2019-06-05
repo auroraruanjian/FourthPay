@@ -36,6 +36,21 @@ if (token) {
     console.error('CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token');
 }
 
+window.axios.interceptors.response.use(
+    response => {
+        return response;
+    },
+    error => {
+        if( error.response ){
+            if( error.response.status == 419 ){
+                location.reload();
+            }
+        }
+
+        return Promise.reject(error);
+    }
+);
+
 /**
  * Echo exposes an expressive API for subscribing to channels and listening
  * for events that are broadcast by Laravel. Echo and event broadcasting

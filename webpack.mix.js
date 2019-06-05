@@ -1,4 +1,5 @@
 const mix = require('laravel-mix');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 /*
  |--------------------------------------------------------------------------
@@ -14,6 +15,7 @@ const mix = require('laravel-mix');
 mix.js('resources/js/app.js', 'public/js')
     .sass('resources/sass/app.scss', 'public/css');
 
+mix.sourceMaps();
 
 if( mix.inProduction()){
     mix.version([]);
@@ -32,6 +34,20 @@ const webpack_config = {
             '@': path.resolve(__dirname, 'resources/js')
         }
     },
+    output: {
+        chunkFilename: '[name].js',
+    },
+    optimization: {
+        splitChunks: {
+            //chunks: 'all'
+        }
+    },
+    plugins: [
+        new CleanWebpackPlugin({
+            cleanOnceBeforeBuildPatterns: ['!favicon.ico','!index.php','!robots.txt','!.htaccess','*.js','*.css'],
+            cleanAfterEveryBuildPatterns: ['!favicon.ico','!index.php','!robots.txt','!.htaccess','*.js','*.css'],
+        })
+    ]
 };
 
 mix.webpackConfig(webpack_config);

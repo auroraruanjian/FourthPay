@@ -18,3 +18,10 @@ $ composer install
 & npm install
 ```
 
+复制 .env.example 文件为 .env,修改数据库连接，创建key
+```bash
+$ php artisan  key:generate
+```
+
+
+
