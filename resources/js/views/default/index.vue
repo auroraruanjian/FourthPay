@@ -10,7 +10,6 @@
 </template>
 
 <script>
-
     export default {
         date(){
 
@@ -19,17 +18,27 @@
 
         },
         methods:{
-            logout(){
+            logout() {
                 this.$store.dispatch('user/logout').then((response) => {
-                    if( response.data.code == 1 ){
+                    if (response.data.code == 1) {
                         this.$message(response.data.msg);
                     }
-                    this.$router.push({ path: '/' });
+                    this.$router.push({path:'/login'});
+                }).catch((e) => {
+                    console.log(e);
                 });
             }
+        },
+        mounted() {
+
+
         }
     }
 </script>
 
 <style lang="scss">
+    #canvascontainer{
+        position: absolute;
+        top: 0px;
+    }
 </style>

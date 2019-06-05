@@ -15,13 +15,15 @@ const user = {
             const { username, password } = userInfo
             return new Promise((resolve, reject) => {
                 login({ username: username.trim(), password: password }).then(response => {
-                    let { data } = response
-                    commit('SET_TOKEN', data.data.token)
-                    window.localStorage.setItem('userInfo',JSON.stringify({
-                        token:data.data.token,
-                        username:data.data.username,
-                        nickname:data.data.nickname,
-                    }));
+                    if( response.data.code == 1 ) {
+                        let {data} = response
+                        commit('SET_TOKEN', data.data.token)
+                        window.localStorage.setItem('userInfo', JSON.stringify({
+                            token: data.data.token,
+                            username: data.data.username,
+                            nickname: data.data.nickname,
+                        }));
+                    }
                     resolve(response)
                 }).catch(error => {
                     reject(error)

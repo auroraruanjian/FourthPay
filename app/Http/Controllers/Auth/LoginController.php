@@ -88,4 +88,15 @@ class LoginController extends Controller
             'msg'       => __('auth.logoutSuccess'),
         ];
     }
+
+    protected function sendFailedLoginResponse(Request $request)
+    {
+        // throw ValidationException::withMessages([
+        //     $this->username() => [trans('auth.failed')],
+        // ]);
+        return [
+            'code'    => -422,
+            'msg'     => trans('auth.failed'),
+        ];
+    }
 }

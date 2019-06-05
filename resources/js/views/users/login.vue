@@ -1,15 +1,17 @@
 <template>
-    <div class="login-container">
+    <div class="login-container" :style="{height:height}">
+        <vue-particle-line>
+
         <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
 
             <div class="title-container">
-                <h3 class="title">Login Form</h3>
+                <h3 class="title">管理平台</h3>
             </div>
 
             <el-form-item prop="username">
-        <span class="svg-container">
-          <svg-icon icon-class="user" />
-        </span>
+                <span class="svg-container">
+                  <svg-icon icon-class="user" />
+                </span>
                 <el-input
                         ref="username"
                         v-model="loginForm.username"
@@ -22,9 +24,9 @@
             </el-form-item>
 
             <el-form-item prop="password">
-        <span class="svg-container">
-          <svg-icon icon-class="password" />
-        </span>
+                <span class="svg-container">
+                    <svg-icon icon-class="password" />
+                </span>
                 <el-input
                         :key="passwordType"
                         ref="password"
@@ -37,18 +39,20 @@
                         @keyup.enter.native="handleLogin"
                 />
                 <span class="show-pwd" @click="showPwd">
-          <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
-        </span>
+                    <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
+                </span>
             </el-form-item>
 
             <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">Login</el-button>
 
             <div class="tips">
                 <span style="margin-right:20px;">username: admin</span>
-                <span> password: any</span>
+                <span> password: admin123</span>
             </div>
 
         </el-form>
+
+        </vue-particle-line>
     </div>
 </template>
 
@@ -81,6 +85,7 @@
                     username: [{ required: true, trigger: 'blur', validator: validateUsername }],
                     password: [{ required: true, trigger: 'blur', validator: validatePassword }]
                 },
+                height:'0px',
                 loading: false,
                 passwordType: 'password',
                 redirect: undefined
@@ -111,14 +116,17 @@
                         this.loading = true
 
                         this.$store.dispatch('user/login', this.loginForm).then((response) => {
-                            this.$router.push({ path: this.redirect || '/' })
                             this.loading = false
                             if( response.data.code == 1 ){
+                                this.$router.push({ path: this.redirect || '/' })
                                 this.$message('登录成功');
                             }else{
                                 this.$message(response.data.msg);
                             }
+
+                            console.log(response.data);
                         }).catch((e) => {
+                            console.log(e);
                             this.loading = false
                         })
                     } else {
@@ -126,10 +134,15 @@
                         return false
                     }
                 })
-            }
+            },
+            init: function() {
+
+            },
         },
         mounted() {
-            document.body.style.backgroundColor = '#283443';
+            document.body.style.backgroundColor = '#1d1c1c';
+            this.init();
+            this.height = window.innerHeight-20+'px';
         },
         beforeDestroy() {
             document.body.style.backgroundColor = '';
@@ -204,6 +217,7 @@
             padding: 160px 35px 0;
             margin: 0 auto;
             overflow: hidden;
+            z-index:100;
         }
 
         .tips {

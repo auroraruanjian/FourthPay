@@ -15,6 +15,10 @@ import VueCookie from 'vue-cookie' ;
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 
+import vueParticleLine from 'vue-particle-line'
+import 'vue-particle-line/dist/vue-particle-line.css'
+Vue.use(vueParticleLine)
+
 import '@/icons' // icon
 
 window.Vue = require('vue');

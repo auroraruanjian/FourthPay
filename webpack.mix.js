@@ -42,12 +42,35 @@ const webpack_config = {
             //chunks: 'all'
         }
     },
+    module: {
+        rules: [
+        ]
+    },
     plugins: [
         new CleanWebpackPlugin({
             cleanOnceBeforeBuildPatterns: ['!favicon.ico','!index.php','!robots.txt','!.htaccess','*.js','*.css'],
             cleanAfterEveryBuildPatterns: ['!favicon.ico','!index.php','!robots.txt','!.htaccess','*.js','*.css'],
-        })
+        }),
     ]
 };
+
+Mix.listen('configReady', (webpackConfig) => {
+    // Create SVG sprites
+    webpackConfig.module.rules.unshift({
+        test: /\.svg$/,
+        loader: 'svg-sprite-loader',
+        include: [path.resolve(__dirname,'resources/js/icons/svg')],
+        options: {
+            symbolId: 'icon-[name]'
+        }
+    });
+
+    // Exclude 'svg' folder from font loader
+    let fontLoaderConfig1 = webpackConfig.module.rules.find(rule => String(rule.test) === String(/(\.(png|jpe?g|gif|webp)$|^((?!font).)*\.svg$)/));
+    fontLoaderConfig1.exclude = /(resources\/js\/icons\/svg)/;
+
+    let fontLoaderConfig2 = webpackConfig.module.rules.find(rule => String(rule.test) === String(/(\.(woff2?|ttf|eot|otf)$|font.*\.svg$)/));
+    fontLoaderConfig2.exclude = /(resources\/js\/icons\/svg)/;
+});
 
 mix.webpackConfig(webpack_config);
