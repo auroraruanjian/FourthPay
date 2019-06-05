@@ -1,4 +1,4 @@
-import { login } from '@/api/user'
+import { login,logout } from '@/api/user'
 
 const user = {
     namespaced: true,
@@ -28,6 +28,17 @@ const user = {
                 })
             })
         },
+        logout({ commit }) {
+            return new Promise((resolve, reject) => {
+                logout().then( (response) => {
+                    commit('SET_TOKEN', '');
+                    window.localStorage.removeItem('userInfo');
+                    resolve(response)
+                }).catch(error => {
+                    reject(error)
+                })
+            })
+        }
     }
 }
 

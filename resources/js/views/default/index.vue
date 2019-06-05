@@ -10,7 +10,6 @@
 </template>
 
 <script>
-    import {logout} from '@/api/user'
 
     export default {
         date(){
@@ -21,10 +20,11 @@
         },
         methods:{
             logout(){
-                logout().then((response)=>{
+                this.$store.dispatch('user/logout').then((response) => {
                     if( response.data.code == 1 ){
                         this.$message(response.data.msg);
                     }
+                    this.$router.push({ path: '/' });
                 });
             }
         }

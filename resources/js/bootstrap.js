@@ -27,7 +27,7 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
  * all outgoing HTTP requests automatically have it attached. This is just
  * a simple convenience so we don't have to attach every token manually.
  */
-
+/*
 let token = document.head.querySelector('meta[name="csrf-token"]');
 
 if (token) {
@@ -35,6 +35,7 @@ if (token) {
 } else {
     console.error('CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token');
 }
+*/
 
 // 添加一个请求拦截器
 // window.axios.interceptors.request.use(function (config) {
@@ -52,9 +53,7 @@ window.axios.interceptors.response.use(
     error => {
         if( error.response ){
             if( error.response.status == 419 ){
-                //location.reload();
-                let cookie = require('vue-cookie');
-                cookie.get();
+                location.reload();
             }
         }
 
