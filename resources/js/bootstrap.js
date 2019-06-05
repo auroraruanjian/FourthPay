@@ -36,6 +36,15 @@ if (token) {
     console.error('CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token');
 }
 
+// 添加一个请求拦截器
+// window.axios.interceptors.request.use(function (config) {
+//     // Do something before request is sent
+//     return config;
+// }, function (error) {
+//     // Do something with request error
+//     return Promise.reject(error);
+// });
+
 window.axios.interceptors.response.use(
     response => {
         return response;
@@ -43,7 +52,9 @@ window.axios.interceptors.response.use(
     error => {
         if( error.response ){
             if( error.response.status == 419 ){
-                location.reload();
+                //location.reload();
+                let cookie = require('vue-cookie');
+                cookie.get();
             }
         }
 
