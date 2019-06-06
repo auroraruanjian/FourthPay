@@ -30,7 +30,6 @@
     "dependencies": {
         "element-ui": "^2.9.1",
         "svg-sprite-loader": "^4.1.6",
-        "three": "^0.105.2",
         "vue-cookie": "^1.1.4",
         "vue-particle-line": "^0.1.4"
     }

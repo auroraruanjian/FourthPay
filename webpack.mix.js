@@ -67,10 +67,10 @@ Mix.listen('configReady', (webpackConfig) => {
 
     // Exclude 'svg' folder from font loader
     let fontLoaderConfig1 = webpackConfig.module.rules.find(rule => String(rule.test) === String(/(\.(png|jpe?g|gif|webp)$|^((?!font).)*\.svg$)/));
-    fontLoaderConfig1.exclude = /(resources\/js\/icons\/svg)/;
+    fontLoaderConfig1.exclude = path.resolve('resources/js/icons/svg');
 
     let fontLoaderConfig2 = webpackConfig.module.rules.find(rule => String(rule.test) === String(/(\.(woff2?|ttf|eot|otf)$|font.*\.svg$)/));
-    fontLoaderConfig2.exclude = /(resources\/js\/icons\/svg)/;
+    fontLoaderConfig2.exclude = path.resolve('resources/js/icons/svg');///(resources\/js\/icons\/svg)/;
 });
 
 mix.webpackConfig(webpack_config);
