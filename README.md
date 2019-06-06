@@ -3,10 +3,11 @@
 ---
 
 技术栈：
-* Laravel
+* Laravel       5.8
 * nginx
 * postgreSql
-* Vue
+* laravel-mix
+* Vue      
 * Vuex
 * Vue-router
 
@@ -24,5 +25,13 @@ $ npm install
 $ php artisan  key:generate
 ```
 
-
+Ajax json数据说明
+```php
+[
+    'code'  => 1,
+    'msg'   => '',
+    'data'  => [],
+]
+```
+code:错误码  1：成功  <1:失败 
 
