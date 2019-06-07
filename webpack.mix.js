@@ -31,7 +31,8 @@ mix.extract([
 const webpack_config = {
     resolve: {
         alias: {
-            '@': path.resolve(__dirname, 'resources/js')
+            'res': path.resolve(__dirname, 'resources'),
+            '@': path.resolve(__dirname, 'resources/js'),
         }
     },
     output: {

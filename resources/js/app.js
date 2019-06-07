@@ -19,6 +19,8 @@ import vueParticleLine from 'vue-particle-line'
 import 'vue-particle-line/dist/vue-particle-line.css'
 Vue.use(vueParticleLine)
 
+import '../sass/index.scss' // global css
+
 import '@/icons' // icon
 
 window.Vue = require('vue');

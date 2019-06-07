@@ -7,15 +7,28 @@ import index from '@/views/default/index';
 
 Vue.use(VueRouter);
 
+/* Layout */
+import Layout from '@/layout'
+
 const routes = [
-    {
-        path: '/',
-        component : index,
-    },
     {
         path: '/login',
         component : () => import('@/views/users/login'),
-    }
+    },
+
+    {
+        path: '/',
+        component : Layout,
+        redirect: '/dashboard',
+        children: [
+            {
+                path: '/dashboard',
+                name: 'Dashboard',
+                component: () => import('@/views/dashboard/index'),
+                meta:{ title: 'Dashboard', icon: 'dashboard' },
+            }
+        ]
+    },
 ]
 
 const router = new VueRouter({
