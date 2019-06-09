@@ -51,16 +51,19 @@ export const asyncRoutes = [
                 component: () => import('@/views/permission/index'),
                 meta: {
                     title: '权限列表',
-                    icon: 'lock',
+                    icon: 'tree-table',
                 },
+                children : [
+
+                ]
             },
             {
-                path: '/permission/create',
-                name: 'PermissionCreate',
-                component: () => import('@/views/permission/index'),
+                path: '/role/index',
+                name: 'RoleIndex',
+                component: () => import('@/views/Role/index'),
                 meta: {
-                    title: '权限编辑',
-                    icon: 'lock',
+                    title: '角色管理',
+                    icon: 'peoples',
                 },
             }
         ]
