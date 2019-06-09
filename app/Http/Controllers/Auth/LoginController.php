@@ -66,8 +66,6 @@ class LoginController extends Controller
             'code'      => 1,
             'data'      => [
                 'token'    => $request->session()->token(),//$user->last_session,
-                'username' => $user->username,
-                'usernick' => $user->nickname,
             ]
         ];
     }

@@ -14,3 +14,10 @@ export function logout() {
         method: 'post',
     });
 }
+
+export function getUserInfo(){
+    return fetch({
+        url: 'user/info',
+        method: 'get',
+    });
+}

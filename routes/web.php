@@ -17,5 +17,16 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
-Route::get('/home/aaa', 'HomeController@index');
+
+Route::get('/user/info', 'UserController@getInfo');
+
+Route::any('/{controller}/{action}',function($controller,$action){
+    $namespace = 'App\Http\Controllers\\';
+
+    $className = $namespace . ucfirst($controller . "Controller");
+    $tempObj = new $className();
+    return call_user_func(array($tempObj, $action));
+})->where([
+    'controller'    => '^[A-Za-z]+$',
+    'action'        => '^[A-Za-z]+$'
+]);

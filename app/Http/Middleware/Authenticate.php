@@ -37,7 +37,10 @@ class Authenticate extends Middleware
 
         $rule = $request->path();
 
-        if( Gate::check($rule) ){
+        if( !in_array($rule,[
+            '/user/info'
+            ]) ||
+        Gate::check($rule) ){
             return $next($request);
         }
 
