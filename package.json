@@ -32,8 +32,10 @@
         "@vue/babel-preset-jsx": "^1.0.0",
         "element-ui": "^2.9.1",
         "nprogress": "^0.2.0",
+        "screenfull": "^4.2.0",
         "svg-sprite-loader": "^4.1.6",
         "vue-cookie": "^1.1.4",
-        "vue-particle-line": "^0.1.4"
+        "vue-particle-line": "^0.1.4",
+        "webpack-chunk-rename-plugin": "^1.0.3"
     }
 }

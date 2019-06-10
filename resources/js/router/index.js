@@ -91,24 +91,24 @@ router.beforeEach(async (to, from, next) => {
             if( is_login ){
                 next()
             }else{
-                let { username } = await store.dispatch('user/getUserInfo')
-
-                if( !username ){
-                    window.localStorage.removeItem('token');
-
-                    next({path:'/login'});
-
-                    NProgress.done();
-                }else {
+                try {
+                    let {username} = await store.dispatch('user/getUserInfo')
 
                     // 动态注册路由
                     const accessRoutes = await store.dispatch('permission/generateRoutes', 'admin')
 
                     router.addRoutes(accessRoutes)
 
-
                     next({...to, replace: true})
+
+                    NProgress.done();
                     //next();
+                }catch (e) {
+                    window.localStorage.removeItem('token');
+
+                    next({path:'/login'});
+
+                    NProgress.done();
                 }
             }
 

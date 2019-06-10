@@ -1,5 +1,6 @@
 const mix = require('laravel-mix');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const ChunkRenamePlugin = require("webpack-chunk-rename-plugin");
 
 /*
  |--------------------------------------------------------------------------
@@ -12,7 +13,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
  |
  */
 
-mix.js('resources/js/app.js', 'public/js')
+mix.js('resources/js/app.js','')
     .sass('resources/sass/app.scss', 'public/css');
 
 mix.sourceMaps();
@@ -26,7 +27,7 @@ mix.extract([
     'vuex',
     'vue-router',
     'axios'
-]);
+],'vendor');
 
 const webpack_config = {
     resolve: {
@@ -36,7 +37,10 @@ const webpack_config = {
         }
     },
     output: {
-        chunkFilename: '[name].js',
+        filename: (chunkData) => {
+            return 'js/' + chunkData.chunk.name.replace(/\//g, '') + '.js';
+        },
+        chunkFilename: 'js/[name].bundle.js',
     },
     optimization: {
         splitChunks: {
@@ -51,6 +55,10 @@ const webpack_config = {
         new CleanWebpackPlugin({
             cleanOnceBeforeBuildPatterns: ['!favicon.ico','!index.php','!robots.txt','!.htaccess','*.js','*.css'],
             cleanAfterEveryBuildPatterns: ['!favicon.ico','!index.php','!robots.txt','!.htaccess','*.js','*.css'],
+        }),
+        new ChunkRenamePlugin({
+            initialChunksWithEntry: true,
+            '/vendor': 'js/vendor.js'
         }),
     ]
 };

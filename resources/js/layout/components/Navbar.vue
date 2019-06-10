@@ -6,15 +6,19 @@
 
     <div class="right-menu">
       <template v-if="device!=='mobile'">
+        <!--
         <search id="header-search" class="right-menu-item" />
 
         <error-log class="errLog-container right-menu-item hover-effect" />
+        -->
 
         <screenfull id="screenfull" class="right-menu-item hover-effect" />
 
+        <!--
         <el-tooltip content="Global Size" effect="dark" placement="bottom">
           <size-select id="size-select" class="right-menu-item hover-effect" />
         </el-tooltip>
+        -->
 
       </template>
       <el-dropdown class="avatar-container" trigger="click">
@@ -44,20 +48,25 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters,mapState } from 'vuex'
 import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
+import Screenfull from '@/components/Screenfull'
 
 export default {
   components: {
     Breadcrumb,
-    Hamburger
+    Hamburger,
+    Screenfull
   },
   computed: {
     ...mapGetters([
       'sidebar',
-      'avatar'
-    ])
+      'avatar',
+    ]),
+    ...mapState({
+      device: state => state.app.device,
+    }),
   },
   methods: {
     toggleSideBar() {
