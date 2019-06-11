@@ -2,13 +2,12 @@
 
 namespace App\Models;
 
-use App\Models\AdminRoles;
 use Illuminate\Database\Eloquent\Model;
 
-class AdminPermissions extends Model
+class AdminRolePermissions extends Model
 {
     //
-    protected $table='admin_permissions';
+    protected $table='admin_role_permissions';
 
     public function roles()
     {

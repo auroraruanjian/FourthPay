@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Models\AdminPermissions;
+use App\Models\AdminRolePermissions;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 
@@ -30,7 +30,7 @@ class AuthServiceProvider extends ServiceProvider
                 //return true;
             }
 
-            $permission = AdminPermissions::where('rule', '=', $ability)->first();
+            $permission = AdminRolePermissions::where('rule', '=', $ability)->first();
 
             if ($permission && !Gate::has($ability)) {
                 // 对访问权限定义 Gate
