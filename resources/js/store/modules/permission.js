@@ -18,7 +18,7 @@ const actions = {
     generateRoutes({ commit }, permission) {
         return new Promise(resolve => {
             let asyncRoutes = createRouter(permission);
-
+            console.log(asyncRoutes);
             commit('SET_ROUTES', asyncRoutes);
             resolve(asyncRoutes)
         })

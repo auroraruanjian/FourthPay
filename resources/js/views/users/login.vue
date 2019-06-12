@@ -124,7 +124,7 @@
                                 this.$message(response.data.msg);
                             }
 
-                            console.log(response.data);
+                            //console.log(response.data);
                         }).catch((e) => {
                             console.log(e);
                             this.loading = false

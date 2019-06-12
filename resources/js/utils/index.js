@@ -1,6 +1,8 @@
 /**
  * Created by PanJiaChen on 16/11/18.
  */
+const _import = require('@/router/_import_' + process.env.NODE_ENV)//获取组件的方法
+import Layout from '@/layout'
 
 /**
  * Parse the time to string
@@ -354,9 +356,12 @@ export function createRouter(permission){
 
     for(let i in permission){
         let val = permission[i];
-        if( val.meta.hidden ){
+
+        if( typeof val.extra.hidden != 'undefined' && val.extra.hidden != null ){
+            //permiss.meta.hidden = val.extra.hidden;
             continue;
         }
+
         let _rule = val.rule.split('/');
         let name = '';
         for(let x in _rule){
@@ -364,9 +369,9 @@ export function createRouter(permission){
         }
 
         let permiss = {
-            path: val.rule,
-            component: () => import('@/views/'+val.rule),
-            alwaysShow: true, // will always show the root menu
+            path: '/'+val.rule,
+            //component: _import(val.rule),
+            //alwaysShow: true, // will always show the root menu
             name: name,
             meta: {
                 title: val.name,
@@ -374,14 +379,18 @@ export function createRouter(permission){
             },
         };
 
-        if( typeof val.extra.hidden != 'undefined' && val.extra.hidden != null ){
-            permiss.meta.hidden = val.extra.hidden;
+        if( typeof val.child == "object" && val.child.length>0){
+            permiss.children    = createRouter(val.child);
+            permiss.redirect    = '/'+val.child[0].rule;
+            permiss.component   = Layout;
+            permiss.alwaysShow  = true;
+        }else{
+            try{
+                permiss.component = _import(val.rule);
+            }catch(e){
+                console.log(e);
+            }
         }
-
-        if( typeof val.children == "object" && val.children.length>0){
-            permiss.children = createRouter(val.children);
-        }
-
 
         asyncRouter.push(permiss);
     }

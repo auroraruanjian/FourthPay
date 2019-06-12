@@ -35,7 +35,6 @@ export const constantRoutes = [
 
 /*
 export const asyncRoutes = [
-
     {
         path: '/permission',
         component: Layout,
@@ -99,7 +98,7 @@ router.beforeEach(async (to, from, next) => {
 
                     // 动态注册路由
                     const accessRoutes = await store.dispatch('permission/generateRoutes', permission)
-console.log(accessRoutes);
+
                     router.addRoutes(accessRoutes)
 
                     next({...to, replace: true})
