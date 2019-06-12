@@ -54,7 +54,6 @@ const user = {
 
                     resolve(response.data.data)
                 }).catch(error => {
-                    console.log('bbb');
                     reject(error)
                 })
             })

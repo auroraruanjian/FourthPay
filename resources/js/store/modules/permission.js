@@ -1,4 +1,5 @@
-import { asyncRoutes, constantRoutes } from '@/router'
+import { constantRoutes } from '@/router'
+import { createRouter } from '@/utils/';
 
 
 const state = {
@@ -14,12 +15,21 @@ const mutations = {
 }
 
 const actions = {
-    generateRoutes({ commit }, roles) {
+    generateRoutes({ commit }, permission) {
         return new Promise(resolve => {
+            let asyncRoutes = createRouter(permission);
 
-            commit('SET_ROUTES', asyncRoutes)
+            commit('SET_ROUTES', asyncRoutes);
             resolve(asyncRoutes)
         })
+        // return new Promise(resolve => {
+        //     //console.log(permission);
+        //     let asyncRoutes = this.createRouter(permission);
+        //     console.log(asyncRoutes);
+        //     commit('SET_ROUTES', asyncRoutes);
+        //     resolve(asyncRoutes)
+        // })
+        // */
     }
 }
 

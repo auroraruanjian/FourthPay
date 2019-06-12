@@ -33,7 +33,9 @@ export const constantRoutes = [
     },
 ]
 
+/*
 export const asyncRoutes = [
+
     {
         path: '/permission',
         component: Layout,
@@ -69,6 +71,7 @@ export const asyncRoutes = [
         ]
     }
 ]
+*/
 
 const router = new VueRouter({
     routes: constantRoutes,
@@ -92,11 +95,11 @@ router.beforeEach(async (to, from, next) => {
                 next()
             }else{
                 try {
-                    let {username} = await store.dispatch('user/getUserInfo')
+                    let { permission } = await store.dispatch('user/getUserInfo')
 
                     // 动态注册路由
-                    const accessRoutes = await store.dispatch('permission/generateRoutes', 'admin')
-
+                    const accessRoutes = await store.dispatch('permission/generateRoutes', permission)
+console.log(accessRoutes);
                     router.addRoutes(accessRoutes)
 
                     next({...to, replace: true})
