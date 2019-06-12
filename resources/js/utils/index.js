@@ -3,6 +3,7 @@
  */
 const _import = require('@/router/_import_' + process.env.NODE_ENV)//获取组件的方法
 import Layout from '@/layout'
+import store from '@/store'
 
 /**
  * Parse the time to string
@@ -351,16 +352,13 @@ export function removeClass(ele, cls) {
     }
 }
 
-export function createRouter(permission){
+export function createRouter( apiRouters ){
     let asyncRouter = [];
+    let user_permission  = [];
 
-    for(let i in permission){
-        let val = permission[i];
+    for(let i in apiRouters){
+        let val = apiRouters[i];
 
-        if( typeof val.extra.hidden != 'undefined' && val.extra.hidden != null ){
-            //permiss.meta.hidden = val.extra.hidden;
-            continue;
-        }
 
         let _rule = val.rule.split('/');
         let name = '';
@@ -368,7 +366,7 @@ export function createRouter(permission){
             name += ucfirst(_rule[x]);
         }
 
-        let permiss = {
+        let router = {
             path: '/'+val.rule,
             //component: _import(val.rule),
             //alwaysShow: true, // will always show the root menu
@@ -379,26 +377,52 @@ export function createRouter(permission){
             },
         };
 
+        user_permission.push(val.rule);
+
         if( typeof val.child == "object" && val.child.length>0){
-            permiss.children    = createRouter(val.child);
-            permiss.redirect    = '/'+val.child[0].rule;
-            permiss.component   = Layout;
-            permiss.alwaysShow  = true;
+            let _childrenRouter = createRouter(val.child);
+            router.children    = _childrenRouter.asyncRouter;
+            router.redirect    = '/'+val.child[0].rule;
+            router.component   = Layout;
+            router.alwaysShow  = true;
+
+            user_permission = user_permission.concat(_childrenRouter.user_permission);
         }else{
             try{
-                permiss.component = _import(val.rule);
+                if( typeof val.extra.hidden != 'undefined' && val.extra.hidden && val.extra.hidden){
+                    router.hidden = true;
+                }else{
+                    router.component = _import(val.rule);
+                }
             }catch(e){
                 console.log(e);
             }
         }
 
-        asyncRouter.push(permiss);
+        asyncRouter.push(router);
     }
 
-    return asyncRouter;
+    return {asyncRouter,user_permission};
 }
 
 
 function ucfirst(str) {
     return str.toLowerCase().replace(/( |^)[a-z]/g, (L) => L.toUpperCase());
+}
+
+/**
+ * 权限检查
+ * @param value
+ */
+export function checkPermission( value ){
+    if(typeof value == 'string' &&  value.length > 0){
+
+        let hasPermission = store.getters.user_permission.includes(value);
+
+        if( !hasPermission ){
+            return true;
+        }
+    }
+
+    return false;
 }

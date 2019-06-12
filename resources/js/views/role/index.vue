@@ -1,6 +1,6 @@
 <template>
     <div class="app-container">
-        <el-button type="primary" @click="handleAddRole">New Role</el-button>
+        <el-button type="primary" @click="handleAddRole" v-permission="'role/create'">New Role</el-button>
 
         <el-table :data="rolesList" style="width: 100%;margin-top:30px;" border>
             <el-table-column align="center" label="Role Key" width="220">
@@ -61,6 +61,7 @@
 
 <script>
     import path from 'path'
+    import permission from '@/directive/permission/index.js' // 权限判断指令
     // import { deepClone } from '@/utils'
     // import { getRoutes, getRoles, addRole, deleteRole, updateRole } from '@/api/role'
 
@@ -86,6 +87,7 @@
                 }
             }
         },
+        directives: { permission },
         computed: {
             routesData() {
                 return this.routes

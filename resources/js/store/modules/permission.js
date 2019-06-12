@@ -4,32 +4,29 @@ import { createRouter } from '@/utils/';
 
 const state = {
     routes: [],
-    addRoutes: []
+    addRoutes: [],
+    permission:[],
 }
 
 const mutations = {
     SET_ROUTES: (state, routes) => {
         state.addRoutes = routes
         state.routes = constantRoutes.concat(routes)
+    },
+    SET_PERMISSION: (state, permission) => {
+        state.permission = permission;
     }
 }
 
 const actions = {
-    generateRoutes({ commit }, permission) {
+    generateRoutes({ commit }, apiRouters) {
         return new Promise(resolve => {
-            let asyncRoutes = createRouter(permission);
-            console.log(asyncRoutes);
-            commit('SET_ROUTES', asyncRoutes);
-            resolve(asyncRoutes)
+            let routers = createRouter(apiRouters);
+            //console.log(routers.asyncRouter,routers.user_permission);
+            commit('SET_ROUTES', routers.asyncRouter);
+            commit('SET_PERMISSION', routers.user_permission);
+            resolve(routers.asyncRouter)
         })
-        // return new Promise(resolve => {
-        //     //console.log(permission);
-        //     let asyncRoutes = this.createRouter(permission);
-        //     console.log(asyncRoutes);
-        //     commit('SET_ROUTES', asyncRoutes);
-        //     resolve(asyncRoutes)
-        // })
-        // */
     }
 }
 
