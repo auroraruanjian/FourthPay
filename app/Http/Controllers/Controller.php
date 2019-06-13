@@ -10,4 +10,13 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+
+    public function response(int $code ,string $msg = '',array $data = [] )
+    {
+        return response()->json([
+            'code'  => $code,
+            'msg'   => $msg,
+            'data'  => $data,
+        ]);
+    }
 }

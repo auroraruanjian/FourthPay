@@ -62,8 +62,9 @@
 <script>
     import path from 'path'
     import permission from '@/directive/permission/index.js' // 权限判断指令
-    // import { deepClone } from '@/utils'
+    import { deepClone } from '@/utils'
     // import { getRoutes, getRoles, addRole, deleteRole, updateRole } from '@/api/role'
+    import { createRole } from '@/api/role'
 
     const defaultRole = {
         key: '',
@@ -206,6 +207,19 @@
             async confirmRole() {
                 const isEdit = this.dialogType === 'edit'
 
+                if (isEdit) {
+
+                }else{
+                    console.log(this.role);
+                    createRole(this.role).then(response => {
+                        console.log(response);
+                    }).catch(error => {
+
+                    })
+                }
+                /*
+                const isEdit = this.dialogType === 'edit'
+
                 const checkedKeys = this.$refs.tree.getCheckedKeys()
                 this.role.routes = this.generateTree(deepClone(this.serviceRoutes), '/', checkedKeys)
 
@@ -223,7 +237,7 @@
                     // this.rolesList.push(this.role)
                 }
 
-                const { description, key, name } = this.role
+                // const { description, key, name } = this.role
                 this.dialogVisible = false
                 this.$notify({
                     title: 'Success',
@@ -235,6 +249,7 @@
           `,
                     type: 'success'
                 })
+                */
             },
             // reference: src/view/layout/components/Sidebar/SidebarItem.vue
             onlyOneShowingChild(children = [], parent) {

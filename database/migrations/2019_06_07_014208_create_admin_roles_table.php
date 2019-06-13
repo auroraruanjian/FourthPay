@@ -16,7 +16,7 @@ class CreateAdminRolesTable extends Migration
         Schema::create('admin_roles', function (Blueprint $table) {
             $table->smallIncrements('id')->comment('角色 ID');
             $table->string('name', 64)->unique()->comment('角色名称');
-            $table->string('description')->comment('备注');
+            $table->string('description')->nullable()->comment('备注');
         });
     }
 
