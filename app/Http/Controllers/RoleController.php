@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AdminRoleHasPermission;
 use App\Models\AdminRoles;
 use Illuminate\Http\Request;
 use DB;
@@ -46,11 +47,13 @@ class RoleController extends Controller
         $id = $request->get('id');
 
         $role = AdminRoles::find($id);
-        $permission = AdminRoles::select(['admin_role_has_permission.permission_id'])->leftJoin('admin_role_has_permission','admin_role_has_permission.role_id','admin_roles.id')->where('admin_roles.id',$id)->get();
+
+        $permission = AdminRoleHasPermission::select(['permission_id'])->where('role_id',$id)->get();
 
         if( !empty($role) ){
             $data = $role->toArray();
-            $data['permission'] = array_values(array_column($permission->toArray(),'permission_id'));
+            $permission = $permission->isEmpty()?[]:array_values(array_column($permission->toArray(),'permission_id'));
+            $data['permission'] = $permission;
 
             return $this->response(1,'success',$data);
         }
