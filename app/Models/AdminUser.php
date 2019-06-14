@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\AdminRoles;
+use App\Models\AdminRole;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -65,5 +65,23 @@ class AdminUser extends Authenticatable
     public function hasPermission($permission)
     {
         return $this->hasRole($permission->roles);
+    }
+
+    // 给用户分配角色
+    public function assignRole($role)
+    {
+        return $this->roles()->save($role);
+    }
+
+
+    // 角色整体添加与修改
+    public function giveRoleTo(array $role_id)
+    {
+        $this->roles()->detach();
+        $roles = AdminRoles::whereIn('id', $role_id)->get();
+        foreach ($roles as $v) {
+            $this->assignRole($v);
+        }
+        return true;
     }
 }

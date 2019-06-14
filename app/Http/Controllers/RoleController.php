@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AdminRoleHasPermission;
 use App\Models\AdminRoles;
 use Illuminate\Http\Request;
 use DB;
@@ -18,7 +19,11 @@ class RoleController extends Controller
         $this->middleware('auth');
     }
 
-    //
+    /**
+     * 获取所有角色
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getIndex(Request $request)
     {
         $roles = AdminRoles::select(['id','name','description'])->get();
@@ -26,6 +31,11 @@ class RoleController extends Controller
         return $this->response(1,'',!$roles->isEmpty()?$roles->toArray():[]);
     }
 
+    /**
+     * 创建角色
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function postCreate(Request $request)
     {
         $role = new AdminRoles();
@@ -41,25 +51,37 @@ class RoleController extends Controller
         }
     }
 
+    /**
+     * 获取单个角色信息
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getEdit(Request $request)
     {
-        $id = $request->get('id');
+        $id = (int)$request->get('id');
 
         $role = AdminRoles::find($id);
-        $permission = AdminRoles::select(['admin_role_has_permission.permission_id'])->leftJoin('admin_role_has_permission','admin_role_has_permission.role_id','admin_roles.id')->where('admin_roles.id',$id)->get();
+
+        $permission = AdminRoleHasPermission::select(['permission_id'])->where('role_id',$id)->get();
 
         if( !empty($role) ){
             $data = $role->toArray();
-            $data['permission'] = array_values(array_column($permission->toArray(),'permission_id'));
+            $permission = $permission->isEmpty()?[]:array_values(array_column($permission->toArray(),'permission_id'));
+            $data['permission'] = $permission;
 
             return $this->response(1,'success',$data);
         }
-        return $this->response(0,'对不起，权限不存在');
+        return $this->response(0,'对不起，角色不存在');
     }
 
-    public function postEdit(Request $request)
+    /**
+     * 编辑角色
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function putEdit(Request $request)
     {
-        $id = $request->get('id');
+        $id = (int)$request->get('id');
         $role = AdminRoles::find( $id );
         if( empty($role) ){
             return $this->response(0,'编辑失败');
@@ -67,17 +89,24 @@ class RoleController extends Controller
             $role->name = $request->get('name');
             $role->description = $request->get('description');
 
-            if( $role->save ){
-                return $this->response(1,'添加成功');
+            if( $role->save() ){
+                $role->permissions()->sync($request->get('routes', []));
+
+                return $this->response(1,'修改成功');
             }else{
-                return $this->response(0,'添加失败');
+                return $this->response(0,'修改失败');
             }
         }
     }
 
+    /**
+     * 删除角色
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function deleteDelete(Request $request)
     {
-        $id = $request->get('id');
+        $id = (int)$request->get('id');
         if( AdminRoles::find( $id )->delete() ){
             return $this->response(1,'删除成功');
         }else{
@@ -87,6 +116,7 @@ class RoleController extends Controller
 
     /**
      * 获取所有权限
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getAllPermission()
     {

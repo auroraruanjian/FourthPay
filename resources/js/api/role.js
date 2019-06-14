@@ -1,10 +1,9 @@
 const fetch = window.axios;
 
-export function getRoles(data) {
+export function getAllRoles() {
     return fetch({
         url: 'role',
         method: 'get',
-        data
     });
 }
 
@@ -21,4 +20,21 @@ export function getAllPermission(){
         url: 'role/allPermission',
         method: 'get'
     })
+}
+
+export function getRole(id) {
+    return fetch({
+        url: 'role/edit',
+        method: 'get',
+        params:{id:id}
+    });
+}
+
+export function editRole( data )
+{
+    return fetch({
+        url: 'role/edit',
+        method: 'put',
+        data
+    });
 }
