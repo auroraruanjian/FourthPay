@@ -54,7 +54,7 @@ class RoleController extends Controller
 
             return $this->response(1,'success',$data);
         }
-        return $this->response(0,'对不起，权限不存在');
+        return $this->response(0,'对不起，角色不存在');
     }
 
     public function postEdit(Request $request)

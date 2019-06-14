@@ -79,7 +79,6 @@ class CreateAdminRolePermissionsTable extends Migration {
                 'rule'        => 'role/edit',
                 'name'        => '编辑角色',
                 'extra'       => json_encode(['hidden' => true]),
-
             ],
             [
                 'parent_id'   => $role_id,

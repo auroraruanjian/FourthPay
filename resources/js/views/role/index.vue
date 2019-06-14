@@ -64,7 +64,7 @@
     import permission from '@/directive/permission/index.js' // 权限判断指令
     import { deepClone } from '@/utils'
     // import { getRoutes, getRoles, addRole, deleteRole, updateRole } from '@/api/role'
-    import { createRole,getRoles,getAllPermission } from '@/api/role'
+    import { createRole,getAllRoles,getAllPermission,getRole } from '@/api/role'
     import { createRouter } from '@/utils/';
     // import { mapGetters } from 'vuex'
 
@@ -115,7 +115,7 @@
             },
             async getRoles() {
                 this.loadding = true;
-                const res = await getRoles()
+                const res = await getAllRoles()
                 this.rolesList = res.data.data
                 this.loadding = false;
             },
@@ -165,7 +165,9 @@
                 this.dialogType = 'new'
                 this.dialogVisible = true
             },
-            handleEdit(scope) {
+            async handleEdit(scope) {
+                let current_role = await getRole(scope.row.id);
+                this.role = current_role.data.data;
                 this.dialogType = 'edit'
                 this.dialogVisible = true
                 this.checkStrictly = true
