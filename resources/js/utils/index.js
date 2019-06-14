@@ -387,10 +387,8 @@ export function createRouter( apiRouters ){
 
             router.alwaysShow  = _childrenRouter.alwaysShow;
 
-            if( router.alwaysShow ){
-                router.component = _import(val.rule);
-            }else{
-                router.component   = Layout;
+            if( typeof val.extra.component != "undefined" && val.extra.component != null ){
+                router.component = val.extra.component=='Layout'?Layout:_import(val.extra.component)
             }
 
             if( typeof val.extra.hidden == 'undefined' || val.extra.hidden == null){

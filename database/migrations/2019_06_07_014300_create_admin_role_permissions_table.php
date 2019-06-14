@@ -28,7 +28,7 @@ class CreateAdminRolePermissionsTable extends Migration {
             'parent_id'   => 0,
             'rule'        => 'permission',
             'name'        => '后台权限管理',
-            'extra'       => json_encode(['icon' => 'lock']),
+            'extra'       => json_encode(['icon' => 'lock','component'=>'Layout']),
         ]);
 
 
@@ -36,7 +36,7 @@ class CreateAdminRolePermissionsTable extends Migration {
             'parent_id'   => $id,
             'rule'        => 'permission/index',
             'name'        => '权限管理',
-            'extra'       => json_encode(['icon' => 'tree-table'])
+            'extra'       => json_encode(['icon' => 'tree-table','component'=>'permission/index'])
         ]);
 
         DB::table('admin_role_permissions')->insert([
@@ -65,7 +65,7 @@ class CreateAdminRolePermissionsTable extends Migration {
             'parent_id'   => $id,
             'rule'        => 'role/index',
             'name'        => '角色管理',
-            'extra'       => json_encode(['icon' => 'peoples']),
+            'extra'       => json_encode(['icon' => 'peoples','component'=>'role/index']),
         ]);
         DB::table('admin_role_permissions')->insert([
             [
@@ -93,7 +93,7 @@ class CreateAdminRolePermissionsTable extends Migration {
             'parent_id'   => $id,
             'rule'        => 'admin/index',
             'name'        => '管理员管理',
-            'extra'       => json_encode(['icon' => 'user']),
+            'extra'       => json_encode(['icon' => 'user','component'=>'admin/index']),
         ]);
         DB::table('admin_role_permissions')->insert([
             [
