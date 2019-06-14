@@ -107,6 +107,8 @@
         methods: {
             async getRoutes() {
                 this.routes = this.generateRoutes(this.permission_asyncRoutes);
+
+                console.log( this.routes);
             },
             async getRoles() {
                 this.loadding = true;
@@ -121,12 +123,6 @@
                 for (let route of routes) {
                     // skip some route
                     if (route.hidden) { continue }
-
-                    const onlyOneShowingChild = this.onlyOneShowingChild(route.children, route)
-
-                    if (route.children && onlyOneShowingChild && !route.alwaysShow) {
-                        route = onlyOneShowingChild
-                    }
 
                     const data = {
                         path: path.resolve(basePath, route.path),
@@ -170,13 +166,6 @@
                 this.dialogType = 'edit'
                 this.dialogVisible = true
                 this.checkStrictly = true
-                // this.role = deepClone(scope.row)
-                // this.$nextTick(() => {
-                //     const routes = this.generateRoutes(this.role.routes)
-                //     this.$refs.tree.setCheckedNodes(this.generateArr(routes))
-                //     // set checked state of a node not affects its father and child nodes
-                //     this.checkStrictly = false
-                // })
             },
             handleDelete({ $index, row }) {
                 this.$confirm('Confirm to remove the role?', 'Warning', {
@@ -237,46 +226,14 @@
 
                 this.dialogVisible = false
 
+                this.getRoles();
+
                 this.$notify({
                     title: type=='success'?'Success':'Error',
                     dangerouslyUseHTMLString: true,
                     message: message,
                     type: type
                 })
-
-                /*
-                const isEdit = this.dialogType === 'edit'
-
-                const checkedKeys = this.$refs.tree.getCheckedKeys()
-                this.role.routes = this.generateTree(deepClone(this.serviceRoutes), '/', checkedKeys)
-
-                if (isEdit) {
-                    await updateRole(this.role.key, this.role)
-                    for (let index = 0; index < this.rolesList.length; index++) {
-                        if (this.rolesList[index].key === this.role.key) {
-                            this.rolesList.splice(index, 1, Object.assign({}, this.role))
-                            break
-                        }
-                    }
-                } else {
-                    // const { data } = await addRole(this.role)
-                    // this.role.key = data.key
-                    // this.rolesList.push(this.role)
-                }
-
-                // const { description, key, name } = this.role
-                this.dialogVisible = false
-                this.$notify({
-                    title: 'Success',
-                    dangerouslyUseHTMLString: true,
-                    message: `
-            <div>Role Key: ${key}</div>
-            <div>Role Nmae: ${name}</div>
-            <div>Description: ${description}</div>
-          `,
-                    type: 'success'
-                })
-                */
             },
             // reference: src/view/layout/components/Sidebar/SidebarItem.vue
             onlyOneShowingChild(children = [], parent) {
