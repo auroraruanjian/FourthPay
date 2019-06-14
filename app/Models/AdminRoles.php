@@ -29,4 +29,10 @@ class AdminRoles extends Model
             'user_id'
         );
     }
+
+    // 给角色添加权限
+    public function givePermissionTo($permission)
+    {
+        return $this->permissions()->save($permission);
+    }
 }

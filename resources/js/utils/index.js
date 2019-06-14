@@ -373,6 +373,7 @@ export function createRouter( apiRouters ){
             //alwaysShow: true, // will always show the root menu
             name: name,
             meta: {
+                id:val.id,
                 title: val.name,
                 icon: val.extra.icon || '',
             },

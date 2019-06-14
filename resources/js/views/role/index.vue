@@ -46,7 +46,7 @@
                             :data="routesData"
                             :props="defaultProps"
                             show-checkbox
-                            node-key="path"
+                            node-key="id"
                             class="permission-tree"
                     />
                 </el-form-item>
@@ -64,8 +64,9 @@
     import permission from '@/directive/permission/index.js' // 权限判断指令
     import { deepClone } from '@/utils'
     // import { getRoutes, getRoles, addRole, deleteRole, updateRole } from '@/api/role'
-    import { createRole,getRoles } from '@/api/role'
-    import { mapGetters } from 'vuex'
+    import { createRole,getRoles,getAllPermission } from '@/api/role'
+    import { createRouter } from '@/utils/';
+    // import { mapGetters } from 'vuex'
 
     const defaultRole = {
         key: '',
@@ -95,9 +96,9 @@
             routesData() {
                 return this.routes
             },
-            ...mapGetters([
-                'permission_asyncRoutes',
-            ]),
+            // ...mapGetters([
+            //     'permission_asyncRoutes',
+            // ]),
         },
         created() {
             // Mock: get all routes and roles list from server
@@ -106,9 +107,11 @@
         },
         methods: {
             async getRoutes() {
-                this.routes = this.generateRoutes(this.permission_asyncRoutes);
+                let allPermission = await getAllPermission();
 
-                console.log( this.routes);
+                let formatRouter = createRouter(allPermission.data.data);
+
+                this.routes = this.generateRoutes(formatRouter.asyncRouter);
             },
             async getRoles() {
                 this.loadding = true;
@@ -125,9 +128,9 @@
                     if (route.hidden) { continue }
 
                     const data = {
+                        id:route.meta.id,
                         path: path.resolve(basePath, route.path),
                         title: route.meta && route.meta.title
-
                     }
 
                     // recursive child routes
@@ -207,6 +210,8 @@
 
                 let type = 'error';
                 let message = '';
+
+                this.role.routes = this.$refs.tree.getCheckedKeys()
 
                 if (isEdit) {
 

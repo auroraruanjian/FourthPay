@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AdminRoles;
 use Illuminate\Http\Request;
+use DB;
 
 class RoleController extends Controller
 {
@@ -32,10 +33,28 @@ class RoleController extends Controller
         $role->description = $request->get('description');
 
         if( $role->save() ){
+            $role->permissions()->sync($request->get('routes', []));
+
             return $this->response(1,'添加成功');
         }else{
             return $this->response(0,'添加失败');
         }
+    }
+
+    public function getEdit(Request $request)
+    {
+        $id = $request->get('id');
+
+        $role = AdminRoles::find($id);
+        $permission = AdminRoles::select(['admin_role_has_permission.permission_id'])->leftJoin('admin_role_has_permission','admin_role_has_permission.role_id','admin_roles.id')->where('admin_roles.id',$id)->get();
+
+        if( !empty($role) ){
+            $data = $role->toArray();
+            $data['permission'] = array_values(array_column($permission->toArray(),'permission_id'));
+
+            return $this->response(1,'success',$data);
+        }
+        return $this->response(0,'对不起，权限不存在');
     }
 
     public function postEdit(Request $request)
@@ -64,5 +83,17 @@ class RoleController extends Controller
         }else{
             return $this->response(0,'删除失败');
         }
+    }
+
+    /**
+     * 获取所有权限
+     */
+    public function getAllPermission()
+    {
+        $user_permission = DB::table('admin_role_permissions as aup')
+            ->orderBy('aup.id')
+            ->get();
+
+        return $this->response(1,'success',createPermission($user_permission));
     }
 }

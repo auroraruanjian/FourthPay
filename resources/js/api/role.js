@@ -15,3 +15,10 @@ export function createRole(data) {
         data
     });
 }
+
+export function getAllPermission(){
+    return fetch({
+        url: 'role/allPermission',
+        method: 'get'
+    })
+}
