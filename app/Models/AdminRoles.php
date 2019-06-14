@@ -9,6 +9,8 @@ class AdminRoles extends Model
     //
     protected $table='admin_roles';
 
+    public $timestamps = false;
+
     public function permissions()
     {
         return $this->belongsToMany(

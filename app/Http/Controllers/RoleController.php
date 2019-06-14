@@ -22,7 +22,7 @@ class RoleController extends Controller
     {
         $roles = AdminRoles::select(['id','name','description'])->get();
 
-        return response()->json($roles);
+        return $this->response(1,'',!$roles->isEmpty()?$roles->toArray():[]);
     }
 
     public function postCreate(Request $request)
@@ -31,7 +31,7 @@ class RoleController extends Controller
         $role->name = $request->get('name');
         $role->description = $request->get('description');
 
-        if( $role->save ){
+        if( $role->save() ){
             return $this->response(1,'添加成功');
         }else{
             return $this->response(0,'添加失败');

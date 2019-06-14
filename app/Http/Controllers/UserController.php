@@ -42,21 +42,7 @@ class UserController extends Controller
 
         $permission = [];
         if( !$user_permission->isEmpty() ){
-            foreach( $user_permission as $key => $_permission ){
-                $_permission = (array)$_permission;
-                $_permission['extra'] = json_decode($_permission['extra'],true);
-
-                if( $_permission['parent_id'] == 0 ) {
-                    $child = [];
-                    if( !empty($permission[$_permission['id']]) ){
-                        $child = $permission[$_permission['id']]['child'];
-                    }
-                    $permission[$_permission['id']]            = $_permission;
-                    $permission[$_permission['id']]['child'] = $child;
-                }else{
-                    $permission[$_permission['parent_id']]['child'][] = $_permission;
-                }
-            }
+            $permission = $this->createPermission($user_permission);
         }
 
         return [
@@ -67,5 +53,23 @@ class UserController extends Controller
                 'permission'=> $permission,
             ]
         ];
+    }
+
+    private function createPermission( $data , $pid = 0 )
+    {
+        $list = [];
+
+        foreach( $data as $key => $_value ){
+            $_value = (array)$_value;
+            $_value['extra'] = json_decode($_value['extra'],true);
+
+            if( $_value['parent_id'] == $pid ) {
+                $_value['child'] = $this->createPermission($data,$_value['id']);
+                $list[] = $_value;
+                unset($data[$key]);
+            }
+        }
+
+        return $list;
     }
 }

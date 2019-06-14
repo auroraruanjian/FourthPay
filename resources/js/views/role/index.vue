@@ -1,11 +1,11 @@
 <template>
-    <div class="app-container">
+    <div class="app-container" v-loading="loadding">
         <el-button type="primary" @click="handleAddRole" v-permission="'role/create'">New Role</el-button>
 
         <el-table :data="rolesList" style="width: 100%;margin-top:30px;" border>
             <el-table-column align="center" label="Role Key" width="220">
                 <template slot-scope="scope">
-                    {{ scope.row.key }}
+                    {{ scope.row.id }}
                 </template>
             </el-table-column>
             <el-table-column align="center" label="Role Name" width="220">
@@ -64,7 +64,8 @@
     import permission from '@/directive/permission/index.js' // 权限判断指令
     import { deepClone } from '@/utils'
     // import { getRoutes, getRoles, addRole, deleteRole, updateRole } from '@/api/role'
-    import { createRole } from '@/api/role'
+    import { createRole,getRoles } from '@/api/role'
+    import { mapGetters } from 'vuex'
 
     const defaultRole = {
         key: '',
@@ -85,14 +86,18 @@
                 defaultProps: {
                     children: 'children',
                     label: 'title'
-                }
+                },
+                loadding:false,
             }
         },
         directives: { permission },
         computed: {
             routesData() {
                 return this.routes
-            }
+            },
+            ...mapGetters([
+                'permission_asyncRoutes',
+            ]),
         },
         created() {
             // Mock: get all routes and roles list from server
@@ -101,15 +106,14 @@
         },
         methods: {
             async getRoutes() {
-                // const res = await getRoutes()
-                // this.serviceRoutes = res.data
-                // this.routes = this.generateRoutes(res.data)
+                this.routes = this.generateRoutes(this.permission_asyncRoutes);
             },
             async getRoles() {
-                // const res = await getRoles()
-                // this.rolesList = res.data
+                this.loadding = true;
+                const res = await getRoles()
+                this.rolesList = res.data.data
+                this.loadding = false;
             },
-
             // Reshape the routes structure so that it looks the same as the sidebar
             generateRoutes(routes, basePath = '/') {
                 const res = []
@@ -138,7 +142,9 @@
                 }
                 return res
             },
-            generateArr(routes) {
+            /*
+            generateArr
+            (routes) {
                 let data = []
                 routes.forEach(route => {
                     data.push(route)
@@ -151,6 +157,7 @@
                 })
                 return data
             },
+            */
             handleAddRole() {
                 this.role = Object.assign({}, defaultRole)
                 if (this.$refs.tree) {
@@ -187,6 +194,7 @@
                     })
                     .catch(err => { console.error(err) })
             },
+            /*
             generateTree(routes, basePath = '/', checkedKeys) {
                 const res = []
 
@@ -204,19 +212,38 @@
                 }
                 return res
             },
+            */
             async confirmRole() {
                 const isEdit = this.dialogType === 'edit'
+
+                let type = 'error';
+                let message = '';
 
                 if (isEdit) {
 
                 }else{
-                    console.log(this.role);
-                    createRole(this.role).then(response => {
-                        console.log(response);
-                    }).catch(error => {
+                    let response = await createRole(this.role);
 
-                    })
+                    if( response.data.code == 1 ){
+                        type = 'success';
+                        message = `
+                            <div>Role Nmae: ${this.role.name}</div>
+                            <div>Description: ${this.role.description}</div>
+                          `;
+                    }else{
+                        message = response.data.msg;
+                    }
                 }
+
+                this.dialogVisible = false
+
+                this.$notify({
+                    title: type=='success'?'Success':'Error',
+                    dangerouslyUseHTMLString: true,
+                    message: message,
+                    type: type
+                })
+
                 /*
                 const isEdit = this.dialogType === 'edit'
 

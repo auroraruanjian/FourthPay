@@ -3,7 +3,6 @@ import store from '@/store'
 export default {
     inserted(el, binding, vnode) {
         const { value } = binding
-        console.log(binding,vnode);
 
         if(typeof value == 'string' &&  value.length > 0){
 

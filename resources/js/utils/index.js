@@ -355,6 +355,7 @@ export function removeClass(ele, cls) {
 export function createRouter( apiRouters ){
     let asyncRouter = [];
     let user_permission  = [];
+    let alwaysShow = false;
 
     for(let i in apiRouters){
         let val = apiRouters[i];
@@ -382,9 +383,19 @@ export function createRouter( apiRouters ){
         if( typeof val.child == "object" && val.child.length>0){
             let _childrenRouter = createRouter(val.child);
             router.children    = _childrenRouter.asyncRouter;
-            router.redirect    = '/'+val.child[0].rule;
-            router.component   = Layout;
-            router.alwaysShow  = true;
+            // router.redirect    = '/'+val.rule;
+
+            router.alwaysShow  = _childrenRouter.alwaysShow;
+
+            if( router.alwaysShow ){
+                router.component = _import(val.rule);
+            }else{
+                router.component   = Layout;
+            }
+
+            if( typeof val.extra.hidden == 'undefined' || val.extra.hidden == null){
+                alwaysShow  = true;
+            }
 
             user_permission = user_permission.concat(_childrenRouter.user_permission);
         }else{
@@ -393,7 +404,9 @@ export function createRouter( apiRouters ){
                     router.hidden = true;
                 }else{
                     router.component = _import(val.rule);
+                    alwaysShow  = true;
                 }
+
             }catch(e){
                 console.log(e);
             }
@@ -402,7 +415,7 @@ export function createRouter( apiRouters ){
         asyncRouter.push(router);
     }
 
-    return {asyncRouter,user_permission};
+    return {asyncRouter,user_permission,alwaysShow};
 }
 
 
