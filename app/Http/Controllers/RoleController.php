@@ -19,7 +19,11 @@ class RoleController extends Controller
         $this->middleware('auth');
     }
 
-    //
+    /**
+     * 获取所有角色
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getIndex(Request $request)
     {
         $roles = AdminRoles::select(['id','name','description'])->get();
@@ -27,6 +31,11 @@ class RoleController extends Controller
         return $this->response(1,'',!$roles->isEmpty()?$roles->toArray():[]);
     }
 
+    /**
+     * 创建角色
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function postCreate(Request $request)
     {
         $role = new AdminRoles();
@@ -42,9 +51,14 @@ class RoleController extends Controller
         }
     }
 
+    /**
+     * 获取单个角色信息
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getEdit(Request $request)
     {
-        $id = $request->get('id');
+        $id = (int)$request->get('id');
 
         $role = AdminRoles::find($id);
 
@@ -60,9 +74,14 @@ class RoleController extends Controller
         return $this->response(0,'对不起，角色不存在');
     }
 
-    public function postEdit(Request $request)
+    /**
+     * 编辑角色
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function putEdit(Request $request)
     {
-        $id = $request->get('id');
+        $id = (int)$request->get('id');
         $role = AdminRoles::find( $id );
         if( empty($role) ){
             return $this->response(0,'编辑失败');
@@ -80,9 +99,14 @@ class RoleController extends Controller
         }
     }
 
+    /**
+     * 删除角色
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function deleteDelete(Request $request)
     {
-        $id = $request->get('id');
+        $id = (int)$request->get('id');
         if( AdminRoles::find( $id )->delete() ){
             return $this->response(1,'删除成功');
         }else{
@@ -92,6 +116,7 @@ class RoleController extends Controller
 
     /**
      * 获取所有权限
+     * @return \Illuminate\Http\JsonResponse
      */
     public function getAllPermission()
     {

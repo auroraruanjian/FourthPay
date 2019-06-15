@@ -34,7 +34,7 @@ export function editRole( data )
 {
     return fetch({
         url: 'role/edit',
-        method: 'post',
+        method: 'put',
         data
     });
 }
