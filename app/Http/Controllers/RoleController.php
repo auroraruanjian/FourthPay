@@ -70,10 +70,12 @@ class RoleController extends Controller
             $role->name = $request->get('name');
             $role->description = $request->get('description');
 
-            if( $role->save ){
-                return $this->response(1,'添加成功');
+            if( $role->save() ){
+                $role->permissions()->sync($request->get('routes', []));
+
+                return $this->response(1,'修改成功');
             }else{
-                return $this->response(0,'添加失败');
+                return $this->response(0,'修改失败');
             }
         }
     }

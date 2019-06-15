@@ -29,3 +29,12 @@ export function getRole(id) {
         params:{id:id}
     });
 }
+
+export function editRole( data )
+{
+    return fetch({
+        url: 'role/edit',
+        method: 'post',
+        data
+    });
+}
