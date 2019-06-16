@@ -1,4 +1,4 @@
-import * as bootstrap from './bootstrap'; // 为了保证顺序执行，bootstrap 和 config 必须使用 import from 语法
+// import * as bootstrap from './bootstrap'; // 为了保证顺序执行，bootstrap 和 config 必须使用 import from 语法
 
 import Vue from 'vue'
 
@@ -47,6 +47,7 @@ Vue.use(VueCookie);
  * the page. Then, you may begin adding components to this application
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
+
 
 
 new Vue({

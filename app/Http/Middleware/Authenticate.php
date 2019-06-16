@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Auth\Middleware\Authenticate as Middleware;
 use Illuminate\Support\Facades\Gate;
 
@@ -33,7 +34,18 @@ class Authenticate extends Middleware
      */
     public function handle($request, Closure $next, ...$guards)
     {
-        $this->authenticate($request, $guards);
+        try{
+            $this->authenticate($request, $guards);
+        }catch( AuthenticationException $e ){
+            if( $request->ajax() ){
+                return response()->json([
+                    'code'  => -401,
+                    'msg'   => __('auth.login.false'),
+                ])->setStatusCode(401);
+            }else{
+                abort(401,__('auth.login.false'));
+            }
+        }
 
         $rule = $request->path();
 

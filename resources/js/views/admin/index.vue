@@ -79,12 +79,14 @@
         },
         methods: {
             async getAdminUsers(){
+                this.loadding =  true;
                 let result = await getAllAdmins();
                 if( result.data.code == 1 ){
                     this.adminList = result.data.data;
                 }else{
                     this.$message.error(result.data.message);
                 }
+                this.loadding =  false;
             },
             async getRoles() {
                 let result = await getAllRoles()
@@ -150,7 +152,7 @@
 
                 this.dialogVisible = false
 
-                this.getRoles();
+                this.getAdminUsers();
 
                 this.$notify({
                     title: response.data.msg,

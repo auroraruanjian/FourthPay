@@ -104,9 +104,9 @@ router.beforeEach(async (to, from, next) => {
                     next({...to, replace: true})
                     //next();
                 }catch (e) {
-                    window.localStorage.removeItem('token');
-
-                    next({path:'/login'});
+                    store.dispatch('user/resetToken').then(()=>{
+                        next({path:'/login'});
+                    })
                 }
             }
 

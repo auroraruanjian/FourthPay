@@ -1,4 +1,4 @@
-const fetch = window.axios;
+import fetch from '@/utils/fetch'
 
 export function login(data) {
     return fetch({

@@ -1,3 +1,12 @@
+/**
+ * 此文件已废弃
+ *
+ */
+
+import { Message } from 'element-ui'
+// import store from '@/store'
+
+
 // window._ = require('lodash');
 //
 // /**
@@ -51,13 +60,24 @@ window.axios.interceptors.response.use(
         return response;
     },
     error => {
-        if( error.response ){
-            if( error.response.status == 419 ){
-                location.reload();
+        /*
+        if( error.response ) {
+            if( error.response.status == 419 || error.response.status == 401) {
+                Message({
+                    message: error.response.data.msg || 'Error',
+                    type: 'error',
+                    duration: 5 * 1000
+                });
+                store.dispatch('user/resetToken').then(() => {
+                    //location.reload()
+                    //router.push({path:'login'});
+                })
             }
+            return Promise.reject(new Error(res.message || 'Error'))
+        } else {
+            return res
         }
-
-        return Promise.reject(error);
+        */
     }
 );
 

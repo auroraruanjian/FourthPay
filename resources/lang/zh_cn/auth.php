@@ -10,4 +10,7 @@ return [
     'permissions'   => [
             'false'     => '对不起，您没有权限！',
         ],
+    'login'         => [
+            'false' => '对不起，您还未登陆！',
+    ]
 ];

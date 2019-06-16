@@ -11,9 +11,13 @@ const user = {
     mutations: {
         SET_TOKEN : (state , token) => {
             state.token = token;
-            window.localStorage.setItem('token', JSON.stringify({
-                token: token,
-            }));
+            if(typeof token == 'undefined' || token == null || token == '' ){
+                window.localStorage.removeItem('token');
+            }else{
+                window.localStorage.setItem('token', JSON.stringify({
+                    token: token,
+                }));
+            }
         },
         SET_USERINFO : ( state , data ) => {
             state.username = data.username;
@@ -37,8 +41,7 @@ const user = {
         logout({ commit }) {
             return new Promise((resolve, reject) => {
                 logout().then( (response) => {
-                    commit('SET_TOKEN', '');
-                    window.localStorage.removeItem('token');
+                    this.dispatch('user/resetToken');
                     resolve(response)
                 }).catch(error => {
                     reject(error)
@@ -56,6 +59,12 @@ const user = {
                 }).catch(error => {
                     reject(error)
                 })
+            })
+        },
+        resetToken({commit}){
+            return new Promise(resolve => {
+                commit('SET_TOKEN', '');
+                resolve()
             })
         }
     }
