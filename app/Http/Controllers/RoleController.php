@@ -28,7 +28,16 @@ class RoleController extends Controller
     {
         $roles = AdminRoles::select(['id','name','description'])->get();
 
-        return $this->response(1,'',!$roles->isEmpty()?$roles->toArray():[]);
+        $user_permission = DB::table('admin_role_permissions as aup')
+            ->orderBy('aup.id')
+            ->get();
+
+        $data = [
+            'roles'         => !$roles->isEmpty()?$roles->toArray():[],
+            'permission'    => createPermission($user_permission),
+        ];
+
+        return $this->response(1,'success',$data);
     }
 
     /**
@@ -112,18 +121,5 @@ class RoleController extends Controller
         }else{
             return $this->response(0,'删除失败');
         }
-    }
-
-    /**
-     * 获取所有权限
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function getAllPermission()
-    {
-        $user_permission = DB::table('admin_role_permissions as aup')
-            ->orderBy('aup.id')
-            ->get();
-
-        return $this->response(1,'success',createPermission($user_permission));
     }
 }

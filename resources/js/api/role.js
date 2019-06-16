@@ -15,13 +15,6 @@ export function createRole(data) {
     });
 }
 
-export function getAllPermission(){
-    return fetch({
-        url: 'role/allPermission',
-        method: 'get'
-    })
-}
-
 export function getRole(id) {
     return fetch({
         url: 'role/edit',

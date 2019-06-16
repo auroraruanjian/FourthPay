@@ -20,8 +20,8 @@
             </el-table-column>
             <el-table-column align="center" label="Operations">
                 <template slot-scope="scope">
-                    <el-button type="primary" size="small" @click="handleEdit(scope)">Edit</el-button>
-                    <el-button type="danger" size="small" @click="handleDelete(scope)">Delete</el-button>
+                    <el-button type="primary" size="small" @click="handleEdit(scope)" v-permission="'role/edit'">Edit</el-button>
+                    <el-button type="danger" size="small" @click="handleDelete(scope)" v-permission="'role/delete'">Delete</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -64,7 +64,7 @@
     import permission from '@/directive/permission/index.js' // 权限判断指令
     // import { deepClone } from '@/utils'
     // import { getRoutes, getRoles, addRole, deleteRole, updateRole } from '@/api/role'
-    import { createRole,getAllRoles,getAllPermission,getRole,editRole } from '@/api/role'
+    import { createRole,getAllRoles,getRole,editRole } from '@/api/role'
     import { createRouter } from '@/utils/';
     // import { mapGetters } from 'vuex'
 
@@ -102,22 +102,19 @@
             // ]),
         },
         created() {
-            // Mock: get all routes and roles list from server
-            this.getRoutes()
             this.getRoles()
         },
         methods: {
-            async getRoutes() {
-                let allPermission = await getAllPermission();
-
-                let formatRouter = createRouter(allPermission.data.data);
-
-                this.routes = this.generateRoutes(formatRouter.asyncRouter);
-            },
             async getRoles() {
                 this.loadding = true;
                 const res = await getAllRoles()
-                this.rolesList = res.data.data
+                if( res.data.code == 1 ){
+                    this.rolesList = res.data.data.roles;
+                    let formatRouter = createRouter(res.data.data.permission);
+                    this.routes = this.generateRoutes(formatRouter.asyncRouter);
+                }else{
+                    this.$message.error(res.data.msg);
+                }
                 this.loadding = false;
             },
             // Reshape the routes structure so that it looks the same as the sidebar
