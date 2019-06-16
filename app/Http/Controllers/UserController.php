@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AdminRolePermissions;
 use Illuminate\Http\Request;
 use DB;
 
@@ -21,28 +22,20 @@ class UserController extends Controller
     {
 
         if (auth()->id() == 1) {
-            $user_permission = DB::table('admin_role_permissions as aup')
-                //->where('aup.rule', 'LIKE', '%index')
-                //->orWhere('aup.parent_id', '=', 0)
-                ->orderBy('aup.id')
-                ->get();
+            $user_permission = AdminRolePermissions::orderBy('admin_role_permissions.id','asc')->get();
         }else{
-            $user_permission = DB::table('admin_users as au')
-                ->join('admin_user_has_roles as aur', 'au.id', '=', 'aur.user_id')
-                ->join('admin_role_has_permission as aupr', 'aur.role_id', '=', 'aupr.role_id')
-                ->join('admin_role_permissions as aup', 'aupr.permission_id', '=', 'aup.id')
-                ->where('au.id', '=', auth()->id())
-                // ->where(function ($query) {
-                //     $query->where('aup.rule', 'LIKE', '%index')
-                //         ->orWhere('aup.parent_id', '=', 0);
-                // })
-                ->orderBy('aup.id')
+            $user_permission = AdminRolePermissions::select(['admin_role_permissions.*'])->distinct()
+                ->leftJoin('admin_role_has_permission as arhp','arhp.permission_id','admin_role_permissions.id')
+                ->leftJoin('admin_user_has_roles as auhr','auhr.role_id','arhp.role_id')
+                ->leftJoin('admin_users as au','au.id','auhr.user_id')
+                ->where('au.id',auth()->id())
+                ->orderBy('admin_role_permissions.id','asc')
                 ->get();
         }
 
         $permission = [];
         if( !$user_permission->isEmpty() ){
-            $permission = createPermission($user_permission);
+            $permission = createPermission($user_permission->toArray());
         }
 
         return [

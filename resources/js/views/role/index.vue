@@ -69,6 +69,7 @@
     // import { mapGetters } from 'vuex'
 
     const defaultRole = {
+        id:'',
         key: '',
         name: '',
         description: '',
@@ -83,7 +84,7 @@
                 rolesList: [],
                 dialogVisible: false,
                 dialogType: 'new',
-                checkStrictly: false,
+                checkStrictly: true,
                 defaultProps: {
                     children: 'children',
                     label: 'title'
@@ -125,7 +126,7 @@
 
                 for (let route of routes) {
                     // skip some route
-                    if (route.hidden) { continue }
+                    //if (route.hidden) { continue }
 
                     const data = {
                         id:route.meta.id,
@@ -167,14 +168,18 @@
             },
             async handleEdit(scope) {
                 let current_role = await getRole(scope.row.id);
-                this.role = current_role.data.data;
+                this.role = {
+                    id:current_role.data.data.id,
+                    key: current_role.data.data.key,
+                    name: current_role.data.data.name,
+                    description: current_role.data.data.description,
+                    routes: current_role.data.data.routes
+                };
                 this.dialogType = 'edit'
                 this.dialogVisible = true
 
                 this.$nextTick(() => {
                     this.$refs.tree.setCheckedKeys(current_role.data.data.permission)
-                    // set checked state of a node not affects its father and child nodes
-                    this.checkStrictly = false
                 })
             },
             handleDelete({ $index, row }) {

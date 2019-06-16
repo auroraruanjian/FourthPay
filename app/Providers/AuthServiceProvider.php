@@ -26,8 +26,9 @@ class AuthServiceProvider extends ServiceProvider
     {
 
         Gate::before(function ($user, $ability){
+
             if ($user->id == 1 ) {
-                //return true;
+                return true;
             }
 
             $permission = AdminRolePermissions::where('rule', '=', $ability)->first();

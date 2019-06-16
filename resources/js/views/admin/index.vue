@@ -6,7 +6,12 @@
             <el-table-column align="center" label="Role Key" prop="id"></el-table-column>
             <el-table-column align="center" label="用户名" prop="username"></el-table-column>
             <el-table-column align="header-center" label="昵称" prop="nickname"></el-table-column>
-            <el-table-column align="header-center" label="是否锁定" prop="is_locked"></el-table-column>
+            <el-table-column align="header-center" label="是否锁定" >
+                <template slot-scope="scope">
+                    <el-tag type="success" v-if="!scope.row.is_locked">正常</el-tag>
+                    <el-tag type="danger" v-else>锁定</el-tag>
+                </template>
+            </el-table-column>
             <el-table-column align="header-center" label="上次登录IP" prop="last_ip"></el-table-column>
             <el-table-column align="header-center" label="上次登录时间" prop="last_time"></el-table-column>
             <el-table-column align="center" label="Operations">
