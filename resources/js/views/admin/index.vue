@@ -22,6 +22,8 @@
             </el-table-column>
         </el-table>
 
+        <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getAdminUsers" />
+
         <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'Edit Admin':'New Admin'">
             <el-form :model="admin" label-width="80px" label-position="left">
                 <el-form-item label="用户名">
@@ -54,6 +56,7 @@
     import permission from '@/directive/permission/index.js' // 权限判断指令
     import { getAllAdmins,addAdmin,editAdmin,getAdminUser,deleteAdmin } from '@/api/admin'
     import { getAllRoles } from '@/api/role'
+    import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 
     const defaultAdmin = {
         id : '',
@@ -73,8 +76,14 @@
                 dialogVisible: false,
                 dialogType: 'new',
                 loadding:false,
+                total: 100,
+                listQuery: {
+                    page: 1,
+                    limit: 20
+                }
             };
         },
+        components: { Pagination },
         computed: {
         },
         directives: { permission },
