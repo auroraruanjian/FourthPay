@@ -50,7 +50,6 @@ export default {
   },
   watch: {
     $route() {
-      console.log('tagview');
       this.addTags()
       this.moveToCurrentTag()
     },

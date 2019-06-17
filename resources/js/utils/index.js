@@ -402,7 +402,7 @@ export function createRouter( apiRouters ){
                 if( typeof val.extra.hidden != 'undefined' && val.extra.hidden && val.extra.hidden){
                     router.hidden = true;
                 }else{
-                    router.component = _import(val.rule);
+                    router.component = val.extra.component=='Layout'?Layout:_import(val.extra.component)
                     alwaysShow  = true;
                 }
 

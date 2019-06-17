@@ -22,7 +22,7 @@ const actions = {
     generateRoutes({ commit }, apiRouters) {
         return new Promise(resolve => {
             let routers = createRouter(apiRouters);
-            //console.log(routers.asyncRouter,routers.user_permission);
+            // console.log(routers.asyncRouter,routers.user_permission);
             commit('SET_ROUTES', routers.asyncRouter);
             commit('SET_PERMISSION', routers.user_permission);
             resolve(routers.asyncRouter)

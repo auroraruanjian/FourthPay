@@ -95,7 +95,7 @@ router.beforeEach(async (to, from, next) => {
             }else{
                 try {
                     let { permission } = await store.dispatch('user/getUserInfo')
-console.log(permission);
+
                     // 动态注册路由
                     const accessRoutes = await store.dispatch('permission/generateRoutes', permission)
 
@@ -104,6 +104,7 @@ console.log(permission);
                     next({...to, replace: true})
                     //next();
                 }catch (e) {
+                    console.log(e);
                     store.dispatch('user/resetToken').then(()=>{
                         next({path:'/login'});
                     })
