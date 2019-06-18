@@ -4,8 +4,55 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "605a0fb20e3d417c43bc10f0cd527587",
+    "content-hash": "220aab680c33607cf44f3a6da9382800",
     "packages": [
+        {
+            "name": "apanly/browser-detector",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/apanly/browser-detector.git",
+                "reference": "220cb27842072100abbe15a838775cb61147c33b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/apanly/browser-detector/zipball/220cb27842072100abbe15a838775cb61147c33b",
+                "reference": "220cb27842072100abbe15a838775cb61147c33b",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^5.3.3 || ^7.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "apanly\\BrowserDetector\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "apanly",
+                    "email": "apanly@163.com"
+                }
+            ],
+            "description": "根据UA判断浏览器类型和版本，操作系统，设备型号 ",
+            "homepage": "http://www.54php.cn",
+            "keywords": [
+                "browser",
+                "detection",
+                "language",
+                "operating system",
+                "os",
+                "操作系统",
+                "浏览器",
+                "设备型号"
+            ],
+            "time": "2019-04-17T07:20:36+00:00"
+        },
         {
             "name": "dnoegel/php-xdg-base-dir",
             "version": "0.1",
@@ -370,6 +417,58 @@
                 "trusted proxy"
             ],
             "time": "2019-01-10T14:06:47+00:00"
+        },
+        {
+            "name": "itbdw/ip-database",
+            "version": "v2.0.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/itbdw/ip-database.git",
+                "reference": "1b074df1e8092eb0a19abef288b8a47abdba0ae3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/itbdw/ip-database/zipball/1b074df1e8092eb0a19abef288b8a47abdba0ae3",
+                "reference": "1b074df1e8092eb0a19abef288b8a47abdba0ae3",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "itbdw\\Ip\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "itbdw",
+                    "email": "itbudaoweng@gmail.com",
+                    "homepage": "http://github.com/itbdw",
+                    "role": "Developer"
+                },
+                {
+                    "name": "马秉尧"
+                }
+            ],
+            "description": "IP位置数据库（解析为国家、省、市、县、运营商）",
+            "keywords": [
+                "China",
+                "Chinese",
+                "IP",
+                "database",
+                "location",
+                "位置",
+                "地区",
+                "数据库",
+                "纯真"
+            ],
+            "time": "2018-03-25T06:41:36+00:00"
         },
         {
             "name": "jakub-onderka/php-console-color",
@@ -4816,7 +4915,9 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "apanly/browser-detector": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
