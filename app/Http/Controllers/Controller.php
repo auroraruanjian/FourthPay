@@ -11,6 +11,12 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
+    /**
+     * @param int    $code      0:失败   1:成功  <-1:异常编码
+     * @param string $msg       提示消息
+     * @param array  $data      响应数据
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function response(int $code ,string $msg = '',array $data = [] )
     {
         return response()->json([

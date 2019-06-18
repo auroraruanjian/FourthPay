@@ -44,27 +44,27 @@ class CreateAdminLoginLogTable extends Migration
 
         $loginlog_id = DB::table('admin_role_permissions')->insertGetId([
             'parent_id'   => $id,
-            'rule'        => 'loginlog/index',
+            'rule'        => 'log/loginLog',
             'name'        => '登陆日志',
-            'extra'       => json_encode(['icon' => 'star','component'=>'Layout']),
+            'extra'       => json_encode(['icon' => 'star','component'=>'log/login']),
         ]);
 
         $requestlog_id = DB::table('admin_role_permissions')->insertGetId([
             'parent_id'   => $id,
-            'rule'        => 'requestlog/index',
+            'rule'        => 'log/requestLog',
             'name'        => '请求日志',
-            'extra'       => json_encode(['icon' => 'star','component'=>'Layout']),
+            'extra'       => json_encode(['icon' => 'star','component'=>'log/request']),
         ]);
         $behaviorlog_id = DB::table('admin_role_permissions')->insertGetId([
 
             'parent_id'   => $id,
-            'rule'        => 'behaviorlog/index',
+            'rule'        => 'log/behaviorLog',
             'name'        => '异常行为日志',
             'extra'       => json_encode(['icon' => 'star','component'=>'Layout']),
         ]);
         $systemlog_id = DB::table('admin_role_permissions')->insertGetId([
             'parent_id'   => $id,
-            'rule'        => 'systemlog/index',
+            'rule'        => 'log/systemLog',
             'name'        => '系统日志',
             'extra'       => json_encode(['icon' => 'star','component'=>'Layout']),
         ]);
