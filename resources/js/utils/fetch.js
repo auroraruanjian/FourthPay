@@ -1,7 +1,7 @@
 import { Message } from 'element-ui'
 import axios from 'axios'
 import store from '@/store'
-
+import router from '@/router'
 
 // create an axios instance
 const fetch = axios.create({
@@ -17,7 +17,6 @@ fetch.interceptors.response.use(
         return response;
     },
     error => {
-        /*
         if( error.response ) {
             if( error.response.status == 419 || error.response.status == 401) {
                 Message({
@@ -27,14 +26,14 @@ fetch.interceptors.response.use(
                 });
                 store.dispatch('user/resetToken').then(() => {
                     //location.reload()
-                    //router.push({path:'login'});
+                    router.push({path:'login'});
                 })
             }
-            return Promise.reject(new Error(res.message || 'Error'))
+            console.log(error);
+            return Promise.reject(new Error(error.message || 'Error'))
         } else {
             return res
         }
-        */
     }
 );
 
