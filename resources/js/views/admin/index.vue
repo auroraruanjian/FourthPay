@@ -3,7 +3,7 @@
         <el-button type="primary" @click="handleAddAdmin" v-permission="'admin/create'">创建管理员</el-button>
 
         <el-table :data="adminList" style="width: 100%;margin-top:30px;" border>
-            <el-table-column align="center" label="Role Key" prop="id"></el-table-column>
+            <el-table-column align="center" label="ID" prop="id"></el-table-column>
             <el-table-column align="center" label="用户名" prop="username"></el-table-column>
             <el-table-column align="header-center" label="昵称" prop="nickname"></el-table-column>
             <el-table-column align="header-center" label="是否锁定" >
@@ -25,7 +25,7 @@
         <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getAdminUsers" />
 
         <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'Edit Admin':'New Admin'">
-            <el-form :model="admin" label-width="80px" label-position="left">
+            <el-form :model="admin" label-width="10%" label-position="right">
                 <el-form-item label="用户名">
                     <el-input v-model="admin.username" placeholder="用户名" />
                 </el-form-item>
@@ -76,7 +76,7 @@
                 dialogVisible: false,
                 dialogType: 'new',
                 loadding:false,
-                total: 100,
+                total: 0,
                 listQuery: {
                     page: 1,
                     limit: 20
@@ -94,9 +94,10 @@
         methods: {
             async getAdminUsers(){
                 this.loadding =  true;
-                let result = await getAllAdmins();
+                let result = await getAllAdmins(this.listQuery);
                 if( result.data.code == 1 ){
-                    this.adminList = result.data.data;
+                    this.total = result.data.data.total;
+                    this.adminList = result.data.data.adminlist;
                 }else{
                     this.$message.error(result.data.message);
                 }
@@ -105,7 +106,7 @@
             async getRoles() {
                 let result = await getAllRoles()
                 if( result.data.code == 1 ){
-                    this.rolesList = result.data.data
+                    this.rolesList = result.data.data.roles
                 }else{
                     this.$message.error(result.data.message);
                 }
@@ -116,10 +117,12 @@
                 this.dialogVisible = true
             },
             async handleEdit( scope ){
+                this.loadding =  true;
                 let current_user = await getAdminUser(scope.row.id);
                 this.admin = current_user.data.data;
                 this.dialogType = 'edit'
                 this.dialogVisible = true
+                this.loadding =  false;
             },
             handleDelete(scope ){
                 this.$confirm('此操作将永久删除该管理员, 是否继续?', '提示', {

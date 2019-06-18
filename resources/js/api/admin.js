@@ -1,9 +1,10 @@
 import fetch from '@/utils/fetch'
 
-export function getAllAdmins() {
+export function getAllAdmins( data ) {
     return fetch({
         url: 'admin',
         method: 'get',
+        params:data
     });
 }
 

@@ -17,6 +17,7 @@ fetch.interceptors.response.use(
         return response;
     },
     error => {
+        console.log(error);
         if( error.response ) {
             if( error.response.status == 419 || error.response.status == 401) {
                 Message({
@@ -29,10 +30,9 @@ fetch.interceptors.response.use(
                     router.push({path:'login'});
                 })
             }
-            console.log(error);
             return Promise.reject(new Error(error.message || 'Error'))
         } else {
-            return res
+            return Promise.reject(new Error(error.message || 'Error'))
         }
     }
 );

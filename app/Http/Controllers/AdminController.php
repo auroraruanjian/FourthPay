@@ -18,13 +18,39 @@ class AdminController extends Controller
         $this->middleware('auth');
     }
 
-    public function getIndex()
+    public function getIndex(Request $request)
     {
-        $adminlist = AdminUser::select(['id','username','nickname','is_locked','last_ip','last_time'])->orderBy('id','asc')->get();
+        $page = $request->get('page',1);
+        $limit = $request->get('limit');
+
+        $start = ($page-1) * $limit;
+
+        $data = [
+            'total'     => 0,
+            'adminlist' => [],
+        ];
+
+        $adminlist = AdminUser::select([
+            'id',
+            'username',
+            'nickname',
+            'is_locked',
+            'last_ip',
+            'last_time'
+        ])
+            ->orderBy('id','asc')
+            ->skip($start)
+            ->take($limit)
+            ->get();
+
+        $data['total'] = AdminUser::count();
+
         if( !$adminlist->isEmpty() ){
-            return $this->response(1,'Success',$adminlist->toArray());
+            $data['adminlist'] = $adminlist->toArray();
+
+            return $this->response(1,'Success',$data);
         }else{
-            return $this->response(0,'管理员为空!');
+            return $this->response(0,'管理员为空!',$data);
         }
     }
 
