@@ -22,10 +22,11 @@ class PermissionController extends Controller
         $parent_id = $request->get('id',0);
         $adminlist = AdminRolePermissions::select(['id','rule','name'])->where('parent_id',$parent_id)->orderBy('id','asc')->get();
         if( !$adminlist->isEmpty() ){
-            return $this->response(1,'Success',$adminlist->toArray());
+            $adminlist = $adminlist->toArray();
         }else{
-            return $this->response(0,'没有下级菜单！');
+            $adminlist = [];
         }
+        return $this->response(1,'Success',$adminlist);
     }
 
     public function postCreate(Request $request)

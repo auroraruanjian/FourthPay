@@ -1,5 +1,5 @@
 <template>
-    <div class="app-container" v-loading="loadding">
+    <div class="app-container" v-loading="loading">
         <el-button type="primary" @click="handleAddRole" v-permission="'role/create'">New Role</el-button>
 
         <el-table :data="rolesList" style="width: 100%;margin-top:30px;" border>
@@ -89,7 +89,7 @@
                     children: 'children',
                     label: 'title'
                 },
-                loadding:false,
+                loading:false,
             }
         },
         directives: { permission },
@@ -106,7 +106,7 @@
         },
         methods: {
             async getRoles() {
-                this.loadding = true;
+                this.loading = true;
                 const res = await getAllRoles()
                 if( res.data.code == 1 ){
                     this.rolesList = res.data.data.roles;
@@ -115,7 +115,7 @@
                 }else{
                     this.$message.error(res.data.msg);
                 }
-                this.loadding = false;
+                this.loading = false;
             },
             // Reshape the routes structure so that it looks the same as the sidebar
             generateRoutes(routes, basePath = '/') {

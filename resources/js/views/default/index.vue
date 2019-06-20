@@ -36,7 +36,7 @@
     }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
     #canvascontainer{
         position: absolute;
         top: 0px;

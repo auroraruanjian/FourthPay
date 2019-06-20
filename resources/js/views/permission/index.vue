@@ -1,5 +1,5 @@
 <template>
-    <div class="app-container" v-loading="loadding">
+    <div class="app-container" v-loading="loading">
         <el-button type="primary" @click="handleAdd" v-permission="'permission/create'">创建权限</el-button>
 
         <el-table :data="permissionList" style="width: 100%;margin-top:30px;" border>
@@ -40,7 +40,7 @@
                 permissionList: [],
                 dialogVisible: false,
                 dialogType: 'new',
-                loadding:false,
+                loading:false,
             };
         },
         computed: {
@@ -51,14 +51,14 @@
         },
         methods:{
             async getAllPermission(id){
-                this.loadding =  true;
+                this.loading =  true;
                 let result = await getAllPermissions(id);
                 if( result.data.code == 1 ){
                     this.permissionList = result.data.data;
                 }else{
                     this.$message.error(result.data.msg);
                 }
-                this.loadding =  false;
+                this.loading =  false;
             },
             handleAdd(){
                 this.admin = Object.assign({}, defaultAdmin)

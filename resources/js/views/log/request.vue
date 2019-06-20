@@ -1,5 +1,5 @@
 <template>
-    <div class="app-container" v-loading="loadding">
+    <div class="app-container" v-loading="loading">
         <el-table :data="request_log" style="width: 100%;margin-top:30px;" border>
             <el-table-column align="center" label="ID" prop="id"></el-table-column>
             <el-table-column align="center" label="用户名" prop="username"></el-table-column>
@@ -38,7 +38,7 @@
                 request_log: [],
                 dialogVisible: false,
                 dialogType: 'new',
-                loadding:false,
+                loading:false,
                 total: 0,
                 listQuery: {
                     page: 1,
@@ -55,7 +55,7 @@
         },
         methods: {
             async getLogs(){
-                this.loadding =  true;
+                this.loading =  true;
                 let result = await getRequestLogs(this.listQuery);
                 if( result.data.code == 1 ){
                     this.total = result.data.data.total;
@@ -63,7 +63,7 @@
                 }else{
                     this.$message.error(result.data.message);
                 }
-                this.loadding =  false;
+                this.loading =  false;
             },
             handleView( scope ){
 

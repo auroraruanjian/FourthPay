@@ -1,5 +1,5 @@
 <template>
-    <div class="app-container" v-loading="loadding">
+    <div class="app-container" v-loading="loading">
         <el-button type="primary" @click="handleAddAdmin" v-permission="'admin/create'">创建管理员</el-button>
 
         <el-table :data="adminList" style="width: 100%;margin-top:30px;" border>
@@ -75,7 +75,7 @@
                 rolesList: [],
                 dialogVisible: false,
                 dialogType: 'new',
-                loadding:false,
+                loading:false,
                 total: 0,
                 listQuery: {
                     page: 1,
@@ -93,7 +93,7 @@
         },
         methods: {
             async getAdminUsers(){
-                this.loadding =  true;
+                this.loading =  true;
                 let result = await getAllAdmins(this.listQuery);
                 if( result.data.code == 1 ){
                     this.total = result.data.data.total;
@@ -101,7 +101,7 @@
                 }else{
                     this.$message.error(result.data.message);
                 }
-                this.loadding =  false;
+                this.loading =  false;
             },
             async getRoles() {
                 let result = await getAllRoles()
@@ -117,12 +117,12 @@
                 this.dialogVisible = true
             },
             async handleEdit( scope ){
-                this.loadding =  true;
+                this.loading =  true;
                 let current_user = await getAdminUser(scope.row.id);
                 this.admin = current_user.data.data;
                 this.dialogType = 'edit'
                 this.dialogVisible = true
-                this.loadding =  false;
+                this.loading =  false;
             },
             handleDelete(scope ){
                 this.$confirm('此操作将永久删除该管理员, 是否继续?', '提示', {
