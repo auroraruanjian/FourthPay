@@ -82,4 +82,6 @@ Mix.listen('configReady', (webpackConfig) => {
     fontLoaderConfig2.exclude = path.resolve('resources/js/icons/svg');///(resources\/js\/icons\/svg)/;
 });
 
+mix.copy('resources/css/weui.css', 'public/css/weui.css');
+
 mix.webpackConfig(webpack_config);

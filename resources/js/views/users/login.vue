@@ -197,7 +197,7 @@
 
                     return true;
                 }else{
-                    if( _this.state != '' ){
+                    if( this.state == '' ){
                         this.$message( res.data.msg ,'error');
                     }
                 }

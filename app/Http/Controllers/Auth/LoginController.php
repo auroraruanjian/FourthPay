@@ -162,15 +162,27 @@ class LoginController extends Controller
         $url = "https://api.weixin.qq.com/sns/oauth2/access_token?appid={$appid}&secret={$secret}&code={$code}&grant_type=authorization_code";
         $data = file_get_contents($url);
         if (!$data) {
-            return null;
+            return view('wechat',[
+                'code'      => '0',
+                'title'     => '接口请求异常！',
+                'desc'      => '',
+            ]);
         }
         $data = json_decode($data, true);
 
         if( isset( $data['errcode'] ) ){
-            abort(403,$data['errmsg']);
+            return view('wechat',[
+                'code'      => '0',
+                'title'     => $data['errmsg'],
+                'desc'      => '',
+            ]);
         }
         if( empty($data['openid'])  || empty( $data['access_token'] ) || empty($data['refresh_token']) || empty($data['scope'])){
-            abort(403,'未知的异常');
+            return view('wechat',[
+                'code'      => '0',
+                'title'     => '参数不完整！',
+                'desc'      => '',
+            ]);
         }
 
         // 如果未绑定账户返回403错误
@@ -178,14 +190,21 @@ class LoginController extends Controller
         if( !empty($user) ){
             if( strpos($state,'web_') === 0 ){
                 Cache::put($state,$data,now()->addMinutes(1));
-                return '登录中...';
+                return view('wechat',[
+                    'code'      => '1',
+                    'title'     => '授权成功！',
+                    'desc'      => '',
+                ]);
             }else {
                 \Auth::login($user);
-                \Log::info('/#/login?token=' . $request->session()->token());
                 return redirect('/#/login?token=' . $request->session()->token(), 302);
             }
         }else{
-            abort(403,'您的微信还未绑定账户！');
+            return view('wechat',[
+                'code'      => '0',
+                'title'     => '您的微信还未绑定账户！',
+                'desc'      => '',
+            ]);
         }
     }
 }
