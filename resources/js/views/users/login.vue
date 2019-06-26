@@ -1,63 +1,76 @@
 <template>
-    <div class="login-container" :style="{height:height}">
+    <div class="login-container" :style="{height:height}" v-loading="page_loading">
         <vue-particle-line>
+            <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
 
-        <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
+                <div class="title-container">
+                    <h3 class="title">管理平台</h3>
+                </div>
 
-            <div class="title-container">
-                <h3 class="title">管理平台</h3>
-            </div>
+                <el-form-item prop="username">
+                    <span class="svg-container">
+                      <svg-icon icon-class="user" />
+                    </span>
+                    <el-input
+                            ref="username"
+                            v-model="loginForm.username"
+                            placeholder="Username"
+                            name="username"
+                            type="text"
+                            tabindex="1"
+                            auto-complete="on"
+                    />
+                </el-form-item>
 
-            <el-form-item prop="username">
-                <span class="svg-container">
-                  <svg-icon icon-class="user" />
-                </span>
-                <el-input
-                        ref="username"
-                        v-model="loginForm.username"
-                        placeholder="Username"
-                        name="username"
-                        type="text"
-                        tabindex="1"
-                        auto-complete="on"
-                />
-            </el-form-item>
+                <el-form-item prop="password">
+                    <span class="svg-container">
+                        <svg-icon icon-class="password" />
+                    </span>
+                    <el-input
+                            :key="passwordType"
+                            ref="password"
+                            v-model="loginForm.password"
+                            :type="passwordType"
+                            placeholder="Password"
+                            name="password"
+                            tabindex="2"
+                            auto-complete="on"
+                            @keyup.enter.native="handleLogin"
+                    />
+                    <span class="show-pwd" @click="showPwd">
+                        <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
+                    </span>
+                </el-form-item>
 
-            <el-form-item prop="password">
-                <span class="svg-container">
-                    <svg-icon icon-class="password" />
-                </span>
-                <el-input
-                        :key="passwordType"
-                        ref="password"
-                        v-model="loginForm.password"
-                        :type="passwordType"
-                        placeholder="Password"
-                        name="password"
-                        tabindex="2"
-                        auto-complete="on"
-                        @keyup.enter.native="handleLogin"
-                />
-                <span class="show-pwd" @click="showPwd">
-                    <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
-                </span>
-            </el-form-item>
+                <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">Login</el-button>
 
-            <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">Login</el-button>
+                <div class="tips">
+                    <span style="margin-right:20px;">username: admin</span>
+                    <span> password: admin123</span>
+                </div>
 
-            <div class="tips">
-                <span style="margin-right:20px;">username: admin</span>
-                <span> password: admin123</span>
-            </div>
+                <div class="login_type" style="text-align: center;font-size:35px;">
+                    <svg-icon icon-class="wechat_login" @click="showWechatLogin" title="微信扫码登陆"/>
+                </div>
 
-        </el-form>
-
+            </el-form>
         </vue-particle-line>
+
+        <el-dialog :visible.sync="wechat_login" title="微信扫码登陆" width="320px" @close="wechat_close">
+            <div style="text-align: center;">
+                <img :src="wechat_qrcode">
+            </div>
+            <div style="text-align:right;margin-top:10px;">
+                <el-button type="danger" @click="wechat_login=false">Cancel</el-button>
+            </div>
+        </el-dialog>
     </div>
 </template>
 
 <script>
     import { validUsername } from '@/utils/validate'
+    import QRCode  from 'qrcode'
+    import { wechat_login } from '@/api/user'
 
     export default {
         name: 'Login',
@@ -84,7 +97,11 @@
                 height:'0px',
                 loading: false,
                 passwordType: 'password',
-                redirect: undefined
+                redirect: undefined,
+                wechat_login:false,
+                wechat_qrcode:'',
+                page_loading:false,
+                state:'',
             }
         },
         watch: {
@@ -131,17 +148,84 @@
                     }
                 })
             },
-            init: function() {
+            async showWechatLogin(){
+                this.page_loading = true;
+                this.wechat_qrcode = '';
+                this.state = '';
 
+                let res = await this.handleWechatLogin();
+
+                this.page_loading = false;
+
+                let _this = this;
+
+                if( res ){
+                    _this.wechat_login = true;
+                    _this.interval = setInterval(function(){
+                        _this.handleWechatLogin();
+                    },3000);
+                }
+            },
+            async handleWechatLogin(){
+                let _this = this;
+
+                let res = await wechat_login(_this.state);
+
+                console.log(res.data);
+
+                if( res.data.code == 1 ){
+                    _this.init( res.data.data.token );
+                    return true;
+                }else if(res.data.code == 2){
+                    let opts = {
+                        errorCorrectionLevel: 'H',
+                        type: 'image/jpeg',
+                        rendererOpts: {
+                            quality: 1
+                        },
+                        width:250,
+                        margin:0
+                    }
+
+                    _this.state = res.data.data.state;
+
+                    QRCode.toDataURL(res.data.data.qrcode, opts, function (err, url) {
+                        if (err) throw err
+
+                        _this.wechat_qrcode = url;
+                    });
+
+                    return true;
+                }else{
+                    if( _this.state != '' ){
+                        this.$message( res.data.msg ,'error');
+                    }
+                }
+
+                return false;
+            },
+            wechat_close(){
+                if( this.interval ){
+                    clearInterval(this.interval);
+                }
+            },
+            init: function( token ) {
+                // 检查是否有Token
+                token = token || this.$route.query.token;
+                if(typeof token == 'string' && token.length > 0){
+                    this.$store.commit('user/SET_TOKEN',token);
+                    this.$router.push({path:'/'});
+                }
             },
         },
-        mounted() {
+        created() {
             document.body.style.backgroundColor = '#1d1c1c';
-            this.init();
             this.height = window.innerHeight-20+'px';
+            this.init();
         },
         beforeDestroy() {
             document.body.style.backgroundColor = '';
+            this.wechat_close();
         }
     }
 </script>
@@ -190,6 +274,10 @@
             border-radius: 5px;
             color: #454545;
         }
+
+        .el-dialog__body{
+            padding:6px 20px 15px 20px;
+        }
     }
 </style>
 
@@ -197,8 +285,6 @@
     $bg:#2d3a4b;
     $dark_gray:#889aa4;
     $light_gray:#eee;
-
-
 
     .login-container {
         min-height: 100%;

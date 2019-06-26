@@ -19,6 +19,7 @@ class CreateAdminUsersTable extends Migration
             $table->string('username')->unique()->comment('用户名');
             $table->string('password');
             $table->boolean('is_locked')->default(0)->comment('是否锁定');
+            $table->string('unionid')->nullable()->comment('微信登陆唯一ID');
             $table->ipAddress('last_ip')->nullable()->comment('最后一次登录IP');
             $table->timestamp('last_time')->nullable()->comment('最后登录时间');
             $table->string('last_session', 64)->default('')->comment('最近登陆SESSIONID');

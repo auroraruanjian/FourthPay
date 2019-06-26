@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use core\lib\session;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
+use App\Models\AdminUser;
+use Cache;
 
 class LoginController extends Controller
 {
@@ -96,5 +98,94 @@ class LoginController extends Controller
             'code'    => -422,
             'msg'     => trans('auth.failed'),
         ];
+    }
+
+    /**
+     * 微信登陆-获取state
+     * @param Request $request
+     */
+    public function wechat(Request $request)
+    {
+        if( auth()->id() ) return;
+
+        $state = $request->get('state');
+
+        if(!empty($state) && Cache::has($state) ){
+            $data = Cache::get($state);
+            \Log::info($data);
+            if( !empty($data) ){
+                Cache::forget($state);
+                $user = AdminUser::where('unionid',$data['openid'])->first();
+                if( !empty($user) ){
+                    \Auth::login($user);
+
+                    return response()->json($this->authenticated($request,$user));
+                }
+            }
+            return $this->response(0,'等待登陆请求...');
+        }
+
+        $appid          = config('app.wechat.appid');
+        $redirect_uri   = 'http://53d83880.ngrok.io/login/wechatCallback';
+        $state          = 'web_'.str_random(32);
+
+        $wechat_qrcode_url = "https://open.weixin.qq.com/connect/oauth2/authorize?appid={$appid}&redirect_uri={$redirect_uri}&response_type=code&scope=snsapi_userinfo&state={$state}#wechat_redirect";
+
+        if( !empty(session('state'))){
+            session()->remove('state');
+            Cache::forget($state);
+        }
+        session('state',$state);
+        Cache::put($state,[],now()->addMinutes(1));
+
+        return $this->response(2,'Success',[
+            'qrcode'    => $wechat_qrcode_url,
+            'state'     => $state,
+        ]);
+    }
+
+    /**
+     * 微信登陆-请求微信换取id
+     * @param Request $request
+     */
+    public function wechatCallback(Request $request)
+    {
+        $appid          = config('app.wechat.appid');
+        $secret         = config('app.wechat.secret');
+
+        $code   = $request->get('code');
+
+        // 校验state是否合法,5分钟有效
+        $state  = $request->get('state');
+
+        // 请求微信接口，获取unionid，测试环境返回openid
+        $url = "https://api.weixin.qq.com/sns/oauth2/access_token?appid={$appid}&secret={$secret}&code={$code}&grant_type=authorization_code";
+        $data = file_get_contents($url);
+        if (!$data) {
+            return null;
+        }
+        $data = json_decode($data, true);
+
+        if( isset( $data['errcode'] ) ){
+            abort(403,$data['errmsg']);
+        }
+        if( empty($data['openid'])  || empty( $data['access_token'] ) || empty($data['refresh_token']) || empty($data['scope'])){
+            abort(403,'未知的异常');
+        }
+
+        // 如果未绑定账户返回403错误
+        $user = AdminUser::where('unionid',$data['openid'])->first();
+        if( !empty($user) ){
+            if( strpos($state,'web_') === 0 ){
+                Cache::put($state,$data,now()->addMinutes(1));
+                return '登录中...';
+            }else {
+                \Auth::login($user);
+                \Log::info('/#/login?token=' . $request->session()->token());
+                return redirect('/#/login?token=' . $request->session()->token(), 302);
+            }
+        }else{
+            abort(403,'您的微信还未绑定账户！');
+        }
     }
 }

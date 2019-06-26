@@ -21,3 +21,11 @@ export function getUserInfo(){
         method: 'get',
     });
 }
+
+export function wechat_login( state = '' ) {
+    return fetch({
+        url: 'login/wechat',
+        method: 'get',
+        params :{state:state}
+    });
+}

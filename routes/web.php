@@ -17,4 +17,7 @@ Route::get('/', function () {
 
 Auth::routes();
 
+Route::get('login/wechat','Auth\LoginController@wechat');
+Route::get('login/wechatCallback','Auth\LoginController@wechatCallback');
+
 // Route::get('/user/info', 'UserController@getInfo');

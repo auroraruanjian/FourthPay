@@ -33,7 +33,7 @@ class LogSuccessfulLogin
         //
         $user = $event->user;
 
-        $user->last_session = request()->cookie(session()->getName());
+        $user->last_session = request()->cookie(session()->getName())??'';
         $user->last_ip      = request()->ip();
         $user->last_time    = Carbon::now();
 

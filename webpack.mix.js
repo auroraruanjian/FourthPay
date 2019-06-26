@@ -40,7 +40,7 @@ const webpack_config = {
         filename: (chunkData) => {
             return 'js/' + chunkData.chunk.name.replace(/\//g, '') + '.js';
         },
-        chunkFilename: 'js/[name].bundle.js',
+        chunkFilename: 'js/[name].bundle.js?[chunkhash]',
     },
     optimization: {
         splitChunks: {
