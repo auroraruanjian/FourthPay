@@ -16,8 +16,8 @@
             <el-table-column align="header-center" label="上次登录时间" prop="last_time"></el-table-column>
             <el-table-column align="center" label="Operations">
                 <template slot-scope="scope" v-if="scope.row.id!=1">
-                    <el-button type="primary" size="small" @click="handleEdit(scope)">Edit</el-button>
-                    <el-button type="danger" size="small" @click="handleDelete(scope)">Delete</el-button>
+                    <el-button type="primary" size="small" @click="handleEdit(scope)" v-permission="'admin/edit'">Edit</el-button>
+                    <el-button type="danger" size="small" @click="handleDelete(scope)" v-permission="'admin/delete'">Delete</el-button>
                 </template>
             </el-table-column>
         </el-table>

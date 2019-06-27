@@ -109,6 +109,7 @@ class LoginController extends Controller
         if( auth()->id() ) return;
 
         $state = $request->get('state');
+        $mode  = $request->get('mode','web');
 
         if(!empty($state) && Cache::has($state) ){
             $data = Cache::get($state);
@@ -122,12 +123,19 @@ class LoginController extends Controller
                     return response()->json($this->authenticated($request,$user));
                 }
             }
-            return $this->response(0,'等待登陆请求...');
+            if( strpos($state,$mode) === 0 ){
+                return $this->response(0,'等待登陆请求...');
+            }
         }
 
         $appid          = config('app.wechat.appid');
         $redirect_uri   = 'http://53d83880.ngrok.io/login/wechatCallback';
-        $state          = 'web_'.str_random(32);
+
+        $prefix = 'web_';
+        if( $mode == 'h5' ){
+            $prefix = 'h5_';
+        }
+        $state          = $prefix.str_random(32);
 
         $wechat_qrcode_url = "https://open.weixin.qq.com/connect/oauth2/authorize?appid={$appid}&redirect_uri={$redirect_uri}&response_type=code&scope=snsapi_userinfo&state={$state}#wechat_redirect";
 
@@ -197,6 +205,9 @@ class LoginController extends Controller
                 ]);
             }else {
                 \Auth::login($user);
+
+                Cache::forget($state);
+
                 return redirect('/#/login?token=' . $request->session()->token(), 302);
             }
         }else{

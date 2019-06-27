@@ -22,10 +22,10 @@ export function getUserInfo(){
     });
 }
 
-export function wechat_login( state = '' ) {
+export function wechat_login( state = '' , mode = 'web') {
     return fetch({
         url: 'login/wechat',
         method: 'get',
-        params :{state:state}
+        params :{state,mode}
     });
 }

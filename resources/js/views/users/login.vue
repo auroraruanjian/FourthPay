@@ -56,12 +56,16 @@
             </el-form>
         </vue-particle-line>
 
-        <el-dialog :visible.sync="wechat_login" title="微信扫码登陆" width="320px" @close="wechat_close">
-            <div style="text-align: center;">
-                <img :src="wechat_qrcode">
+        <el-dialog :visible.sync="wechat.wechat_visible" title="微信扫码登陆" width="320px" @close="wechat_close">
+            <div style="text-align: center;" v-loading="wechat.qrcode_loading">
+                <img :src="wechat.qrcode" >
+                <el-radio-group v-model="wechat.mode" size="small" style="margin-top:9px;" @change="handleChangeMode">
+                    <el-radio label="web" >网页版</el-radio>
+                    <el-radio label="h5" >手机版</el-radio>
+                </el-radio-group>
             </div>
             <div style="text-align:right;margin-top:10px;">
-                <el-button type="danger" @click="wechat_login=false">Cancel</el-button>
+                <el-button type="danger" @click="wechat.wechat_visible=false">Cancel</el-button>
             </div>
         </el-dialog>
     </div>
@@ -74,6 +78,7 @@
 
     export default {
         name: 'Login',
+        components: {},
         data() {
             const validateUsername = (rule, value, callback) => {
                 callback()
@@ -98,10 +103,14 @@
                 loading: false,
                 passwordType: 'password',
                 redirect: undefined,
-                wechat_login:false,
-                wechat_qrcode:'',
                 page_loading:false,
-                state:'',
+                wechat:{
+                    wechat_visible:false,
+                    qrcode:'',
+                    state:'',
+                    mode:'web',
+                    qrcode_loading:'',
+                },
             }
         },
         watch: {
@@ -150,26 +159,22 @@
             },
             async showWechatLogin(){
                 this.page_loading = true;
-                this.wechat_qrcode = '';
-                this.state = '';
+                this.wechat.qrcode = '';
+                this.wechat.state = '';
 
                 let res = await this.handleWechatLogin();
 
                 this.page_loading = false;
 
-                let _this = this;
-
                 if( res ){
-                    _this.wechat_login = true;
-                    _this.interval = setInterval(function(){
-                        _this.handleWechatLogin();
-                    },3000);
+                    this.wechat.wechat_visible = true;
+                    this.wechat_start();
                 }
             },
             async handleWechatLogin(){
                 let _this = this;
 
-                let res = await wechat_login(_this.state);
+                let res = await wechat_login(_this.wechat.state,_this.wechat.mode);
 
                 console.log(res.data);
 
@@ -187,22 +192,38 @@
                         margin:0
                     }
 
-                    _this.state = res.data.data.state;
+                    _this.wechat.state = res.data.data.state;
 
                     QRCode.toDataURL(res.data.data.qrcode, opts, function (err, url) {
                         if (err) throw err
 
-                        _this.wechat_qrcode = url;
+                        _this.wechat.qrcode = url;
                     });
 
                     return true;
                 }else{
-                    if( this.state == '' ){
+                    if( this.wechat.state == '' ){
                         this.$message( res.data.msg ,'error');
                     }
                 }
 
                 return false;
+            },
+            async handleChangeMode(){
+                this.wechat.qrcode_loading = true;
+                this.wechat_close();
+                let res = await this.handleWechatLogin(this.wechat.state,this.wechat.mode)
+                console.log(res);
+                if( res ){
+                    this.wechat_start();
+                }
+                this.wechat.qrcode_loading = false;
+            },
+            wechat_start(){
+                let _this = this;
+                _this.interval = setInterval(function(){
+                    _this.handleWechatLogin(_this.wechat.state,_this.wechat.mode);
+                },3000)
             },
             wechat_close(){
                 if( this.interval ){
