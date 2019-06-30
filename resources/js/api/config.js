@@ -3,7 +3,7 @@ import fetch from '@/utils/fetch'
 export function getAllConfig( data ) {
     return fetch({
         url: 'config',
-        method: 'get',
+        method: 'post',
         params:data
     });
 }

@@ -26,8 +26,11 @@ fetch.interceptors.response.use(
                     duration: 5 * 1000
                 });
                 store.dispatch('user/resetToken').then(() => {
-                    //location.reload()
-                    router.push({path:'login'});
+                    if(error.response.status == 419){
+                        location.reload()
+                    }else{
+                        router.push({path:'login'});
+                    }
                 })
             }
             return Promise.reject(new Error(error.message || 'Error'))

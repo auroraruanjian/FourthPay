@@ -2,14 +2,18 @@
 
 ---
 
-技术栈：
+后端技术栈：
 * Laravel       5.8
 * nginx
-* postgreSql
+* postgreSql 或 Mysql
 * laravel-mix
+* Redis
+
+前端技术栈
 * Vue      
 * Vuex
 * Vue-router
+* Element UI
 
 部署方法
 ```bash
@@ -18,6 +22,11 @@ $ git clone git@github.com:tuo0/p2p.git
 $ cd p2p
 $ composer install
 $ npm install
+```
+
+队列监听
+```bash
+$ php artisan queue:work redis
 ```
 
 复制 .env.example 文件为 .env,修改数据库连接，创建key
@@ -33,5 +42,7 @@ Ajax json数据说明
     'data'  => [],
 ]
 ```
-code:错误码  1：成功  <1:失败 
+* code:错误码  1：成功  0:失败 <0:失败错误码
+* msg:错误消息
+* data:返回数据 
 

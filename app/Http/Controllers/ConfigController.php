@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Config;
 use Illuminate\Http\Request;
+use App\Jobs\RefreshConfig;
 
 class ConfigController extends Controller {
     /**
@@ -29,13 +30,14 @@ class ConfigController extends Controller {
             'config_list' => [],
         ];
 
-        $adminlist = Config::select([
+        $configlist = Config::select([
             'id',
             'parent_id',
             'title',
             'key',
             'value',
-            'is_disabled'
+            'is_disabled',
+            'description'
         ])
             ->where('parent_id', '=', $parent_id)
             ->orderBy('id', 'asc')
@@ -45,9 +47,16 @@ class ConfigController extends Controller {
 
         $data['total'] = Config::count();
 
-        if (!$adminlist->isEmpty()) {
-            $data['adminlist'] = $adminlist->toArray();
+        if (!$configlist->isEmpty()) {
+            $data['config_list'] = $configlist->toArray();
         }
+
+        if( $parent_id == 0 ){
+            $data['top_config'] = $data['config_list'];
+        }else{
+            $data['top_config'] = Config::select(['id','title'])->where('parent_id',0)->get()->toArray();
+        }
+        array_unshift($data['top_config'],['id'=>0,'title'=>'主配置项']);
 
         return $this->response(1, 'Success!', $data);
     }
@@ -55,7 +64,7 @@ class ConfigController extends Controller {
     public function postCreate(Request $request)
     {
         $config              = new Config();
-        $config->parent_id   = $request->get('parent_id',0);
+        $config->parent_id   = $request->get('parent_id')??0;
         $config->title       = $request->get('title','');
         $config->key         = $request->get('key','');
         $config->value       = $request->get('value','');
@@ -63,6 +72,7 @@ class ConfigController extends Controller {
         $config->is_disabled = (int)$request->get('is_disabled',0)?true:false;
 
         if( $config->save() ){
+            $this->refresh();
             return $this->response(1, '添加成功');
         } else {
             return $this->response(0, '添加失败');
@@ -91,7 +101,7 @@ class ConfigController extends Controller {
         $config = Config::find($id);
 
         if (empty($config)) {
-            return $this->response(0, '管理员不存在失败');
+            return $this->response(0, '配置不存在失败');
         }
 
         $config->parent_id   = $request->get('parent_id',0);
@@ -102,10 +112,16 @@ class ConfigController extends Controller {
         $config->is_disabled = (int)$request->get('is_disabled',0)?true:false;
 
         if ($config->save()) {
+            $this->refresh();
             return $this->response(1, '编辑成功');
         } else {
             return $this->response(0, '编辑失败');
         }
+    }
+
+    private function refresh()
+    {
+        RefreshConfig::dispatch()->onConnection('redis');
     }
 
     public function deleteDelete(Request $request)
