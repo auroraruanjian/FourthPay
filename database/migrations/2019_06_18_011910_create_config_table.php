@@ -22,12 +22,13 @@ class CreateConfigTable extends Migration
             // $table->smallInteger('input_type')->default(0)->comment('配置输入类型 0输入框，1下拉框，2复选框');
             // $table->smallInteger('value_type')->default(0)->comment('配置值 验证类型 0字符串，1数字，2大于零正数');
             // $table->string('input_option', 256)->default('')->comment('输入选项，当input_type 为下拉框或者复选框使用');
-            $table->string('description', 128)->default('')->comment('配置描述');
-            $table->boolean('is_disabled')->index()->default(0)->comment('配置项是否禁用 0:禁用 1:启用');
+            $table->boolean('is_disabled')->default(0)->comment('配置项是否禁用 0:禁用 1:启用');
+            $table->string('description', 128)->nullable()->comment('配置描述');
             $table->timestamps();
         });
 
         $this->_permission();
+        $this->_data();
     }
 
     private function _permission()
@@ -65,6 +66,46 @@ class CreateConfigTable extends Migration
                 'name'        => '删除配置',
                 'extra'       => json_encode(['hidden' => true]),
             ],
+        ]);
+    }
+
+    private function _data()
+    {
+        $id = DB::table('config')->insertGetId([
+            'parent_id'     => 0,
+            'title'         => '网站管理',
+            'key'           => 'website',
+            'value'         => '',
+            'is_disabled'   => 1,
+            'description'   => '',
+        ]);
+
+        DB::table('config')->insert([
+            [
+                'parent_id'     => $id,
+                'title'         => '微信appid',
+                'key'           => 'wechat_appid',
+                'value'         => '',
+                'is_disabled'   => 1,
+                'description'   => '微信公众后台appID',
+            ],
+            [
+                'parent_id'     => $id,
+                'title'         => '微信secret',
+                'key'           => 'wechat_secret',
+                'value'         => '',
+                'is_disabled'   => 1,
+                'description'   => '微信公众后台appsecret',
+            ],
+            [
+                'parent_id'     => $id,
+                'title'         => '微信回调地址',
+                'key'           => 'wechat_callback_url',
+                'value'         => '',
+                'is_disabled'   => 1,
+                'description'   => '微信公众后台appsecret',
+            ],
+            //
         ]);
     }
 

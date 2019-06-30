@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Config;
 use Illuminate\Http\Request;
 use App\Jobs\RefreshConfig;
+use Cache;
+use Illuminate\Support\Carbon;
 
 class ConfigController extends Controller {
     /**
@@ -57,6 +59,9 @@ class ConfigController extends Controller {
             $data['top_config'] = Config::select(['id','title'])->where('parent_id',0)->get()->toArray();
         }
         array_unshift($data['top_config'],['id'=>0,'title'=>'主配置项']);
+
+        // 加载上次配置刷新信息
+        $data['last_refresh'] = Cache::store('redis')->get('last_refresh_config');
 
         return $this->response(1, 'Success!', $data);
     }
@@ -121,7 +126,7 @@ class ConfigController extends Controller {
 
     private function refresh()
     {
-        RefreshConfig::dispatch()->onConnection('redis');
+        RefreshConfig::dispatch(auth()->user()->username)->onConnection('redis');
     }
 
     public function deleteDelete(Request $request)

@@ -8,6 +8,7 @@
 * postgreSql 或 Mysql
 * laravel-mix
 * Redis
+* PHP APC
 
 前端技术栈
 * Vue      

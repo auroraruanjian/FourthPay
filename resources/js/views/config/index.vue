@@ -3,6 +3,8 @@
         <el-button type="primary" @click="handleAddConfig" v-permission="'config/create'">创建配置</el-button>
         <el-link type="primary" @click.native="parent_id=0" v-if="parent_id > 0 ">返回上一级</el-link>
 
+        <p>上次刷新信息：{{last_refresh.username}}|{{last_refresh.time}}</p>
+
         <el-table :data="config_list" style="width: 100%;margin-top:30px;" border @cell-mouse-enter="handleHover" @cell-mouse-leave="handleLeave">
             <el-table-column align="center" label="ID" prop="id"></el-table-column>
             <el-table-column align="center" label="配置标题" >
@@ -107,6 +109,10 @@
                 dialogVisible: false,
                 dialogType: 'new',
                 loading:false,
+                last_refresh:{
+                    username:'',
+                    time:'',
+                },
             };
         },
         computed: {
@@ -129,6 +135,7 @@
                     this.total = result.data.data.total;
                     this.config_list = result.data.data.config_list;
                     this.parents_config = result.data.data.top_config;
+                    if( result.data.data.last_refresh != null ) this.last_refresh = result.data.data.last_refresh;
                 }else{
                     this.$message.error(result.data.message);
                 }

@@ -128,8 +128,8 @@ class LoginController extends Controller
             }
         }
 
-        $appid          = config('app.wechat.appid');
-        $redirect_uri   = 'http://53d83880.ngrok.io/login/wechatCallback';
+        $appid          = getSysConfig('wechat_appid');
+        $redirect_uri   = getSysConfig('wechat_callback_url');
 
         $prefix = 'web_';
         if( $mode == 'h5' ){
@@ -158,8 +158,8 @@ class LoginController extends Controller
      */
     public function wechatCallback(Request $request)
     {
-        $appid          = config('app.wechat.appid');
-        $secret         = config('app.wechat.secret');
+        $appid          = getSysConfig('wechat_appid');
+        $secret         = getSysConfig('wechat_secret');
 
         $code   = $request->get('code');
 
