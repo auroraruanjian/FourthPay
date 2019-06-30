@@ -30,12 +30,17 @@ $ npm install
 $ php artisan queue:work redis
 ```
 
-复制 .env.example 文件为 .env,修改数据库连接，创建key
+复制 .env.example 文件为 .env,修改数据库、Redis，创建key
 ```bash
 $ php artisan  key:generate
 ```
 
-Ajax json数据说明
+编译前端文件
+```bash
+$ npm run prod
+```
+
+Ajax 接口返回json数据说明
 ```php
 [
     'code'  => 1,
