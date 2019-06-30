@@ -110,6 +110,7 @@
                     state:'',
                     mode:'web',
                     qrcode_loading:'',
+                    interval:null,
                 },
             }
         },
@@ -221,13 +222,13 @@
             },
             wechat_start(){
                 let _this = this;
-                _this.interval = setInterval(function(){
+                _this.wechat.interval = setInterval(function(){
                     _this.handleWechatLogin(_this.wechat.state,_this.wechat.mode);
                 },3000)
             },
             wechat_close(){
-                if( this.interval ){
-                    clearInterval(this.interval);
+                if( this.wechat.interval ){
+                    clearInterval(this.wechat.interval);
                 }
             },
             init: function( token ) {

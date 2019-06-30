@@ -16,6 +16,8 @@
 * Vue-router
 * Element UI
 
+模板采用：[Element-Admin](https://github.com/PanJiaChen/vue-admin-template/)
+
 部署方法
 ```bash
 拉取代码，安装扩展

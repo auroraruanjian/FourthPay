@@ -106,7 +106,9 @@ class LoginController extends Controller
      */
     public function wechat(Request $request)
     {
-        if( auth()->id() ) return;
+        if( auth()->id() && !empty(auth()->user()->unionid)){
+            return $this->response(0,'您已绑定微信');
+        }
 
         $state = $request->get('state');
         $mode  = $request->get('mode','web');
@@ -116,11 +118,22 @@ class LoginController extends Controller
             \Log::info($data);
             if( !empty($data) ){
                 Cache::forget($state);
-                $user = AdminUser::where('unionid',$data['openid'])->first();
-                if( !empty($user) ){
-                    \Auth::login($user);
+                // 检查用户是否已登录
+                if( auth()->id() ){
+                    $user = auth()->user();
+                    $user->unionid = $data['openid'];
+                    if( $user->save() ){
+                        return $this->response(1,'微信绑定成功！');
+                    }else{
+                        return $this->response(0,'等待登陆请求...');
+                    }
+                }else{
+                    $user = AdminUser::where('unionid',$data['openid'])->first();
+                    if( !empty($user) ){
+                        \Auth::login($user);
 
-                    return response()->json($this->authenticated($request,$user));
+                        return response()->json($this->authenticated($request,$user));
+                    }
                 }
             }
             if( strpos($state,$mode) === 0 ){
@@ -211,11 +224,17 @@ class LoginController extends Controller
                 return redirect('/#/login?token=' . $request->session()->token(), 302);
             }
         }else{
+            Cache::put($state,$data,now()->addMinutes(1));
             return view('wechat',[
-                'code'      => '0',
-                'title'     => '您的微信还未绑定账户！',
+                'code'      => '1',
+                'title'     => '微信绑定中...',
                 'desc'      => '',
             ]);
+            // return view('wechat',[
+            //     'code'      => '0',
+            //     'title'     => '您的微信还未绑定账户！',
+            //     'desc'      => '',
+            // ]);
         }
     }
 }

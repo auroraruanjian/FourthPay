@@ -124,7 +124,14 @@ class CreateAdminRolePermissionsTable extends Migration {
                 'rule'        => 'admin/lock',
                 'name'        => '冻结管理员',
                 'extra'       => json_encode(['hidden' => true]),
-            ]
+            ],
+            [
+                'parent_id'   => $admin_id,
+                'rule'        => 'login/wechat',
+                'name'        => '微信绑定',
+                'extra'       => json_encode(['hidden' => true]),
+            ],
+            //
         ]);
     }
 

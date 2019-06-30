@@ -7,6 +7,7 @@ const user = {
         avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
         username: '',
         nickname: '',
+        wechat_status : false,
     },
     mutations: {
         SET_TOKEN : (state , token) => {
@@ -22,7 +23,10 @@ const user = {
         SET_USERINFO : ( state , data ) => {
             state.username = data.username;
             state.nickname = data.nickname;
-        }
+        },
+        SET_WECHAT_STATUS:( state , wechat_status ) => {
+            state.wechat_status = wechat_status;
+        },
     },
     actions: {
         login({ commit }, userInfo) {
@@ -53,6 +57,7 @@ const user = {
                 getUserInfo().then( (response) => {
                     if( response.data.code == 1 ){
                         commit('SET_USERINFO', response.data.data);
+                        commit('SET_WECHAT_STATUS', response.data.data.wechat_status);
                     }
 
                     resolve(response.data.data)

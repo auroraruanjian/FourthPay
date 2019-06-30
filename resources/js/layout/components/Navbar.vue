@@ -29,21 +29,49 @@
                 <el-dropdown-menu slot="dropdown" class="user-dropdown">
                     <router-link to="/">
                         <el-dropdown-item>
-                            Home
+                            首页
                         </el-dropdown-item>
                     </router-link>
-                    <a target="_blank" href="https://github.com/PanJiaChen/vue-admin-template/">
-                        <el-dropdown-item>Github</el-dropdown-item>
-                    </a>
-                    <a target="_blank" href="https://panjiachen.github.io/vue-element-admin-site/#/">
+                    <!--
+                    <a target="_blank" href="">
                         <el-dropdown-item>Docs</el-dropdown-item>
                     </a>
+                    -->
+                    <el-link @click.native="changePasswd" :underline="false">
+                        <el-dropdown-item>
+                            修改密码
+                        </el-dropdown-item>
+                    </el-link>
+                    <el-link @click.native="bindWechat" :underline="false" v-if="!wechat_status">
+                        <el-dropdown-item>
+                            绑定微信
+                        </el-dropdown-item>
+                    </el-link>
+                    <el-link @click.native="unBindWechat" :underline="false" v-if="wechat_status">
+                        <el-dropdown-item>
+                            解绑微信
+                        </el-dropdown-item>
+                    </el-link>
+                    <el-link @click.native="bindGoogle" :underline="false" >
+                        <el-dropdown-item>
+                            绑定Google Key
+                        </el-dropdown-item>
+                    </el-link>
                     <el-dropdown-item divided>
-                        <span style="display:block;" @click="logout">Log Out</span>
+                        <span style="display:block;" @click="logout">退出</span>
                     </el-dropdown-item>
                 </el-dropdown-menu>
             </el-dropdown>
         </div>
+
+        <el-dialog :visible.sync="wechat.wechat_visible" title="微信绑定" width="320px" @close="wechat_close">
+            <div style="text-align: center;" v-loading="wechat.qrcode_loading">
+                <img :src="wechat.qrcode" >
+            </div>
+            <div style="text-align:right;margin-top:10px;">
+                <el-button type="danger" @click="wechat.wechat_visible=false">Cancel</el-button>
+            </div>
+        </el-dialog>
     </div>
 </template>
 
@@ -52,6 +80,8 @@
     import Breadcrumb from '@/components/Breadcrumb'
     import Hamburger from '@/components/Hamburger'
     import Screenfull from '@/components/Screenfull'
+    import QRCode  from 'qrcode'
+    import { wechat_login,unbind_wechat } from '@/api/user'
 
     export default {
         components: {
@@ -66,7 +96,20 @@
             ]),
             ...mapState({
                 device: state => state.app.device,
+                wechat_status:state => state.user.wechat_status,
             }),
+        },
+        data(){
+            return {
+                wechat:{
+                    interval:null,
+                    wechat_visible:false,
+                    qrcode:'',
+                    state:'',
+                    mode:'web',
+                    qrcode_loading:'',
+                },
+            };
         },
         methods: {
             toggleSideBar() {
@@ -83,7 +126,92 @@
                 }).catch((e) => {
                     console.log(e);
                 });
-            }
+            },
+            changePasswd(){},
+            async wechatState(){
+                let _this = this;
+
+                let res = await wechat_login(_this.wechat.state,_this.wechat.mode);
+
+                console.log(res.data);
+
+                // 绑定成功
+                if( res.data.code == 1 ){
+                    this.$message( res.data.msg ,'success');
+                    this.$store.commit('user/SET_WECHAT_STATUS', true);
+                    _this.wechat_close();
+                    return true;
+                // 刷新二维码
+                }else if(res.data.code == 2){
+                    let opts = {
+                        errorCorrectionLevel: 'H',
+                        type: 'image/jpeg',
+                        rendererOpts: {
+                            quality: 1
+                        },
+                        width:250,
+                        margin:0
+                    }
+
+                    _this.wechat.state = res.data.data.state;
+
+                    QRCode.toDataURL(res.data.data.qrcode, opts, function (err, url) {
+                        if (err) throw err
+
+                        _this.wechat.qrcode = url;
+                    });
+
+                    return true;
+                }else{
+                    if( this.wechat.state == '' ){
+                        this.$message( res.data.msg ,'error');
+                    }
+                }
+
+                return false;
+            },
+            wechat_start(){
+                let _this = this;
+                _this.wechat.interval = setInterval(function(){
+                    _this.wechatState(_this.wechat.state,_this.wechat.mode);
+                },3000)
+            },
+            wechat_close(){
+                if( this.wechat.interval ){
+                    clearInterval(this.wechat.interval);
+                }
+                this.wechat.wechat_visible = false;
+            },
+            async bindWechat(){
+                this.wechat.qrcode = '';
+                this.wechat.state = '';
+
+                let res = await this.wechatState();
+
+                if( res ){
+                    this.wechat.wechat_visible = true;
+                    this.wechat_start();
+                }
+            },
+            unBindWechat(){
+                this.$confirm('确认解绑微信？')
+                    .then(async () => {
+                        let res = await unbind_wechat();
+                        let msg_type = 'error';
+                        if( res.data.code == 1 ){
+                            this.$store.commit('user/SET_WECHAT_STATUS', false);
+                            msg_type = 'success';
+                        }
+                        this.$message( res.data.msg ,msg_type);
+                    })
+                    .catch( (e) => {
+                        console.log(e);
+                    });
+            },
+            bindGoogle(){},
+        },
+        beforeDestroy() {
+            this.wechat_close();
         }
     }
 </script>

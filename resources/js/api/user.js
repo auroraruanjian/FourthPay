@@ -17,7 +17,7 @@ export function logout() {
 
 export function getUserInfo(){
     return fetch({
-        url: 'user/info',
+        url: 'admin/info',
         method: 'get',
     });
 }
@@ -27,5 +27,12 @@ export function wechat_login( state = '' , mode = 'web') {
         url: 'login/wechat',
         method: 'get',
         params :{state,mode}
+    });
+}
+
+export function unbind_wechat() {
+    return fetch({
+        url: 'admin/unbindWechat',
+        method: 'put',
     });
 }

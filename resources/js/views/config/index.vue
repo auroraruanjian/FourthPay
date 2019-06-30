@@ -5,12 +5,13 @@
 
         <p>上次刷新信息：{{last_refresh.username}}|{{last_refresh.time}}</p>
 
-        <el-table :data="config_list" style="width: 100%;margin-top:30px;" border @cell-mouse-enter="handleHover" @cell-mouse-leave="handleLeave">
+        <el-table :data="config_list" style="width: 100%;margin-top:30px;" border >
             <el-table-column align="center" label="ID" prop="id"></el-table-column>
             <el-table-column align="center" label="配置标题" >
                 <template slot-scope="scope" >
-                    <el-tooltip class="item" effect="dark" :content="scope.row.description" placement="top">
-                        <el-link type="primary" @click.native="parent_id = scope.row.id">{{scope.row.title}}</el-link>
+                    <el-tooltip class="item" effect="dark" :content="scope.row.description||scope.row.title" placement="top">
+                        <el-link type="primary" v-if="scope.row.parent_id==0" @click.native="parent_id = scope.row.id">{{scope.row.title}}</el-link>
+                        <el-link type="info" v-else :underline="false">{{scope.row.title}}</el-link>
                     </el-tooltip>
                 </template>
             </el-table-column>
@@ -207,13 +208,6 @@
                     message: message,
                     type: type
                 })
-            },
-            handleHover(row, column, cell, event){
-                console.log(row, column, cell, event);
-
-            },
-            handleLeave(){
-
             },
         },
         watch: {
