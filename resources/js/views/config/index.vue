@@ -82,6 +82,7 @@
     import permission from '@/directive/permission/index.js' // 权限判断指令
     import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
     import { getAllConfig,editConfig,addConfig,getConfig,deleteConfig } from '@/api/config'
+    import { mapGetters } from 'vuex'
 
 
     const defaultConfig = {
@@ -117,12 +118,22 @@
             };
         },
         computed: {
-
+            ...mapGetters([
+                'username'
+            ])
         },
         components: { Pagination },
         directives: { permission },
         created() {
             this.getAllConfig();
+            let _this = this;
+
+            //window.Echo.leave('message.'+this.username);
+            window.Echo.private('message.'+this.username)
+                .listen('NotifyEvent', (e) => {
+                    console.log(e);
+                    _this.$message.success('用户：'+e.data.username+'，刷新时间：'+e.data.time);
+                });
         },
         methods:{
             async getAllConfig(){

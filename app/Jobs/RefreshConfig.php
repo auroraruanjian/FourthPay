@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Events\NotifyEvent;
 use App\Models\Config;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
@@ -45,7 +46,11 @@ class RefreshConfig implements ShouldQueue
             }
         });
 
+        $refresh_data = ['username'=>$this->username,'time'=>date('Y-m-d H:i:s')];
+
+        event(new NotifyEvent($refresh_data));//['username'=>'admin']
+
         // 记录刷新时间
-        Cache::store('redis')->forever('last_refresh_config', ['username'=>$this->username,'time'=>date('Y-m-d H:i:s')]);
+        Cache::store('redis')->forever('last_refresh_config', $refresh_data);
     }
 }

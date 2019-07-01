@@ -1,0 +1,36 @@
+{
+	"authHost": "http://web.blog.me",
+	"authEndpoint": "/broadcasting/auth",
+	"clients": [
+		{
+			"appId": "nick",
+			"key": "331e6ff29d3aefae6984ae0adf7f57be"
+		}
+	],
+	"database": "redis",
+	"databaseConfig": {
+		"redis": {
+			"host": "172.17.0.4",
+			"port": "6379"
+		}
+	},
+	"devMode": true,
+	"host": null,
+	"port": "6001",
+	"protocol": "http",
+	"socketio": {},
+	"sslCertPath": "",
+	"sslKeyPath": "",
+	"sslCertChainPath": "",
+	"sslPassphrase": "",
+	"subscribers": {
+		"http": true,
+		"redis": true
+	},
+	"apiOriginAllow": {
+		"allowCors": false,
+		"allowOrigin": "",
+		"allowMethods": "",
+		"allowHeaders": ""
+	}
+}

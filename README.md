@@ -32,6 +32,21 @@ $ npm install
 $ php artisan queue:work redis
 ```
 
+laravel-echo
+```bash
+# 安装
+$ npm install -g laravel-echo-server
+# 配置
+$ laravel-echo-server init
+# 启动
+$ laravel-echo-server start
+```
+
+redis订阅队列
+```bash
+$ php artisan queue:listen --tries=1
+```
+
 复制 .env.example 文件为 .env,修改数据库、Redis，创建key
 ```bash
 $ php artisan  key:generate
