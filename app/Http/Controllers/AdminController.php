@@ -140,15 +140,16 @@ class AdminController extends Controller
 
     public function getInfo( Request $request )
     {
+        $user = auth()->user();
 
-        if (auth()->id() == 1) {
+        if ($user->id == 1) {
             $user_permission = AdminRolePermissions::orderBy('admin_role_permissions.id','asc')->get();
         }else{
             $user_permission = AdminRolePermissions::select(['admin_role_permissions.*'])->distinct()
                 ->leftJoin('admin_role_has_permission as arhp','arhp.permission_id','admin_role_permissions.id')
                 ->leftJoin('admin_user_has_roles as auhr','auhr.role_id','arhp.role_id')
                 ->leftJoin('admin_users as au','au.id','auhr.user_id')
-                ->where('au.id',auth()->id())
+                ->where('au.id',$user->id)
                 ->orderBy('admin_role_permissions.id','asc')
                 ->get();
         }
@@ -161,10 +162,13 @@ class AdminController extends Controller
         return [
             'code'      => 1,
             'data'      => [
-                'username'  => auth()->user()->username,
-                'usernick'  => auth()->user()->nickname,
+                'username'  => $user->username,
+                'nickname'  => $user->nickname,
+                'last_time' => $user->last_time,
+                'last_ip'   => $user->last_ip,
+                'role_name' => $user->id==1?'超级管理员':$user->roles()->name??'',
                 'permission'=> $permission,
-                'wechat_status' => !empty(auth()->user()->unionid)?true:false,
+                'wechat_status' => !empty($user->unionid)?true:false,
             ]
         ];
     }

@@ -7,6 +7,9 @@ const user = {
         avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
         username: '',
         nickname: '',
+        role_name: '',
+        last_ip: '',
+        last_time: '',
         wechat_status : false,
     },
     mutations: {
@@ -21,8 +24,11 @@ const user = {
             }
         },
         SET_USERINFO : ( state , data ) => {
-            state.username = data.username;
-            state.nickname = data.nickname;
+            state.username  = data.username;
+            state.nickname  = data.nickname;
+            state.role_name = data.role_name;
+            state.last_ip   = data.last_ip;
+            state.last_time = data.last_time;
         },
         SET_WECHAT_STATUS:( state , wechat_status ) => {
             state.wechat_status = wechat_status;
