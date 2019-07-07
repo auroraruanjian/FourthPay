@@ -7,3 +7,11 @@ export function getRequestLogs( data ) {
         params:data
     });
 }
+
+export function getLoginLogs( data ) {
+    return fetch({
+        url: 'log/loginLog',
+        method: 'get',
+        params:data
+    });
+}

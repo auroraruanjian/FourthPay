@@ -4,20 +4,25 @@
             <div class="handle-box">
                 <el-autocomplete
                         class="inline-input"
-                        v-model="search.path"
+                        v-model="search.domain"
                         :fetch-suggestions="querySearch"
-                        placeholder="请输入需要查找的访问路径"
+                        placeholder="访问域名"
                         size="small"
                         @select="handleSelect">
                 </el-autocomplete>
                 <el-button type="primary" icon="el-icon-search" @click="handleSearch" size="small">搜索</el-button>
             </div>
 
-            <el-table :data="request_log" style="width: 100%;margin-top:30px;" border>
+            <el-table :data="login_log" style="width: 100%;margin-top:30px;" border>
                 <el-table-column align="center" label="ID" prop="id"></el-table-column>
                 <el-table-column align="center" label="用户名" prop="username"></el-table-column>
-                <el-table-column align="header-center" label="访问路径" prop="path"></el-table-column>
-                <el-table-column align="header-center" label="请求数据" prop="request"></el-table-column>
+                <el-table-column align="header-center" label="访问域名" prop="domain"></el-table-column>
+                <el-table-column align="header-center" label="来源" prop="province"></el-table-column>
+                <el-table-column align="header-center" label="浏览器" prop="browser"></el-table-column>
+                <el-table-column align="header-center" label="浏览器版本" prop="browser_version"></el-table-column>
+                <el-table-column align="header-center" label="操作系统" prop="os"></el-table-column>
+                <el-table-column align="header-center" label="设备类型" prop="device"></el-table-column>
+                <el-table-column align="header-center" label="IP" prop="ip"></el-table-column>
                 <el-table-column align="header-center" label="时间" prop="created_at"></el-table-column>
                 <el-table-column align="center" label="Operations">
                     <template slot-scope="scope">
@@ -34,22 +39,27 @@
 <script>
     import permission from '@/directive/permission/index.js' // 权限判断指令
     import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
-    import { getRequestLogs } from '@/api/log'
+    import { getLoginLogs } from '@/api/log'
 
 
     const defaultLog = {
         id : '',
         username : '',
-        path : '',
-        request : '',
-        created_at : '',
+        domain : '',
+        province : '',
+        browser : '',
+        browser_version : '',
+        os : '',
+        device : '',
+        ip : '',
+        created_at : [],
     };
 
     export default{
         data(){
             return {
                 log: Object.assign({}, defaultLog),
-                request_log: [],
+                login_log: [],
                 dialogVisible: false,
                 dialogType: 'new',
                 loading:false,
@@ -59,9 +69,9 @@
                     limit: 20
                 },
                 search:{
-                    path:'',
+                    domain:'',
                 },
-                allPath:[],
+                allDomain:[],
             };
         },
         components: { Pagination },
@@ -74,10 +84,10 @@
         methods: {
             async getLogs(){
                 this.loading =  true;
-                let result = await getRequestLogs(this.listQuery);
+                let result = await getLoginLogs(this.listQuery);
                 if( result.data.code == 1 ){
                     this.total = result.data.data.total;
-                    this.request_log = result.data.data.log;
+                    this.login_log = result.data.data.log;
                 }else{
                     this.$message.error(result.data.message);
                 }
@@ -92,8 +102,8 @@
                 };
             },
             querySearch(queryString, cb) {
-                var allPath = this.allPath;
-                var results = queryString ? allPath.filter(this.createFilter(queryString)) : allPath;
+                var allDomain = this.allDomain;
+                var results = queryString ? allDomain.filter(this.createFilter(queryString)) : allDomain;
                 // 调用 callback 返回建议列表的数据
                 cb(results);
             },
