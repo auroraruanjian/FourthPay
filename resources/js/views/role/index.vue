@@ -1,37 +1,41 @@
 <template>
     <div class="app-container" v-loading="loading">
-        <el-button type="primary" @click="handleAddRole" v-permission="'role/create'">New Role</el-button>
+        <div class="container">
+            <div class="handle-box">
+                <el-button type="primary" icon="el-icon-circle-plus-outline" v-permission="'role/create'" @click="handleAddRole" size="small">新增管理员</el-button>
+            </div>
 
-        <el-table :data="rolesList" style="width: 100%;margin-top:30px;" border>
-            <el-table-column align="center" label="Role Key" width="220">
-                <template slot-scope="scope">
-                    {{ scope.row.id }}
-                </template>
-            </el-table-column>
-            <el-table-column align="center" label="Role Name" width="220">
-                <template slot-scope="scope">
-                    {{ scope.row.name }}
-                </template>
-            </el-table-column>
-            <el-table-column align="header-center" label="Description">
-                <template slot-scope="scope">
-                    {{ scope.row.description }}
-                </template>
-            </el-table-column>
-            <el-table-column align="center" label="Operations">
-                <template slot-scope="scope">
-                    <el-button type="primary" size="small" @click="handleEdit(scope)" v-permission="'role/edit'">Edit</el-button>
-                    <el-button type="danger" size="small" @click="handleDelete(scope)" v-permission="'role/delete'">Delete</el-button>
-                </template>
-            </el-table-column>
-        </el-table>
+            <el-table :data="rolesList" style="width: 100%;margin-top:30px;" border>
+                <el-table-column align="center" label="Role Key" width="220">
+                    <template slot-scope="scope">
+                        {{ scope.row.id }}
+                    </template>
+                </el-table-column>
+                <el-table-column align="center" label="Role Name" width="220">
+                    <template slot-scope="scope">
+                        {{ scope.row.name }}
+                    </template>
+                </el-table-column>
+                <el-table-column align="header-center" label="Description">
+                    <template slot-scope="scope">
+                        {{ scope.row.description }}
+                    </template>
+                </el-table-column>
+                <el-table-column align="center" label="Operations">
+                    <template slot-scope="scope">
+                        <el-button type="primary" size="small" @click="handleEdit(scope)" v-permission="'role/edit'">Edit</el-button>
+                        <el-button type="danger" size="small" @click="handleDelete(scope)" v-permission="'role/delete'">Delete</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </div>
 
-        <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'Edit Role':'New Role'">
-            <el-form :model="role" label-width="80px" label-position="left">
-                <el-form-item label="Name">
+        <el-dialog :visible.sync="dialogVisible" width="580px" :title="dialogType==='edit'?'Edit Role':'New Role'">
+            <el-form :model="role" label-width="15%" label-position="left">
+                <el-form-item label="角色名">
                     <el-input v-model="role.name" placeholder="Role Name" />
                 </el-form-item>
-                <el-form-item label="Desc">
+                <el-form-item label="描述">
                     <el-input
                             v-model="role.description"
                             :autosize="{ minRows: 2, maxRows: 4}"
@@ -39,7 +43,7 @@
                             placeholder="Role Description"
                     />
                 </el-form-item>
-                <el-form-item label="Menus">
+                <el-form-item label="权限">
                     <el-tree
                             ref="tree"
                             :check-strictly="checkStrictly"

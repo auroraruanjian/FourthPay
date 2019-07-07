@@ -1,37 +1,41 @@
 <template>
     <div class="app-container" v-loading="loading">
-        <el-button type="primary" @click="handleAddConfig" v-permission="'config/create'">创建配置</el-button>
-        <el-link type="primary" @click.native="parent_id=0" v-if="parent_id > 0 ">返回上一级</el-link>
+        <div class="container">
+            <div class="handle-box">
+                <el-button type="primary" @click="handleAddConfig" v-permission="'config/create'" size="small">创建配置</el-button>
+                <el-link type="primary" @click.native="parent_id=0" v-if="parent_id > 0 " size="small">返回上一级</el-link>
+            </div>
 
-        <p>上次刷新信息：{{last_refresh.username}}|{{last_refresh.time}}</p>
+            <aside>上次刷新信息：{{last_refresh.username}}|{{last_refresh.time}}</aside>
 
-        <el-table :data="config_list" style="width: 100%;margin-top:30px;" border >
-            <el-table-column align="center" label="ID" prop="id"></el-table-column>
-            <el-table-column align="center" label="配置标题" >
-                <template slot-scope="scope" >
-                    <el-tooltip class="item" effect="dark" :content="scope.row.description||scope.row.title" placement="top">
-                        <el-link type="primary" v-if="scope.row.parent_id==0" @click.native="parent_id = scope.row.id">{{scope.row.title}}</el-link>
-                        <el-link type="info" v-else :underline="false">{{scope.row.title}}</el-link>
-                    </el-tooltip>
-                </template>
-            </el-table-column>
-            <el-table-column align="header-center" label="配置名称" prop="key"></el-table-column>
-            <el-table-column align="header-center" label="配置值" prop="value"></el-table-column>
-            <el-table-column align="header-center" label="状态" >
-                <template slot-scope="scope">
-                    <el-tag type="success" v-if="scope.row.is_disabled">正常</el-tag>
-                    <el-tag type="danger" v-else>禁用</el-tag>
-                </template>
-            </el-table-column>
-            <el-table-column align="center" label="Operations">
-                <template slot-scope="scope" >
-                    <el-button type="primary" size="small" @click="handleEdit(scope)">Edit</el-button>
-                    <el-button type="danger" size="small" @click="handleDelete(scope)">Delete</el-button>
-                </template>
-            </el-table-column>
-        </el-table>
+            <el-table :data="config_list" style="width: 100%;margin-top:30px;" border >
+                <el-table-column align="center" label="ID" prop="id"></el-table-column>
+                <el-table-column align="center" label="配置标题" >
+                    <template slot-scope="scope" >
+                        <el-tooltip class="item" effect="dark" :content="scope.row.description||scope.row.title" placement="top">
+                            <el-link type="primary" v-if="scope.row.parent_id==0" @click.native="parent_id = scope.row.id">{{scope.row.title}}</el-link>
+                            <el-link type="info" v-else :underline="false">{{scope.row.title}}</el-link>
+                        </el-tooltip>
+                    </template>
+                </el-table-column>
+                <el-table-column align="header-center" label="配置名称" prop="key"></el-table-column>
+                <el-table-column align="header-center" label="配置值" prop="value"></el-table-column>
+                <el-table-column align="header-center" label="状态" >
+                    <template slot-scope="scope">
+                        <el-tag type="success" v-if="scope.row.is_disabled">正常</el-tag>
+                        <el-tag type="danger" v-else>禁用</el-tag>
+                    </template>
+                </el-table-column>
+                <el-table-column align="center" label="Operations">
+                    <template slot-scope="scope" >
+                        <el-button type="primary" size="small" @click="handleEdit(scope)">Edit</el-button>
+                        <el-button type="danger" size="small" @click="handleDelete(scope)">Delete</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
 
-        <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getAllConfig" />
+            <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getAllConfig" />
+        </div>
 
         <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'Edit Config':'New Config'">
             <el-form :model="config" label-width="15%" label-position="right">
