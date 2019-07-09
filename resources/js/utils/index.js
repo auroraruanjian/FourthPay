@@ -1,6 +1,8 @@
 /**
  * Created by PanJiaChen on 16/11/18.
  */
+import SubPage from "../views/common/SubPage";
+
 const _import = require('@/router/_import_' + process.env.NODE_ENV)//获取组件的方法
 import Layout from '@/layout'
 import store from '@/store'
@@ -367,8 +369,13 @@ export function createRouter( apiRouters ){
             name += ucfirst(_rule[x]);
         }
 
+        let rule_path = '/'+val.rule;
+        if( typeof val.extra.params == 'object' && val.extra.params.length > 0 ){
+            rule_path += '/:' + val.extra.params.join('/:');
+        }
+
         let router = {
-            path: '/'+val.rule,
+            path: rule_path,
             //component: _import(val.rule),
             //alwaysShow: true, // will always show the root menu
             name: name,
@@ -384,12 +391,20 @@ export function createRouter( apiRouters ){
         if( typeof val.child == "object" && val.child.length>0){
             let _childrenRouter = createRouter(val.child);
             router.children    = _childrenRouter.asyncRouter;
-            // router.redirect    = '/'+val.rule;
+            if( typeof val.extra.redirect != "undefined" && val.extra.redirect != null ){
+                router.redirect = val.extra.redirect;
+            }
 
             router.alwaysShow  = _childrenRouter.alwaysShow;
 
             if( typeof val.extra.component != "undefined" && val.extra.component != null ){
-                router.component = val.extra.component=='Layout'?Layout:_import(val.extra.component)
+                if( val.extra.component=='Layout' ){
+                    router.component = Layout;
+                }else if( val.extra.component=='SubPage' ){
+                    router.component = SubPage;
+                }else{
+                    router.component = _import(val.extra.component)
+                }
             }
 
             if( typeof val.extra.hidden == 'undefined' || val.extra.hidden == null){
@@ -401,11 +416,14 @@ export function createRouter( apiRouters ){
             try{
                 if( typeof val.extra.hidden != 'undefined' && val.extra.hidden && val.extra.hidden){
                     router.hidden = true;
+
+                    if( typeof val.extra.component != "undefined" && val.extra.component != null ){
+                        router.component = val.extra.component=='Layout'?Layout:_import(val.extra.component)
+                    }
                 }else{
                     router.component = val.extra.component=='Layout'?Layout:_import(val.extra.component)
                     alwaysShow  = true;
                 }
-
             }catch(e){
                 console.log(e);
             }

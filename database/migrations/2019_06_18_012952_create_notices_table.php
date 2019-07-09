@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateNoticeTable extends Migration
+class CreateNoticesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,11 @@ class CreateNoticeTable extends Migration
      */
     public function up()
     {
-        Schema::create('notice', function (Blueprint $table) {
+        Schema::create('notices', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->string('subject', 64)->unique()->comment('标题');
             $table->text('content')->comment('内容');
-            $table->smallInteger('created_admin_user_id')->default(0)->comment('创造管理ID');
+            $table->smallInteger('created_admin_user_id')->default(0)->comment('创建管理ID');
             $table->smallInteger('verified_admin_user_id')->default(0)->comment('审核管理ID');
             $table->smallInteger('sort')->default(0)->comment('排序');
             $table->boolean('is_show')->default(false)->comment('是否显示');
@@ -41,11 +41,38 @@ class CreateNoticeTable extends Migration
             return;
         }
 
-        DB::table('admin_role_permissions')->insert([
+        $notice_id = DB::table('admin_role_permissions')->insertGetId([
             'parent_id'   => $row->id,
-            'rule'        => 'notice/index',
+            'rule'        => 'notices/',
             'name'        => '公告管理',
-            'extra'       => json_encode(['icon' => 'notice','component'=>'Layout']),
+            'extra'       => json_encode(['icon' => 'notice','component'=>'SubPage','redirect'=>'/notices/index']),
+        ]);
+
+        DB::table('admin_role_permissions')->insert([
+            [
+                'parent_id'   => $notice_id,
+                'rule'        => 'notices/index',
+                'name'        => '公告列表',
+                'extra'       => json_encode(['hidden' => true,'component'=>'notices/index']),
+            ],
+            [
+                'parent_id'   => $notice_id,
+                'rule'        => 'notices/create',
+                'name'        => '添加公告',
+                'extra'       => json_encode(['hidden' => true,'component'=>'notices/create']),
+            ],
+            [
+                'parent_id'   => $notice_id,
+                'rule'        => 'notices/edit',
+                'name'        => '修改公告',
+                'extra'       => json_encode(['hidden' => true,'params'=>['id'],'component'=>'notices/edit']),
+            ],
+            [
+                'parent_id'   => $notice_id,
+                'rule'        => 'notices/delete',
+                'name'        => '删除公告',
+                'extra'       => json_encode(['hidden' => true]),
+            ],
         ]);
     }
 
@@ -56,6 +83,6 @@ class CreateNoticeTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('notice');
+        Schema::dropIfExists('notices');
     }
 }

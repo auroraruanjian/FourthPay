@@ -11,6 +11,7 @@ NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
 /* Layout */
 import Layout from '@/layout'
+import SubPage from '@/views/common/SubPage'
 
 export const constantRoutes = [
     {

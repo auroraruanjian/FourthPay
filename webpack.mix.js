@@ -14,7 +14,7 @@ const ChunkRenamePlugin = require("webpack-chunk-rename-plugin");
  */
 
 mix.js('resources/js/app.js','')
-    .sass('resources/sass/app.scss', 'public/css');
+    .sass('resources/sass/app.scss', 'public/css', { implemention: require('node-sass') });
 
 mix.sourceMaps();
 

@@ -9,7 +9,7 @@
                     <el-option key="2" label="湖南省" value="湖南省" ></el-option>
                 </el-select>
                 -->
-                <el-input v-model="seach_adminname" placeholder="筛选关键词" class="handle-input mr10" size="small"></el-input>
+                <el-input v-model="seach.dminname" placeholder="筛选关键词" class="handle-input mr10" size="small"></el-input>
                 <el-button type="primary" icon="el-icon-search" @click="handleSearch" size="small">搜索</el-button>
                 <el-button type="primary" icon="el-icon-circle-plus-outline" v-permission="'admin/create'" @click="handleAddAdmin" size="small">新增管理员</el-button>
             </div>
@@ -94,7 +94,9 @@
                     page: 1,
                     limit: 20
                 },
-                seach_adminname:'',
+                seach:{
+                    adminname:'',
+                }
             };
         },
         components: { Pagination },
