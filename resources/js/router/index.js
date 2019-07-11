@@ -1,13 +1,16 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 import NProgress from 'nprogress' // progress bar
+import 'nprogress/nprogress.css' //这个样式必须引入
 import store from '@/store';
-import {Message} from 'element-ui';
 
 // import index from '@/views/default/index';
 
 Vue.use(VueRouter);
-NProgress.configure({ showSpinner: false }) // NProgress Configuration
+
+NProgress.inc(0.2)
+NProgress.configure({ easing: 'ease', speed: 500, showSpinner: false })
+
 
 /* Layout */
 import Layout from '@/layout'
@@ -86,8 +89,6 @@ router.beforeEach(async (to, from, next) => {
     if( tokenStore ){
         if (to.path === '/login') {
             next({path:'/'});
-
-            NProgress.done();
         }else{
             const is_login = store.getters.username && store.getters.username.length > 0
 
@@ -111,8 +112,6 @@ router.beforeEach(async (to, from, next) => {
                     })
                 }
             }
-
-            NProgress.done();
         }
 
     }else{
@@ -120,10 +119,12 @@ router.beforeEach(async (to, from, next) => {
             next();
         }else{
             next({path:'/login'});
-
-            NProgress.done();
         }
     }
 });
+
+router.afterEach(() => {
+    NProgress.done()
+})
 
 export default router
