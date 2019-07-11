@@ -11,7 +11,8 @@
             <el-table :data="list" style="width: 100%;margin-top:30px;" border>
                 <el-table-column align="center" label="名称">
                     <template slot-scope="scope">
-                        <el-link :icon="(scope.row.type=='dir')?'el-icon-folder-opened':'el-icon-document'" @click.native="path=scope.row.name">{{scope.row.name}}</el-link>
+                        <el-link v-if="scope.row.type=='dir'" icon="el-icon-folder-opened" @click.native="path=scope.row.name">{{scope.row.name}}</el-link>
+                        <el-link v-else icon="el-icon-document" :underline="false">{{scope.row.name}}</el-link>
                     </template>
                 </el-table-column>
                 <el-table-column align="center" label="文件大小" prop="size"></el-table-column>
