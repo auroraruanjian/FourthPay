@@ -50,6 +50,7 @@
                             :data="routesData"
                             :props="defaultProps"
                             show-checkbox
+                            default-expand-all
                             node-key="id"
                             class="permission-tree"
                     />

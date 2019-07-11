@@ -66,7 +66,7 @@ class CreateAdminLoginLogTable extends Migration
             'parent_id'   => $id,
             'rule'        => 'log/systemLog',
             'name'        => '系统日志',
-            'extra'       => json_encode(['icon' => 'star','component'=>'Layout']),
+            'extra'       => json_encode(['icon' => 'star','component'=>'log/system']),
         ]);
     }
 

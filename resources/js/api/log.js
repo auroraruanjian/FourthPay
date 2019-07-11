@@ -15,3 +15,11 @@ export function getLoginLogs( data ) {
         params:data
     });
 }
+
+export function getSystemLogs( path ) {
+    return fetch({
+        url: 'log/systemLog',
+        method: 'get',
+        params:{path}
+    });
+}

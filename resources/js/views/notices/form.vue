@@ -1,15 +1,14 @@
 <template>
-    <div>
-        <sticky :z-index="10" :class-name="'sub-navbar '+status">
-            <el-button v-loading="loading" style="margin-left: 10px;" type="success" @click="submitForm">
-                发布
-            </el-button>
-            <el-button v-loading="loading" type="warning" @click="draftForm">
-                草稿
-            </el-button>
-        </sticky>
-
         <div class="app-container" v-loading="loading">
+
+            <sticky :z-index="10" :class-name="'sub-navbar '+status">
+                <el-button v-loading="loading" style="margin-left: 10px;" type="success" @click="submitForm">
+                    发布
+                </el-button>
+                <el-button v-loading="loading" type="warning" @click="draftForm">
+                    草稿
+                </el-button>
+            </sticky>
 
             <div class="container">
                 <el-form ref="postForm" :model="postForm" :rules="rules" class="form-container">
@@ -58,7 +57,6 @@
                 </el-form>
             </div>
         </div>
-    </div>
 </template>
 
 <script>
@@ -235,5 +233,13 @@
             border-radius: 0px;
             border-bottom: 1px solid #bfcbd9;
         }
+    }
+
+    /deep/ .sub-navbar{
+        border-radius: 3px;
+    }
+
+    .container{
+        margin-top:15px;
     }
 </style>
