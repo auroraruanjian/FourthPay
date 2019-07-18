@@ -18,7 +18,7 @@ class CreateConfigTable extends Migration
             $table->SmallInteger('parent_id')->default(0)->comment('配置父 ID');
             $table->string('title', 64)->comment('配置标题');
             $table->string('key', 64)->unique()->comment('系统配置名称');
-            $table->string('value', 256)->comment('系统配置值');
+            $table->string('value', 256)->nullable()->comment('系统配置值');
             // $table->smallInteger('input_type')->default(0)->comment('配置输入类型 0输入框，1下拉框，2复选框');
             // $table->smallInteger('value_type')->default(0)->comment('配置值 验证类型 0字符串，1数字，2大于零正数');
             // $table->string('input_option', 256)->default('')->comment('输入选项，当input_type 为下拉框或者复选框使用');
@@ -85,7 +85,7 @@ class CreateConfigTable extends Migration
                 'parent_id'     => $id,
                 'title'         => '微信appid',
                 'key'           => 'wechat_appid',
-                'value'         => '',
+                'value'         => 'wx21dc2d3e2297df05',
                 'is_disabled'   => 1,
                 'description'   => '微信公众后台appID',
             ],
@@ -93,7 +93,7 @@ class CreateConfigTable extends Migration
                 'parent_id'     => $id,
                 'title'         => '微信secret',
                 'key'           => 'wechat_secret',
-                'value'         => '',
+                'value'         => '37c86b59f753fd768c47499e1c0a0cb5',
                 'is_disabled'   => 1,
                 'description'   => '微信公众后台appsecret',
             ],
@@ -101,7 +101,7 @@ class CreateConfigTable extends Migration
                 'parent_id'     => $id,
                 'title'         => '微信回调地址',
                 'key'           => 'wechat_callback_url',
-                'value'         => '',
+                'value'         => 'http://53d83880.ngrok.io/login/wechatCallback',
                 'is_disabled'   => 1,
                 'description'   => '微信公众后台appsecret',
             ],

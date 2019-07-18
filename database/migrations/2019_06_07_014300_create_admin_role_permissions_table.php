@@ -20,10 +20,10 @@ class CreateAdminRolePermissionsTable extends Migration {
             $table->string('description')->default('')->comment('描述与备注');
         });
 
-        $this->__data();
+        $this->_permission();
     }
 
-    private function __data() {
+    private function _permission() {
         $id = DB::table('admin_role_permissions')->insertGetId([
             'parent_id'   => 0,
             'rule'        => 'permission',
