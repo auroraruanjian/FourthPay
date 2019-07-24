@@ -81,7 +81,7 @@
     import Hamburger from '@/components/Hamburger'
     import Screenfull from '@/components/Screenfull'
     import QRCode  from 'qrcode'
-    import { wechat_login,unbind_wechat } from '@/api/user'
+    import { wechat_login,unbind_wechat } from '@/api/auth'
 
     export default {
         components: {

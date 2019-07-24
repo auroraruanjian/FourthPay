@@ -74,7 +74,7 @@
 <script>
     import { validUsername } from '@/utils/validate'
     import QRCode  from 'qrcode'
-    import { wechat_login } from '@/api/user'
+    import { wechat_login } from '@/api/auth'
 
     export default {
         name: 'Login',

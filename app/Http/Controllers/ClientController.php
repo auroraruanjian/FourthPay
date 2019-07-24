@@ -26,7 +26,7 @@ class ClientController extends Controller
 
         $data = [
             'total'       => 0,
-            'config_list' => [],
+            'client_list' => [],
         ];
 
         $clientlist = Clients::select([

@@ -1,4 +1,4 @@
-import { login,logout,getUserInfo } from '@/api/user'
+import { login,logout,getUserInfo } from '@/api/auth'
 
 const user = {
     namespaced: true,
