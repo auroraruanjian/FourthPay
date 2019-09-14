@@ -3,6 +3,7 @@
 ---
 
 后端技术栈：
+---------
 * Laravel       5.8
 * nginx
 * postgreSql 或 Mysql
@@ -11,6 +12,7 @@
 * PHP APC
 
 前端技术栈
+---------
 * Vue      
 * Vuex
 * Vue-router
@@ -19,20 +21,22 @@
 模板采用：[Element-Admin](https://github.com/PanJiaChen/vue-admin-template/)
 
 部署方法
+-------
+
+#### 1.拉取代码，安装扩展库
 ```bash
-拉取代码，安装扩展
-$ git clone git@github.com:tuo0/p2p.git
-$ cd p2p
+$ git clone git@github.com:tuo0/laravel-admin.git
+$ cd laravel-admin
 $ composer install
 $ npm install
 ```
 
-队列监听
+#### 2.启动对接监听
 ```bash
 $ php artisan queue:work redis
 ```
 
-laravel-echo
+#### 3.安装部署laravel-echo
 ```bash
 # 安装
 $ npm install -g laravel-echo-server
@@ -42,22 +46,23 @@ $ laravel-echo-server init
 $ laravel-echo-server start
 ```
 
-redis订阅队列
+#### 4.启动redis订阅队列
 ```bash
 $ php artisan queue:listen --tries=1
 ```
 
-复制 .env.example 文件为 .env,修改数据库、Redis，创建key
+#### 5.复制 .env.example 文件为 .env,修改数据库、Redis，创建key
 ```bash
 $ php artisan  key:generate
 ```
 
-编译前端文件
+#### 6.编译前端文件
 ```bash
 $ npm run prod
 ```
 
 Ajax 接口返回json数据说明
+-----------------------
 ```php
 [
     'code'  => 1,
@@ -69,3 +74,4 @@ Ajax 接口返回json数据说明
 * msg:错误消息
 * data:返回数据 
 
+![sdd](https://raw.githubusercontent.com/tuo0/laravel-admin/nick/dev/README/images/index.png)
