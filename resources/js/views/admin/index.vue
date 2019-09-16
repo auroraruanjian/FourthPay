@@ -38,7 +38,7 @@
         </div>
 
         <el-dialog :visible.sync="dialogVisible" width="580px" :title="dialogType==='edit'?'Edit Admin':'New Admin'">
-            <el-form :model="admin" label-width="15%" label-position="left">
+            <el-form :model="admin" label-width="15%" label-position="right">
                 <el-form-item label="用户名">
                     <el-input v-model="admin.username" placeholder="用户名" />
                 </el-form-item>

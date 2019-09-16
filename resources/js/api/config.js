@@ -24,6 +24,14 @@ export function getConfig( id ){
     });
 }
 
+export function settingConfig( data ){
+    return fetch({
+        url: 'config/setting',
+        method: 'put',
+        data
+    });
+}
+
 export function editConfig( data ){
     return fetch({
         url: 'config/edit',

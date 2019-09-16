@@ -70,7 +70,7 @@
         </div>
 
         <div class="container" style="margin-top:20px;">
-            <el-table :data="orders" style="width: 100%;margin-top:30px;" border >
+            <el-table :data="orders" style="width: 100%;" border >
                 <el-table-column align="center" label="ID" prop="id"></el-table-column>
                 <el-table-column align="header-center" label="账变时间" prop="created_at"></el-table-column>
                 <el-table-column align="header-center" label="用户名" prop="from_user_id"></el-table-column>

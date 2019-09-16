@@ -31,7 +31,7 @@
         </div>
 
         <el-dialog :visible.sync="dialogVisible" width="580px" :title="dialogType==='edit'?'Edit Role':'New Role'">
-            <el-form :model="role" label-width="15%" label-position="left">
+            <el-form :model="role" label-width="15%" label-position="right">
                 <el-form-item label="角色名">
                     <el-input v-model="role.name" placeholder="Role Name" />
                 </el-form-item>
