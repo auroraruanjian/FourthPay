@@ -20,6 +20,12 @@
 
 模板采用：[Element-Admin](https://github.com/PanJiaChen/vue-admin-template/)
 
+目录结构
+------
+* backstage ：项目管理后台
+* front     ：项目前台
+* service   ：公共模块目录
+
 部署方法
 -------
 
