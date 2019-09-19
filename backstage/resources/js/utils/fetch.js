@@ -17,7 +17,7 @@ fetch.interceptors.response.use(
         return response;
     },
     error => {
-        console.log(error);
+        //console.log(error);
         if( error.response ) {
             if( error.response.status == 419 || error.response.status == 401) {
                 Message({
@@ -32,6 +32,15 @@ fetch.interceptors.response.use(
                         router.push({path:'login'});
                     }
                 })
+            }else if( error.response.status == 422 ){
+                for(let i in error.response.data.data.errors){
+                    let err_msg = '';
+                    for( let e in error.response.data.data.errors[i] ){
+                        err_msg += error.response.data.data.errors[i][e];
+                    }
+                    error.response.data.msg = err_msg;
+                    return error.response;
+                }
             }
             return Promise.reject(new Error(error.message || 'Error'))
         } else {

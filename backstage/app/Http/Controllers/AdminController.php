@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AdminIndexRequest;
 use App\Models\AdminRolePermissions;
 use App\Models\AdminUser;
 use App\Models\AdminUserHasRole;
@@ -19,7 +20,7 @@ class AdminController extends Controller
         $this->middleware('auth');
     }
 
-    public function getIndex(Request $request)
+    public function getIndex(AdminIndexRequest $request)
     {
         $page  = $request->get('page', 1);
         $limit = $request->get('limit');

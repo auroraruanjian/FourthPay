@@ -115,7 +115,7 @@
                     this.total = result.data.data.total;
                     this.adminList = result.data.data.adminlist;
                 }else{
-                    this.$message.error(result.data.message);
+                    this.$message.error(result.data.msg);
                 }
                 this.loading =  false;
             },
@@ -124,7 +124,7 @@
                 if( result.data.code == 1 ){
                     this.rolesList = result.data.data.roles
                 }else{
-                    this.$message.error(result.data.message);
+                    this.$message.error(result.data.msg);
                 }
             },
             handleAddAdmin(){
@@ -154,7 +154,7 @@
                         });
                         this.getAdminUsers();
                     }else{
-                        this.$message.error(result.data.message);
+                        this.$message.error(result.data.msg);
                     }
                 }).catch((e) => {
                     console.log(e);
@@ -198,7 +198,7 @@
              * 查找管理员
              */
             handleSearch(){
-
+                this.getAdminUsers();
             }
         }
     }
