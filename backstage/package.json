@@ -7,29 +7,21 @@
         "watch-poll": "npm run watch -- --watch-poll",
         "hot": "cross-env NODE_ENV=development node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --hot --config=node_modules/laravel-mix/setup/webpack.config.js",
         "prod": "npm run production",
-        "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
+        "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --progress --hide-modules --config=node_modules/laravel-mix/setup/webpack.config.js"
     },
     "devDependencies": {
-        "@babel/plugin-syntax-dynamic-import": "^7.2.0",
-        "axios": "^0.18",
-        "babel-plugin-component": "^1.1.1",
-        "bootstrap": "^4.1.0",
-        "clean-webpack-plugin": "^3.0.0",
         "cross-env": "^5.1",
         "laravel-mix": "^4.0.7",
-        "lodash": "^4.17.5",
-        "nprogress": "^0.2.0",
-        "popper.js": "^1.12",
-        "resolve-url-loader": "^2.3.1",
-        "sass-loader": "^7.1.0",
-        "vue": "^2.5.17",
-        "vue-router": "^3.0.6",
-        "vue-template-compiler": "^2.6.10",
-        "vuex": "^3.1.1"
+        "sass-loader": "^7.1.0"
     },
     "dependencies": {
+        "@babel/plugin-syntax-dynamic-import": "^7.2.0",
+        "babel-plugin-component": "^1.1.1",
         "@vue/babel-helper-vue-jsx-merge-props": "^1.0.0",
         "@vue/babel-preset-jsx": "^1.0.0",
+        "clean-webpack-plugin": "^3.0.0",
+        "resolve-url-loader": "^2.3.1",
+        "axios": "^0.18",
         "element-ui": "^2.9.1",
         "laravel-echo": "^1.5.4",
         "node-sass": "^4.12.0",
@@ -41,6 +33,12 @@
         "svg-sprite-loader": "^4.1.6",
         "vue-cookie": "^1.1.4",
         "vue-particle-line": "^0.1.4",
-        "webpack-chunk-rename-plugin": "^1.0.3"
+        "webpack-chunk-rename-plugin": "^1.0.3",
+        "vue": "^2.5.17",
+        "vue-router": "^3.0.6",
+        "vue-template-compiler": "^2.6.10",
+        "vuex": "^3.1.1",
+        "popper.js": "^1.12",
+        "lodash": "^4.17.5"
     }
 }

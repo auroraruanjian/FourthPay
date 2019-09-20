@@ -60,7 +60,8 @@ const webpack_config = {
             initialChunksWithEntry: true,
             '/vendor': 'js/vendor.js'
         }),
-    ]
+    ],
+    optimization:[],
 };
 
 Mix.listen('configReady', (webpackConfig) => {

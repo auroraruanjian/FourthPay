@@ -19,6 +19,7 @@
 * Element UI
 
 模板采用：[Element-Admin](https://github.com/PanJiaChen/vue-admin-template/)
+演示：[Laravel后台管理系统](http://www.tuo0.com)
 
 目录结构
 ------
@@ -76,8 +77,8 @@ Ajax 接口返回json数据说明
     'data'  => [],
 ]
 ```
-* code:错误码  1：成功  0:失败 <0:失败错误码
+* code:错误码  1：成功  0:失败 >1:失败错误码
 * msg:错误消息
 * data:返回数据 
 
-![sdd](https://raw.githubusercontent.com/tuo0/laravel-admin/nick/dev/README/images/index.png)
+![sdd](https://raw.githubusercontent.com/tuo0/laravel-admin/master/README/images/index.png)
