@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ClientCreateRequest;
+use App\Http\Requests\CommonIndexRequest;
 use App\Models\Clients;
 use Illuminate\Http\Request;
 
@@ -18,7 +20,7 @@ class ClientController extends Controller
         $this->middleware('auth');
     }
 
-    public function postIndex(Request $request) {
+    public function postIndex(CommonIndexRequest $request) {
         $page  = (int)$request->get('page', 1);
         $limit = (int)$request->get('limit');
 
@@ -48,7 +50,7 @@ class ClientController extends Controller
         return $this->response(1, 'Success!', $data);
     }
 
-    public function postCreate(Request $request)
+    public function postCreate(ClientCreateRequest $request)
     {
         $client             = new Clients();
         $client->account    = $request->get('account')??0;
@@ -61,7 +63,7 @@ class ClientController extends Controller
         }
     }
 
-    public function getEdit(Request $request)
+    public function getEdit(ClientCreateRequest $request)
     {
         $id = (int)$request->get('id');
 
@@ -98,7 +100,7 @@ class ClientController extends Controller
 
     public function deleteDelete(Request $request)
     {
-        $id = $request->get('id');
+        $id = (int)$request->get('id');
         if( Clients::where('id','=',$id)->delete() ){
             return $this->response(1,'删除成功！');
         }else{

@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\AdminIndexRequest;
+use App\Http\Requests\AdminCreateRequest;
+use App\Http\Requests\CommonIndexRequest;
 use App\Models\AdminRolePermissions;
 use App\Models\AdminUser;
 use App\Models\AdminUserHasRole;
@@ -20,7 +21,7 @@ class AdminController extends Controller
         $this->middleware('auth');
     }
 
-    public function getIndex(AdminIndexRequest $request)
+    public function getIndex(CommonIndexRequest $request)
     {
         $page  = $request->get('page', 1);
         $limit = $request->get('limit');
@@ -54,7 +55,7 @@ class AdminController extends Controller
         return $this->response(1, 'Success', $data);
     }
 
-    public function postCreate(Request $request)
+    public function postCreate(AdminCreateRequest $request)
     {
         $admin            = new AdminUser();
         $admin->username  = $request->get('username');
@@ -90,7 +91,7 @@ class AdminController extends Controller
         return $this->response(1, 'success', $admin);
     }
 
-    public function putEdit(Request $request)
+    public function putEdit(AdminCreateRequest $request)
     {
         $id = (int)$request->get('id');
 
@@ -119,7 +120,7 @@ class AdminController extends Controller
 
     public function deleteDelete(Request $request)
     {
-        $id = $request->get('id');
+        $id = (int)$request->get('id');
         if( AdminUser::where('id','=',$id)->delete() ){
             return $this->response(1,'删除成功！');
         }else{

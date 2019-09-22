@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Events\NotifyEvent;
+use App\Http\Requests\CommonIndexRequest;
+use App\Http\Requests\ConfigCreateRequest;
 use App\Models\Config;
 use Illuminate\Http\Request;
 use App\Jobs\RefreshConfig;
@@ -20,7 +22,7 @@ class ConfigController extends Controller {
     }
 
     //
-    public function postIndex(Request $request) {
+    public function postIndex(CommonIndexRequest $request) {
         $page  = (int)$request->get('page', 1);
         $limit = (int)$request->get('limit');
 
@@ -77,13 +79,15 @@ class ConfigController extends Controller {
         return $this->response(1, 'Success!', $data);
     }
 
-    public function postCreate(Request $request)
+    public function postCreate(ConfigCreateRequest $request)
     {
         $config              = new Config();
         $config->parent_id   = $request->get('parent_id')??0;
         $config->title       = $request->get('title','');
         $config->key         = $request->get('key','');
         $config->value       = $request->get('value','');
+        $config->type        = $request->get('type','1');
+        $config->extra       = $request->get('extra');
         $config->description = $request->get('description','');
         $config->is_disabled = (int)$request->get('is_disabled',0)?true:false;
 
