@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Models;
+namespace Common\Models;
 
-use App\Models\AdminRole;
+use Common\Models\AdminRole;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;

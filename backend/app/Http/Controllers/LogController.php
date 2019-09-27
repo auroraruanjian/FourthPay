@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AdminLoginLog;
-use App\Models\AdminRequestLog;
+use Common\Models\AdminLoginLog;
+use Common\Models\AdminRequestLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 

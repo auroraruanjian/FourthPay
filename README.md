@@ -23,9 +23,9 @@
 
 目录结构
 ------
-* backstage ：项目管理后台
-* front     ：项目前台
-* service   ：公共模块目录
+* backend   ：项目管理后台
+* frontend  ：项目前台
+* common    ：公共模块目录
 
 部署方法
 -------

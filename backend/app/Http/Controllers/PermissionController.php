@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AdminRolePermissions;
+use Common\Models\AdminRolePermissions;
 use Illuminate\Http\Request;
 
 class PermissionController extends Controller

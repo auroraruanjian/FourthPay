@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AdminRoleHasPermission;
-use App\Models\AdminRoles;
+use Common\Models\AdminRoleHasPermission;
+use Common\Models\AdminRoles;
 use Illuminate\Http\Request;
 use DB;
 

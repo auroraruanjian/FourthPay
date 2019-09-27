@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\UserGroup;
+use Common\Models\UserGroup;
 use Illuminate\Http\Request;
 
 class UserGroupController extends Controller

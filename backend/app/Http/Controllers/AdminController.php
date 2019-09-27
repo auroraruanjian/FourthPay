@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AdminCreateRequest;
 use App\Http\Requests\CommonIndexRequest;
-use App\Models\AdminRolePermissions;
-use App\Models\AdminUser;
-use App\Models\AdminUserHasRole;
+use Common\Models\AdminRolePermissions;
+use Common\Models\AdminUser;
+use Common\Models\AdminUserHasRole;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller

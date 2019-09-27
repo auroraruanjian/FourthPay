@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ClientCreateRequest;
 use App\Http\Requests\CommonIndexRequest;
-use App\Models\Clients;
+use Common\Models\Clients;
 use Illuminate\Http\Request;
 
 class ClientController extends Controller

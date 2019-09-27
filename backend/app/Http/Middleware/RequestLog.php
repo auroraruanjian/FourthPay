@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use Illuminate\Http\Request;
 
 use Closure;
-use App\Models\AdminRequestLog;
+use Common\Models\AdminRequestLog;
 
 class RequestLog
 {

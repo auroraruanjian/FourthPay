@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use core\lib\session;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
-use App\Models\AdminUser;
+use Common\Models\AdminUser;
 use Cache;
 
 class LoginController extends Controller

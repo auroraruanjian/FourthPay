@@ -3,7 +3,7 @@
 namespace App\Jobs;
 
 use App\Events\NotifyEvent;
-use App\Models\Config;
+use Common\Models\Config;
 use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;

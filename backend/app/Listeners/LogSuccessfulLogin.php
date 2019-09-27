@@ -2,7 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Models\AdminLoginLog;
+use Common\Models\AdminLoginLog;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Carbon;
 use itbdw\Ip\IpLocation;
