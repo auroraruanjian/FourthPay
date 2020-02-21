@@ -23,9 +23,12 @@
 
 目录结构
 ------
-* backend   ：项目管理后台
-* frontend  ：项目前台
-* common    ：公共模块目录
+* backend       ：项目管理后台
+* frontend-api  ：项目前台API接口目录
+* frontend-web  ：项目前台前端文件
+* common        ：公共模块目录
+* doc           ：相关文档和配置目录
+
 
 部署方法
 -------
