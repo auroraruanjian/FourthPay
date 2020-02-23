@@ -101,4 +101,4 @@ Ajax 接口返回json数据说明
 
 预览
 ----
-![sdd](https://raw.githubusercontent.com/tuo0/laravel-admin/master/doc/images/index.png)
+![预览图](https://raw.githubusercontent.com/tuo0/laravel-admin/master/doc/images/index.png)

@@ -40,7 +40,7 @@ class CreateClientsTable extends Migration
             'parent_id'   => $id,
             'rule'        => 'client/index',
             'name'        => '商户列表',
-            'extra'       => json_encode(['icon' => 'users','component'=>'client/index']),
+            'extra'       => json_encode(['icon' => 'client','component'=>'client/index']),
         ]);
 
         DB::table('admin_role_permissions')->insert([

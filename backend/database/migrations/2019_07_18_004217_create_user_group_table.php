@@ -35,7 +35,7 @@ class CreateUserGroupTable extends Migration
             'parent_id'   => $row->id,
             'rule'        => 'user_group/',
             'name'        => '用户组管理',
-            'extra'       => json_encode(['icon' => 'users','component'=>'SubPage','redirect'=>'/user_group/index']),
+            'extra'       => json_encode(['icon' => 'user_group','component'=>'SubPage','redirect'=>'/user_group/index']),
         ]);
 
         DB::table('admin_role_permissions')->insert([

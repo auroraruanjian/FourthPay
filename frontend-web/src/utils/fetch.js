@@ -5,7 +5,7 @@ import router from '@/router'
 
 // create an axios instance
 const fetch = axios.create({
-    baseURL: 'http://api.laravel_admin.me',//'/api/', // url = base url + request url
+    baseURL: (process.env.NODE_ENV === 'production')?process.env.VUE_APP_DOMAIN:'/api',// url = base url + request url
     // withCredentials: true, // send cookies when cross-domain requests
     timeout: 5000 // request timeout
 })

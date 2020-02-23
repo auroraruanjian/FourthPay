@@ -65,7 +65,7 @@ class CreateAdminRolePermissionsTable extends Migration {
             'parent_id'   => $id,
             'rule'        => 'role/index',
             'name'        => '角色管理',
-            'extra'       => json_encode(['icon' => 'peoples','component'=>'role/index']),
+            'extra'       => json_encode(['icon' => 'admin_role','component'=>'role/index']),
         ]);
         DB::table('admin_role_permissions')->insert([
             [

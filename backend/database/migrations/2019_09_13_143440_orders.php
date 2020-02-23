@@ -54,21 +54,21 @@ class Orders extends Migration
             'parent_id'   => $id,
             'rule'        => 'orders/index',
             'name'        => '账变记录',
-            'extra'       => json_encode(['icon' => 'table','component'=>'orders/index']),
+            'extra'       => json_encode(['icon' => 'orders_record','component'=>'orders/index']),
         ]);
 
         $deposit_id = DB::table('admin_role_permissions')->insertGetID([
             'parent_id'   => $id,
             'rule'        => 'deposit/index',
             'name'        => '充值记录',
-            'extra'       => json_encode(['icon' => 'users','component'=>'deposit/index']),
+            'extra'       => json_encode(['icon' => 'deposit','component'=>'deposit/index']),
         ]);
 
         $withdrawal_id = DB::table('admin_role_permissions')->insertGetID([
             'parent_id'   => $id,
             'rule'        => 'withdrawal/index',
             'name'        => '提现记录',
-            'extra'       => json_encode(['icon' => 'users','component'=>'withdrawal/index']),
+            'extra'       => json_encode(['icon' => 'withdrawal','component'=>'withdrawal/index']),
         ]);
     }
 
