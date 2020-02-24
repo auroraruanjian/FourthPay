@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class Orders extends Migration
+class CreateTableOrders extends Migration
 {
     /**
      * Run the migrations.
