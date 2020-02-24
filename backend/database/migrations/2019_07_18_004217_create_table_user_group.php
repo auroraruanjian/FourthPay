@@ -53,6 +53,12 @@ class CreateTableUserGroup extends Migration
             ],
             [
                 'parent_id'   => $users_id,
+                'rule'        => 'user_group/edit',
+                'name'        => '修改用户组',
+                'extra'       => json_encode(['hidden' => true]),
+            ],
+            [
+                'parent_id'   => $users_id,
                 'rule'        => 'user_group/delete',
                 'name'        => '删除用户组',
                 'extra'       => json_encode(['hidden' => true]),

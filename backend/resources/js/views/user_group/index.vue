@@ -11,8 +11,8 @@
                 <el-table-column align="header-center" label="创建时间" prop="created_at"></el-table-column>
                 <el-table-column align="center" label="Operations">
                     <template slot-scope="scope" >
-                        <el-button type="primary" size="small" @click="handleEdit(scope)">Edit</el-button>
-                        <el-button type="danger" size="small" @click="handleDelete(scope)">Delete</el-button>
+                        <el-button type="primary" size="small" v-permission="'user_group/edit'" @click="handleEdit(scope)">Edit</el-button>
+                        <el-button type="danger" size="small" v-permission="'user_group/delete'" @click="handleDelete(scope)">Delete</el-button>
                     </template>
                 </el-table-column>
             </el-table>

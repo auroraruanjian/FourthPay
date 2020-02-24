@@ -22,7 +22,13 @@ $count_pathinfo_arr = count($pathinfo_arr);
 if ($count_pathinfo_arr == 1 || $count_pathinfo_arr == 2) {
     try {
         $namespace = (new App\Providers\RouteServiceProvider(null))->getNamespace();
-        $controller = ucfirst($pathinfo_arr[0]) . 'Controller';
+
+        // 处理带下划线控制器自动转换为驼峰规则
+        $fix_path = array_map(function( $val ){
+            return ucfirst($val);
+        },explode('_',$pathinfo_arr[0]));
+
+        $controller = implode('',$fix_path) . 'Controller';
 
         // 看看这个控制器是否存在
         $controller_reflection= new ReflectionClass($namespace . '\\' . $controller);
