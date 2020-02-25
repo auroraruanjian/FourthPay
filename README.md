@@ -99,6 +99,11 @@ Ajax 接口返回json数据说明
 * msg:错误消息
 * data:返回数据 
 
+> ## 开发规范
+> * 如果控制器名称中含有大写，则权限表(`admin_role_permissions`)权限必须使用[_]分割，以及前台请求接口以及前台组件权限验证规则(`v-permission`标签)必须与权限表相同  
+> 例如：控制器名称`UserGroupController`方法`putEdit`，则请求接口以及权限验证标签为：`user_group/edit`  
+> * 网站所有小图标采用SVG格式可以在 [iconfont](https://www.iconfont.cn/) 中查找  
+
 预览
 ----
 ![预览图](https://raw.githubusercontent.com/tuo0/laravel-admin/master/doc/images/index.png)
