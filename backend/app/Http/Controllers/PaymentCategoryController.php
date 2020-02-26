@@ -9,11 +9,11 @@ use Illuminate\Http\Request;
 class PaymentCategoryController extends Controller
 {
     private $filed = [
-        'ident'     => '',
-        'name'      => '',
-        'methods'   => [],
-        'param'     => [],
-        'status'    => true,
+        'ident'         => '',
+        'name'          => '',
+        'method_idents' => [],
+        'param'         => [],
+        'status'        => true,
     ];
 
     /**
@@ -35,16 +35,16 @@ class PaymentCategoryController extends Controller
             $payment_category = [];
         }
 
-        $payment_methods = PaymentMethod::select(['id','name'])->orderBy('id','asc')->get();
+        $payment_methods = PaymentMethod::select(['ident','name'])->orderBy('id','asc')->get();
         $payment_methods = (!$payment_methods->isEmpty())?$payment_methods->toArray():[];
 
-        $method_ids = array_column($payment_methods, 'id');
+        $method_ids = array_column($payment_methods, 'ident');
         $payment_category = array_map(function($item)use($payment_methods,$method_ids){
-            $item['methods'] = json_decode($item['methods'],true);
+            $item['method_idents'] = json_decode($item['method_idents'],true);
             $item['param'] = json_decode($item['param'],true);
 
             // 支付类型ID转成支付类型名称
-            foreach($item['methods'] as &$_method){
+            foreach($item['method_idents'] as &$_method){
                 $_id = array_search($_method, $method_ids);
                 $_method = $payment_methods[$_id]['name'];
             }
@@ -73,7 +73,7 @@ class PaymentCategoryController extends Controller
     {
         $payment_category = new PaymentCategory();
         foreach( $this->filed as $filed => $default_val ){
-            if(in_array($filed,['methods','param'])){
+            if(in_array($filed,['method_idents','param'])){
                 $payment_category->$filed = json_encode($request->get($filed,$default_val));
             }else{
                 $payment_category->$filed = $request->get($filed,$default_val);
@@ -98,7 +98,7 @@ class PaymentCategoryController extends Controller
         }
 
         $payment_category = $payment_category->toArray();
-        $payment_category['methods'] = json_decode($payment_category['methods'],true);
+        $payment_category['method_idents'] = json_decode($payment_category['method_idents'],true);
         $payment_category['param'] = json_decode($payment_category['param'],true);
 
         return $this->response(1,'success',$payment_category);
@@ -115,7 +115,7 @@ class PaymentCategoryController extends Controller
         }
 
         foreach( $this->filed as $filed => $default_val ){
-            if(in_array($filed,['methods','param'])){
+            if(in_array($filed,['method_idents','param'])){
                 $payment_category->$filed = json_encode($request->get($filed,$default_val));
             }else{
                 $payment_category->$filed = $request->get($filed,$default_val);

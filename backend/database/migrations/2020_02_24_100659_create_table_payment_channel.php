@@ -14,12 +14,11 @@ class CreateTablePaymentChannel extends Migration
     public function up()
     {
         Schema::create('payment_channel', function (Blueprint $table) {
-            $table->increments('id');
+            $table->smallIncrements('id');
             $table->string('name', 40)->unique()->comment('名称');
             $table->smallInteger('payment_category_id')->comment('支付渠道ID');
-            $table->jsonb('top_user_ids')->default('[]')->comment('开通的总代user_id');
             $table->jsonb('channel_param')->default('[]')->comment('支付通道参数');
-            $table->jsonb('methods_param')->default('[]')->comment('支付类型参数');
+//            $table->jsonb('methods_param')->default('[]')->comment('支付类型参数');
             $table->boolean('status')->default(0)->comment('是否启用');
             $table->timestamps();
         });

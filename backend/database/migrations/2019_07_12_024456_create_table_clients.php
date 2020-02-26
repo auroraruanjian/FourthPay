@@ -19,7 +19,7 @@ class CreateTableClients extends Migration
         Schema::create('clients', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('account',60)->comment('商户号');
-            $table->tinyInteger('status')->default(1)->comment('状态 1:正常 2:禁用');
+            $table->tinyInteger('status')->default(0)->comment('状态:0 正常，1 冻结');
 
             $table->timestamps();
         });

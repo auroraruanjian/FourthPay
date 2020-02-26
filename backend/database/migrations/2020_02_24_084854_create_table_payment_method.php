@@ -14,13 +14,14 @@ class CreateTablePaymentMethod extends Migration
     public function up()
     {
         Schema::create('payment_method', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->smallIncrements('id');
             $table->string('ident', 16)->unique()->comment('英文标识');
             $table->string('name', 32)->comment('中文名称');
             $table->boolean('status')->default(0)->comment('是否启用');
         });
 
         $this->_permission();
+        $this->_data();
     }
 
     private function _permission()
@@ -61,6 +62,96 @@ class CreateTablePaymentMethod extends Migration
         ]);
     }
 
+    private function _data()
+    {
+        DB::table('payment_method')->insert([
+            [
+                'ident'      => 'netbank',
+                'name'       => '在线网银',
+                'status'     => true,
+            ],
+            [
+                'ident'      => 'wechat_scan',
+                'name'       => '微信扫码',
+                'status'     => true,
+            ],
+            [
+                'ident'      => 'alipay_scan',
+                'name'       => '支付宝扫码',
+                'status'     => true,
+            ],
+            [
+                'ident'      => 'qq_scan',
+                'name'       => 'QQ扫码',
+                'status'     => true,
+            ],
+            [
+                'ident'      => 'jd_scan',
+                'name'       => '京东扫码',
+                'status'     => true,
+            ],
+            [
+                'ident'      => 'unionpay_scan',
+                'name'       => '银联扫码',
+                'status'     => true,
+            ],
+            [
+                'ident'      => 'wechat_h5',
+                'name'       => '微信H5',
+                'status'     => true,
+            ],
+            [
+                'ident'      => 'alipay_h5',
+                'name'       => '支付宝H5',
+                'status'     => true,
+            ],
+            [
+                'ident'      => 'qq_h5',
+                'name'       => 'QQH5',
+                'status'     => true,
+            ],
+            [
+                'ident'      => 'jd_h5',
+                'name'       => '京东H5',
+                'status'     => true,
+            ],
+            [
+                'ident'      => 'unionpay_h5',
+                'name'       => '银联H5',
+                'status'     => true,
+            ],
+            [
+                'ident'      => 'quick',
+                'name'       => '快捷支付',
+                'status'     => true,
+            ],
+            [
+                'ident'      => 'credit',
+                'name'       => '信用卡',
+                'status'     => true,
+            ],
+            [
+                'ident'      => 'cashier',
+                'name'       => '收银台',
+                'status'     => true,
+            ],
+            [
+                'ident'      => 'qrcode_offline',
+                'name'       => '线下扫码',
+                'status'     => true,
+            ],
+            [
+                'ident'      => 'third_offline',
+                'name'       => '第三方线下转账',
+                'status'     => true,
+            ],
+            [
+                'ident'      => 'digital_currency',
+                'name'       => '数字货币',
+                'status'     => true,
+            ]
+        ]);
+    }
 
     /**
      * Reverse the migrations.

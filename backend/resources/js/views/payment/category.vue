@@ -11,12 +11,14 @@
                 <el-table-column align="header-center" label="名称" prop="name"></el-table-column>
                 <el-table-column align="header-center" label="支付类型">
                     <template slot-scope="scope"><!--  prop="methods" prop="param" -->
-                        <el-link v-for="(method,key) in scope.row.methods" key="key">{{method}}</el-link>
+                        <el-link v-for="(method,key) in scope.row.method_idents" :key="key">{{(key!=0?' ,':'')+method}}</el-link>
                     </template>
                 </el-table-column>
-                <el-table-column align="header-center" label="参数" >
+                <el-table-column align="header-center" label="参数" prop="param">
                     <template slot-scope="scope">
-
+                        <el-tooltip v-for="(item,key) in scope.row.param" :key="key" effect="dark" :content="item.ident" placement="bottom">
+                            <el-link >{{(key!=0?' ,':'')+item.name}}</el-link>
+                        </el-tooltip>
                     </template>
                 </el-table-column>
                 <el-table-column align="header-center" label="状态" >
@@ -43,15 +45,15 @@
                     <el-input v-model="payment_category.name" placeholder="中文名称" />
                 </el-form-item>
                 <el-form-item label="支付渠道">
-                    <el-checkbox-group v-model="payment_category.methods">
-                        <el-checkbox v-for="(method,key) in payment_methods" :label="method.id" :key="key" >{{method.name}}</el-checkbox>
+                    <el-checkbox-group v-model="payment_category.method_idents">
+                        <el-checkbox v-for="(method,key) in payment_methods" :label="method.ident" :key="key" >{{method.name}}</el-checkbox>
                     </el-checkbox-group>
                 </el-form-item>
                 <el-form-item label="参数">
                     <el-row :gutter="5" v-for="(param,key) in payment_category.param" :key="key" style="margin-bottom:5px;">
                         <el-col :span="5"><el-input v-model="param.ident" placeholder="字段名称"></el-input></el-col>
                         <el-col :span="5"><el-input v-model="param.name" placeholder="英文名称"></el-input></el-col>
-                        <el-col :span="5">
+                        <el-col :span="4">
                             <el-select v-model="param.type" placeholder="字段类型">
                                 <el-option
                                     v-for="type in types"
@@ -62,6 +64,7 @@
                             </el-select>
                         </el-col>
                         <el-col :span="5"><el-input v-model="param.default_value" placeholder="默认值，多个以逗号分割"></el-input></el-col>
+                        <el-col :span="2"><el-checkbox v-model="param.require" >必须</el-checkbox></el-col>
                         <el-col :span="2"><el-button type="text" @click="deleteRow(key)">删除</el-button></el-col>
                     </el-row>
                     <el-row :gutter="5">
@@ -93,7 +96,7 @@
         id: '',
         ident:'',
         name: '',
-        methods: [],
+        method_idents: [],
         param: [defaultParam],
         status: true,
     };
