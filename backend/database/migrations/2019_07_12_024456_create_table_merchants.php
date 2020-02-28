@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateTableClients extends Migration
+class CreateTableMerchants extends Migration
 {
     /**
      * Run the migrations.
@@ -16,11 +16,19 @@ class CreateTableClients extends Migration
         /**
          * 商户表
          */
-        Schema::create('clients', function (Blueprint $table) {
-            $table->bigIncrements('id');
+        Schema::create('merchants', function (Blueprint $table) {
+            $table->increments('id');
             $table->string('account',60)->comment('商户号');
+            $table->string('password')->comment('密码');
+            $table->text('system_public_key','')->comment('系统公钥');
+            $table->text('system_private_key','')->comment('系统私钥');
+            $table->text('merchant_public_key','')->comment('商户公钥');
+            $table->text('merchant_private_key','')->comment('商户私钥');
+            $table->string('md5_key','')->comment('MD5签名校验秘钥');
+
             $table->tinyInteger('status')->default(0)->comment('状态:0 正常，1 冻结');
 
+            $table->rememberToken();
             $table->timestamps();
         });
 
@@ -31,34 +39,34 @@ class CreateTableClients extends Migration
     {
         $id = DB::table('admin_role_permissions')->insertGetId([
             'parent_id'   => 0,
-            'rule'        => 'merchant',
+            'rule'        => 'member',
             'name'        => '会员管理',
             'extra'       => json_encode(['icon' => 'list','component'=>'Layout']),
         ]);
 
         $merchant_id = DB::table('admin_role_permissions')->insertGetId([
             'parent_id'   => $id,
-            'rule'        => 'client/index',
+            'rule'        => 'merchant/index',
             'name'        => '商户列表',
-            'extra'       => json_encode(['icon' => 'client','component'=>'client/index']),
+            'extra'       => json_encode(['icon' => 'client','component'=>'merchant/index']),
         ]);
 
         DB::table('admin_role_permissions')->insert([
             [
                 'parent_id'   => $merchant_id,
-                'rule'        => 'client/create',
+                'rule'        => 'merchant/create',
                 'name'        => '增加商户',
                 'extra'       => json_encode(['hidden' => true]),
             ],
             [
                 'parent_id'   => $merchant_id,
-                'rule'        => 'client/edit',
+                'rule'        => 'merchant/edit',
                 'name'        => '编辑商户',
                 'extra'       => json_encode(['hidden' => true]),
             ],
             [
                 'parent_id'   => $merchant_id,
-                'rule'        => 'client/delete',
+                'rule'        => 'merchant/delete',
                 'name'        => '删除商户',
                 'extra'       => json_encode(['hidden' => true]),
             ],
@@ -72,6 +80,6 @@ class CreateTableClients extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('clients');
+        Schema::dropIfExists('merchants');
     }
 }

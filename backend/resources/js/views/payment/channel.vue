@@ -20,7 +20,7 @@
                             <el-tag v-if="item.status">{{item.name}}</el-tag>
                             <el-tag type="info" v-else>{{item.name}}</el-tag>
                         </el-tooltip>
-                    </template>
+                    </template>r
                 </el-table-column>
                 <el-table-column align="header-center" label="状态" >
                     <template slot-scope="scope">
@@ -81,7 +81,7 @@
                             <template slot-scope="scope">
                                 <el-form label-position="right" label-width="100px"  class="demo-table-expand">
                                     <el-form-item label="启用的总代" >
-                                        <el-checkbox-group v-model="scope.row.top_user_ids"><!--v-model=""-->
+                                        <el-checkbox-group v-model="scope.row.top_merchant_ids"><!--v-model=""-->
                                             <el-checkbox v-for="top_user in top_users" :label="top_user.id" :key="top_user.id" >{{top_user.username}}</el-checkbox>
                                         </el-checkbox-group>
                                     </el-form-item>
@@ -354,7 +354,7 @@
 
                 let data = {
                     id:(old_data!=null && typeof(old_data.id)!='undefined' && old_data.id != null)?old_data.id:'',
-                    top_user_ids:(old_data!=null && typeof(old_data.top_user_ids)!='undefined' && old_data.top_user_ids != null)?old_data.top_user_ids:[],
+                    top_merchant_ids:(old_data!=null && typeof(old_data.top_merchant_ids)!='undefined' && old_data.top_merchant_ids != null)?old_data.top_merchant_ids:[],
                     rate:(old_data!=null && typeof(old_data.rate)!='undefined' && old_data.rate != null)?old_data.rate:0,
                     max_amount:(old_data!=null && typeof(old_data.max_amount)!='undefined' && old_data.max_amount != null)?old_data.max_amount:0,
                     min_amount:(old_data!=null && typeof(old_data.min_amount)!='undefined' && old_data.min_amount != null)?old_data.min_amount:0,

@@ -5,7 +5,7 @@ module.exports = {
     devServer:{
         proxy: {
             '/api': {
-                target: 'http://api.laravel_admin.me',
+                target: process.env.VUE_APP_DOMAIN,
                 ws: true,
                 changeOrigin: true,
                 pathRewrite: {'^/api' : ''}

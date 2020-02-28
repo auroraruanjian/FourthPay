@@ -16,10 +16,11 @@ class CreateTablePaymentChannel extends Migration
         Schema::create('payment_channel', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->string('name', 40)->unique()->comment('名称');
+            $table->decimal('max_amount',15,4)->default(0)->comment('通道当天最多累计充值金额');
             $table->smallInteger('payment_category_id')->comment('支付渠道ID');
             $table->jsonb('channel_param')->default('[]')->comment('支付通道参数');
 //            $table->jsonb('methods_param')->default('[]')->comment('支付类型参数');
-            $table->boolean('status')->default(0)->comment('是否启用');
+            $table->tinyInteger('status')->default(0)->comment('状态：0：正常 1：管理员关闭 2：系统关闭');
             $table->timestamps();
         });
 

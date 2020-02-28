@@ -2,7 +2,7 @@
     <div class="app-container" v-loading="loading">
         <div class="container">
             <div class="handle-box">
-                <el-button type="primary" @click="handleAddClient" v-permission="'client/create'" size="small">创建商户</el-button>
+                <el-button type="primary" @click="handleAddMerchant" v-permission="'merchant/create'" size="small">创建商户</el-button>
             </div>
 
             <el-table :data="client_list" style="width: 100%;margin-top:30px;" border >
@@ -22,10 +22,10 @@
                 </el-table-column>
             </el-table>
 
-            <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getAllClient" />
+            <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getAllMerchant" />
         </div>
 
-        <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'Edit Client':'New Client'">
+        <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'Edit Merchant':'New Merchant'">
             <el-form :model="client" label-width="15%" label-position="right">
                 <el-form-item label="商户名称">
                     <el-input v-model="client.account" placeholder="商户名称" />
@@ -49,21 +49,21 @@
 <script>
     import permission from '@/directive/permission/index.js' // 权限判断指令
     import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
-    import { getAllClient,editClient,addClient,getClient,deleteClient } from '@/api/client'
+    import { getAllMerchant,editMerchant,addMerchant,getMerchant,deleteMerchant } from '@/api/merchant'
     import { mapGetters } from 'vuex'
 
 
-    const defaultClient = {
+    const defaultMerchant = {
         id:'',
         account:'',
         status:true,
     };
 
     export default {
-        name: "ClientIndex",
+        name: "MerchantIndex",
         data(){
             return {
-                client: Object.assign({}, defaultClient),
+                client: Object.assign({}, defaultMerchant),
                 client_list: [],
                 total: 0,
                 listQuery: {
@@ -83,15 +83,15 @@
         components: { Pagination },
         directives: { permission },
         created() {
-            this.getAllClient();
+            this.getAllMerchant();
         },
         methods:{
-            async getAllClient(){
+            async getAllMerchant(){
                 this.loading =  true;
 
                 let data = this.listQuery;
                 data.parent_id = this.parent_id;
-                let result = await getAllClient(data);
+                let result = await getAllMerchant(data);
 
                 if( result.data.code == 1 ){
                     this.total = result.data.data.total;
@@ -101,14 +101,14 @@
                 }
                 this.loading =  false;
             },
-            handleAddClient(){
-                this.client = Object.assign({}, defaultClient)
+            handleAddMerchant(){
+                this.client = Object.assign({}, defaultMerchant)
                 this.dialogType = 'new'
                 this.dialogVisible = true
             },
             async handleEdit( scope ){
                 this.loading =  true;
-                let current_client = await getClient(scope.row.id);
+                let current_client = await getMerchant(scope.row.id);
                 this.client = current_client.data.data;
                 this.client.status = (this.client.status==1)?true:false;
                 this.dialogType = 'edit'
@@ -121,13 +121,13 @@
                     cancelButtonText: '取消',
                     type: 'warning'
                 }).then( async() => {
-                    let result = await deleteClient( scope.row.id )
+                    let result = await deleteMerchant( scope.row.id )
                     if( result.data.code == 1 ){
                         this.$message({
                             type: 'success',
                             message: '删除成功!'
                         });
-                        this.getAllClient();
+                        this.getAllMerchant();
                     }else{
                         this.$message.error(result.data.message);
                     }
@@ -144,15 +144,15 @@
                 let response;
 
                 if (isEdit) {
-                    response = await editClient(this.client)
+                    response = await editMerchant(this.client)
                 }else{
-                    response = await addClient(this.client)
+                    response = await addMerchant(this.client)
                 }
 
                 if( response.data.code == 1 ){
                     type = 'success';
                     message = `
-                            <div>Client name: ${this.client.title}</div>
+                            <div>Merchant name: ${this.client.title}</div>
                           `;
                 }else{
                     message = response.data.msg;
@@ -160,7 +160,7 @@
 
                 this.dialogVisible = false
 
-                this.getAllClient();
+                this.getAllMerchant();
 
                 this.$notify({
                     title: response.data.msg,
@@ -172,7 +172,7 @@
         },
         watch: {
             parent_id(){
-                this.getAllClient();
+                this.getAllMerchant();
             }
         }
     }

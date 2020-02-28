@@ -4,10 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ClientCreateRequest;
 use App\Http\Requests\CommonIndexRequest;
-use Common\Models\Clients;
+use Common\Models\Merchants;
 use Illuminate\Http\Request;
 
-class ClientController extends Controller
+class MerchantController extends Controller
 {
     //
     /**
@@ -31,7 +31,7 @@ class ClientController extends Controller
             'client_list' => [],
         ];
 
-        $clientlist = Clients::select([
+        $clientlist = Merchants::select([
             'id',
             'account',
             'status'
@@ -41,7 +41,7 @@ class ClientController extends Controller
             ->take($limit)
             ->get();
 
-        $data['total'] = Clients::count();
+        $data['total'] = Merchants::count();
 
         if (!$clientlist->isEmpty()) {
             $data['client_list'] = $clientlist->toArray();
@@ -52,7 +52,7 @@ class ClientController extends Controller
 
     public function postCreate(ClientCreateRequest $request)
     {
-        $client             = new Clients();
+        $client             = new Merchants();
         $client->account    = $request->get('account')??0;
         $client->status     = (int)$request->get('status',0)?true:false;
 
@@ -63,11 +63,11 @@ class ClientController extends Controller
         }
     }
 
-    public function getEdit(ClientCreateRequest $request)
+    public function getEdit(Request $request)
     {
         $id = (int)$request->get('id');
 
-        $client = Clients::find($id);
+        $client = Merchants::find($id);
 
         if (empty($client)) {
             return $this->response(0, '配置不存在');
@@ -82,7 +82,7 @@ class ClientController extends Controller
     {
         $id = (int)$request->get('id');
 
-        $client = Clients::find($id);
+        $client = Merchants::find($id);
 
         if (empty($client)) {
             return $this->response(0, '配置不存在失败');
@@ -101,7 +101,7 @@ class ClientController extends Controller
     public function deleteDelete(Request $request)
     {
         $id = (int)$request->get('id');
-        if( Clients::where('id','=',$id)->delete() ){
+        if( Merchants::where('id','=',$id)->delete() ){
             return $this->response(1,'删除成功！');
         }else{
             return $this->response(0,'删除失败！');

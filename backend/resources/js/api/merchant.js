@@ -1,40 +1,40 @@
 import fetch from '@/utils/fetch'
 
-export function getAllClient( data ) {
+export function getAllMerchant( data ) {
     return fetch({
-        url: 'client',
+        url: 'merchant',
         method: 'post',
         params:data
     });
 }
 
-export function addClient( data ){
+export function addMerchant( data ){
     return fetch({
-        url: 'client/create',
+        url: 'merchant/create',
         method: 'post',
         data
     });
 }
 
-export function getClient( id ){
+export function getMerchant( id ){
     return fetch({
-        url: 'client/edit',
+        url: 'merchant/edit',
         method: 'get',
         params:{id:id}
     });
 }
 
-export function editClient( data ){
+export function editMerchant( data ){
     return fetch({
-        url: 'client/edit',
+        url: 'merchant/edit',
         method: 'put',
         data
     });
 }
 
-export function deleteClient( id ){
+export function deleteMerchant( id ){
     return fetch({
-        url: 'client/delete',
+        url: 'merchant/delete',
         method: 'delete',
         params:{id:id},
     });

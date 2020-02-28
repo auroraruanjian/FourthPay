@@ -19,7 +19,7 @@ class PaymentChannelController extends Controller
     ];
 
     private $detail_filed = [
-        'top_user_ids'      => [],
+        'top_merchant_ids'      => [],
         'start_time'        => '00:00:00',
         'end_time'          => '00:00:00',
         'rate'              => 0,
@@ -73,9 +73,11 @@ class PaymentChannelController extends Controller
                 unset($channel_param['key1']);
 
                 $channel->channel_param = $channel_param;
+                $channel->status = ($channel->status==0)?true:false;
 
                 return $channel;
             });
+        $payment_channel = !$payment_channel->isEmpty()?$payment_channel->toArray():[];
 
         $payment_category = PaymentCategory::select([
             'id',
@@ -114,6 +116,8 @@ class PaymentChannelController extends Controller
         foreach( $this->filed as $filed => $default_val ){
             if( in_array($filed,['channel_param']) ){
                 $payment_channel->$filed = json_encode($request->get($filed,$default_val));
+            }elseif( $filed == 'status' ){
+                $payment_channel->$filed = $request->get($filed,$default_val)?0:1;
             }else{
                 $payment_channel->$filed = $request->get($filed,$default_val);
             }
@@ -132,7 +136,7 @@ class PaymentChannelController extends Controller
             $model_detail->payment_channel_id = $payment_channel->id;
 
             foreach( $this->detail_filed as $filed => $default_val ){
-                if( in_array($filed,['top_user_ids','extra']) ){
+                if( in_array($filed,['top_merchant_ids','extra']) ){
                     // TODO:检查类型是银行卡时保存banks
 
                     $model_detail->$filed = json_encode($detail[$filed]??$default_val);
@@ -162,12 +166,13 @@ class PaymentChannelController extends Controller
 
         // 加载商户接口详情数据
         foreach($payment_channel->detail as &$dateil){
-            $dateil->top_user_ids = json_decode($dateil->top_user_ids,true);
+            $dateil->top_merchant_ids = json_decode($dateil->top_merchant_ids,true);
             $dateil->extra = json_decode($dateil->extra,true);
         };
 
         $payment_channel = $payment_channel->toArray();
         $payment_channel['channel_param'] = json_decode($payment_channel['channel_param'],true);
+        $payment_channel['status'] = $payment_channel['status']==0?true:false;
 
         return $this->response(1,'success',$payment_channel);
     }
@@ -185,6 +190,14 @@ class PaymentChannelController extends Controller
         foreach( $this->filed as $filed => $default_val ){
             if( in_array($filed,['channel_param']) ){
                 $payment_channel->$filed = json_encode($request->get($filed,$default_val));
+            }elseif( $filed == 'status' ){
+                $status = $request->get($filed,$default_val);
+                // 如果数据库开启，用户提交关闭
+                // 如果数据库关闭，用户提交开启
+                // 更新数据库结果
+                if( ($payment_channel->$filed == 0 && !$status) || ($payment_channel->$filed > 0 && $status) ){
+                    $payment_channel->$filed = $status?0:1;
+                }
             }else{
                 $payment_channel->$filed = $request->get($filed,$default_val);
             }
@@ -209,7 +222,7 @@ class PaymentChannelController extends Controller
             }
 
             foreach( $this->detail_filed as $filed => $default_val ){
-                if( in_array($filed,['top_user_ids','extra']) ){
+                if( in_array($filed,['top_merchant_ids','extra']) ){
                     // TODO:检查类型是银行卡时保存banks
 
                     $model_detail->$filed = json_encode($detail[$filed]??$default_val);
