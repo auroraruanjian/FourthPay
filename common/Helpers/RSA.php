@@ -1,5 +1,5 @@
 <?php
-namespace Common\Helper;
+namespace Common\Helpers;
 /**
  * RSA 加密类
  * 参考文档：https://www.php.net/manual/zh/function.openssl-public-decrypt.php

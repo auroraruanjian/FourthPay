@@ -2,7 +2,7 @@
 namespace Common\API;
 
 use Carbon\Carbon;
-use Common\Helper\RSA;
+use Common\Helpers\RSA;
 use Common\Models\Deposits;
 use Common\Models\Merchants;
 use Common\Models\PaymentChannelDetail;
@@ -20,54 +20,14 @@ class Payment
     // 商户信息
     private $merchant       = [];
 
-    // 加密的原始数据
-    private $encrypt_data   = '';
-
     // 解密的数据
     private $decrypt_data   = [];
 
     // 错误消息
     public $error_message   = '';
 
-    public function __construct(Request $request)
+    public function __construct()
     {
-        $validator = $this->_validator('request',$request->all());
-
-        // 验证失败
-        if( !$validator['status'] ) {
-            throw new Exception($validator['message'],-1);
-        };
-
-        // 获取参数
-        $this->encrypt_data = $request->get('data');
-
-        // 根据用户商户号获取商户信息
-        $merchant = Merchants::select([
-            'id',
-            'account',
-            //'system_public_key',
-            //'system_private_key',
-            'merchant_public_key',
-            'merchant_private_key',
-            'md5_key'
-        ])
-            ->where('account',$request->get('merchant_id'))
-            ->first();
-
-        // 商户号不存在
-        if( empty($merchant) ) {
-            throw new Exception('商户不存在！',-2);
-        }
-
-        $this->merchant = $merchant->toArray();
-
-        // 商户使用商户私钥加密数据请求平台接口，平台使用商户公钥解密数据
-        $this->decrypt_data = $this->_decrypt($this->encrypt_data);
-
-        // 如果数据解密失败
-        if( !$this->decrypt_data ){
-            throw new Exception('数据解密失败！',-3);
-        }
     }
 
     /**
@@ -75,51 +35,20 @@ class Payment
      * @return array
      * @throws Exception
      */
-    public function pay()
+    public function pay(Request $request)
     {
-        $validator = $this->_validator('pay',$this->decrypt_data);
-
-        // 验证失败
-        if( !$validator['status'] ) {
-            $return_data['code']    = -6;
-            return [-6,$validator['message']];
-        };
-
-        $request_data = [
-            // 金额
-            'amount'            => $this->decrypt_data['amount'],
-            // 异步回调地址
-            'callback_url'      => $this->decrypt_data['callback_url'],
-            // 同步回调地址
-            'callback_url_view' => $this->decrypt_data['callback_url_view'],
-            // 商户订单号
-            'order_no'          => $this->decrypt_data['order_no'],
-            // 商品名
-            'goods_name'        => $this->decrypt_data['goods_name'],
-            // 支付方式,对应payment_method表ident字段
-            'method'            => $this->decrypt_data['method'],
-            // 签名
-            'sign'              => $this->decrypt_data['sign'],
-        ];
-
-        // 如果是在线网银，则需要对应的银行代码
-        if( $request_data['method'] == 'netbank' ){
-            $request_data['bank_code'] = $this->decrypt_data['bank_code'];
-        }
-
-        // 验证MD5签名
-        if( !$this->_verify($request_data) ){
-            // 签名验证失败
-            return [-7,'签名校验失败！'];
+        list($init_code,$init_message) = $this->_init( 'pay' ,$request);
+        if( $init_code != 0 ){
+            return [ $init_code, $init_message];
         }
 
         // 检查订单号是否存在
-        if( Deposits::where('merchant_order_no',$request_data['order_no'])->count() > 0 ){
+        if( Deposits::where('merchant_order_no',$this->decrypt_data['order_no'])->count() > 0 ){
             return [-8,'订单号已存在'];
         }
 
         // 获取支付通道
-        $channel_detail = $this->getPaymentChannel( $request_data );
+        $channel_detail = $this->getPaymentChannel();
         if( !$channel_detail ){
             // TODO:触发系统告警-运营,将错误消息发送给平台运营人员
 
@@ -130,18 +59,19 @@ class Payment
         $deposits_model = new Deposits();
         $deposits_model->merchant_id = $this->merchant['id'];                               // 商户ID
         $deposits_model->payment_channel_detail_id = $channel_detail['channel_detail_id'];  // 支付通道
-        $deposits_model->amount = $request_data['amount'];                                  // 金额
-        $deposits_model->merchant_order_no = $request_data['order_no'];                     // 订单号
+        $deposits_model->amount = $this->decrypt_data['amount'];                            // 金额
+        $deposits_model->merchant_order_no = $this->decrypt_data['order_no'];               // 订单号
         $deposits_model->ip = request()->ip();                                              // IP
         $deposits_model->created_at = (string)Carbon::now();                                // 申请时间
         $deposits_model->extra = json_encode([
-            'callback_url'      => $request_data['callback_url'],
-            'callback_url_view' => $request_data['callback_url_view'],
-            'goods_name'        => $request_data['goods_name'],
-            'method'            => $request_data['method'],
+            'callback_url'      => $this->decrypt_data['callback_url'],
+            'callback_url_view' => $this->decrypt_data['callback_url_view'],
+            'goods_name'        => $this->decrypt_data['goods_name'],
+            'method'            => $this->decrypt_data['method'],
         ]);
 
         try {
+            // 保存订单记录
             // $deposits_model->save();
         } catch (\PDOException $e) {
             \Log::error($e);
@@ -151,6 +81,7 @@ class Payment
             return [-10,'数据写入失败！'];
         }
 
+        // TODO: 支付提交到第三方
         // 获取支付模型，构建支付数据
         $pay_model = $this->getPaymentModel($channel_detail['category_ident'],[
             // 商户号
@@ -162,6 +93,7 @@ class Payment
             return [-11,'模型获取失败！'];
         }
 
+        // TODO: 构造支付参数
         return $pay_model->prepare_pay([
             // 支付金额
             // 平台订单号
@@ -173,14 +105,75 @@ class Payment
     }
 
     /**
+     * 商户查询订单状态记录
+     * @param Reqeust $reqeust
+     * @return array
+     */
+    public function query(Reqeust $request)
+    {
+        $return_data = [
+            'code'      => '',
+            'message'   => '',
+            'data'      => '',
+        ];
+
+        list($init_code,$init_message) = $this->_init( 'query' , $request );
+        if( $init_code != 0 ){
+            $return_data['code'] = $init_code;
+            $return_data['message'] = $init_message;
+            return $return_data;
+        }
+
+        // 获取 平台订单号，商户订单号，金额，实际支付金额，支付时间，支付状态
+        $deposit_record = Deposits::select([
+            'id',
+            'amount',
+            'real_amount',
+            'status',
+            'done_at',
+            'created_at'
+        ])
+            ->where('merchant_order_no',$this->decrypt_data['order_no'])
+            ->first();
+
+        if( empty($deposit_record) ){
+            $return_data['code'] = -8;
+            $return_data['message'] = '订单号不存在';
+            return $return_data;
+        }
+
+        $deposit_record = $deposit_record->toArray();
+
+        // 此处订单ID加密转码返回
+        $deposit_record['id'] = id_encode($deposit_record['id']);
+        // 增加签名
+        $deposit_record['sign'] = $this->_sign($deposit_record);
+
+        // 返回加密签名后的数据
+        $return_data['code'] = 0;
+        $return_data['message'] = 'success';
+        $return_data['data'] = $this->_encrypt($deposit_record);
+        return $return_data;
+    }
+
+    /**
+     * 第三方支付回调
+     * @param Request $request
+     * @return array
+     */
+    public function callback(Request $request)
+    {
+       return [];
+    }
+
+    /**
      * 获取支付通道
-     * @param $data
      * @return bool
      */
-    private function getPaymentChannel( $data )
+    private function getPaymentChannel()
     {
         // 获取支付类型，检查支付类型是否状态
-        $payment_method = PaymentMethod::select(['id','status'])->where('ident',$data['method'])->first();
+        $payment_method = PaymentMethod::select(['id','status'])->where('ident',$this->decrypt_data['method'])->first();
         if( empty($payment_method) ){
             $this->error_message = '支付类型不存在！';
             return false;
@@ -203,8 +196,8 @@ class Payment
             ->leftJoin('payment_channel','payment_channel.id','payment_channel_detail.payment_channel_id')
             ->leftJoin('payment_category','payment_category.id','payment_channel.payment_category_id')
             ->where([
-                ['payment_channel_detail.min_amount','<=',$data['amount']],
-                ['payment_channel_detail.max_amount','>=',$data['amount']],
+                ['payment_channel_detail.min_amount','<=',$this->decrypt_data['amount']],
+                ['payment_channel_detail.max_amount','>=',$this->decrypt_data['amount']],
                 ['payment_channel_detail.payment_method_id','=',$payment_method->id],
                 ['payment_channel_detail.status','=',true],
                 ['payment_channel_detail.top_merchant_ids','@>',$this->merchant['id']],
@@ -248,6 +241,96 @@ class Payment
         $detail_data['channel_param'] = json_decode($detail_data['channel_param'],true);
 
         return $detail_data;
+    }
+
+    /**
+     * 获取商户信息
+     * @param string $merchant_id 商户号
+     * @return array|boolean
+     */
+    private function getMerchant( $merchant_id )
+    {
+        // 根据用户商户号获取商户信息
+        $merchant = Merchants::select([
+            'id',
+            'account',
+            //'system_public_key',
+            //'system_private_key',
+            'merchant_public_key',
+            'merchant_private_key',
+            'md5_key'
+        ])
+            ->where('account',$merchant_id)
+            ->first();
+
+        // 商户号不存在
+        if( empty($merchant) ) {
+            return false;
+        }
+
+        return  $merchant->toArray();
+    }
+
+    /**
+     * 商户请求初始化
+     * @param string $api_name
+     * @param Request $request
+     * @param array $keys
+     * @return array
+     */
+    private function _init(string $api_name, Request $request)
+    {
+        $validator = $this->_validator('request',$request->all());
+
+        // 验证失败
+        if( !$validator['status'] ) {
+            return [-1, $validator['message']];
+        };
+
+        $this->merchant = $this->getMerchant( $request->get('merchant_id') );
+        if( !$this->merchant ){
+            return [-3, '商户不存在！'];
+        }
+
+        // 商户使用商户私钥加密数据请求平台接口，平台使用商户公钥解密数据
+        $this->decrypt_data = $this->_decrypt($request->get('data'));
+
+        // 如果数据解密失败
+        if( !$this->decrypt_data ){
+            return [-4, '数据解密失败！'];
+        }
+
+        $validator = $this->_validator($api_name,$this->decrypt_data);
+        // 验证失败
+        if( !$validator['status'] ) {
+            return [-6,$validator['message']];
+        };
+
+        $keys = [];
+        if($api_name == 'pay'){
+            $keys = ['amount','callback_url','callback_url_view','order_no','goods_name','method'];
+        }elseif($api_name == 'query'){
+            $keys = ['order_no'];
+        }
+        $keys[] = 'sign';
+
+        $request_data = [];
+        foreach($keys as $key){
+            $request_data[$key] = $this->decrypt_data[$key];
+        }
+
+        // 如果是在线网银，则需要对应的银行代码
+        if( $api_name=='pay' && $request_data['method'] == 'netbank' ){
+            $request_data['bank_code'] = $this->decrypt_data['bank_code'];
+        }
+
+        // 验证MD5签名
+        if( !$this->_verify($request_data) ){
+            // 签名验证失败
+            return [-7,'签名校验失败！'];
+        }
+
+        return [0, 'success'];
     }
 
     /**
@@ -325,15 +408,15 @@ class Payment
     {
         $decrypt_string = RSA::public_decrypt( $string , $this->merchant['merchant_public_key'] );
         if( $decrypt_string ){
-            $decrypt_string = json_decode($decrypt_string,true);
+            return json_decode($decrypt_string,true);
         }
-        return $decrypt_string;
+        return false;
     }
 
     /**
      * 校验数据
      * @param string $api_name
-     * @param string $data
+     * @param array $data
      * @return array [status,message] status:通过为true，失败为false，message：消息
      */
     private function _validator( $api_name , $data )

@@ -23,17 +23,17 @@ class PaymentController extends Controller
         try{
             $payment_ref = new \ReflectionClass($class_name);
 
-            $this->payment_api = $payment_ref->newInstance($request);
+            $this->payment_api = $payment_ref->newInstance();
         }catch(\ReflectionException $e){
 
             abort(403,'接口版本号错误！');
         }catch(\Exception $e){
 
-            abort(403,$e->getMessage().',code:'.$e->getCode());
+            abort(403,'未知的异常！');
         }
     }
 
-    //支付
+    // 支付
     public function pay(Request $request)
     {
         /*
@@ -61,8 +61,9 @@ class PaymentController extends Controller
 
         // $code > 0 成功，其他统一失败
         // $message：错误消息
-        //
-        list($code,$message,$data) = $this->payment_api->pay();
+        // $data : 数据
+
+        list($code,$message,$data) = $this->payment_api->pay($request);
         dd($data);
 
         // 解析参数
@@ -85,8 +86,34 @@ class PaymentController extends Controller
 //        return response()->json(['222']);
     }
 
-    public function query(Request $request)
+    /**
+     * 第三方异步回调
+     * @param $channel_detail_id
+     * @param Request $request
+     * @return mixed
+     */
+    public function callback( $channel_detail_id, Request $request)
+    {
+        // 根据$channel_dateil_id
+    }
+
+    /**
+     * 第三方页面跳转回调
+     * @param $channel_detail_id
+     * @param Request $request
+     */
+    public function callback_view( $channel_detail_id, Request $request)
     {
 
+    }
+
+    /**
+     * 商户查询订单状态记录
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function query(Request $request)
+    {
+        return response()->json($this->payment_api->query($request));
     }
 }

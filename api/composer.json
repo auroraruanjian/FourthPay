@@ -38,6 +38,9 @@
         "classmap": [
             "database/seeds",
             "database/factories"
+        ],
+        "files" : [
+            "./../common/Helpers/function.php"
         ]
     },
     "autoload-dev": {
