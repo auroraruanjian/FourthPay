@@ -24,8 +24,11 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')
-        //          ->hourly();
+        //定时向服务器 push 订单状态
+        $schedule->command('payment:push')
+            ->everyMinute()                 //每分钟运行一次
+            ->appendOutputTo('storage/command/payment/push_'.date('Y-m-d').'.log')     //日志输出
+            ->withoutOverlapping();         //避免任务重叠
     }
 
     /**

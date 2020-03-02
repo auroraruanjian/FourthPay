@@ -58,7 +58,8 @@ class Payment
         // 添加支付订单记录
         $deposits_model = new Deposits();
         $deposits_model->merchant_id = $this->merchant['id'];                               // 商户ID
-        $deposits_model->payment_channel_detail_id = $channel_detail['channel_detail_id'];  // 支付通道
+        $deposits_model->payment_channel_detail_id = $channel_detail['channel_detail_id'];  // 支付通道ID
+        $deposits_model->payment_method_id = $channel_detail['payment_method_id'];          // 支付类型ID
         $deposits_model->amount = $this->decrypt_data['amount'];                            // 金额
         $deposits_model->merchant_order_no = $this->decrypt_data['order_no'];               // 订单号
         $deposits_model->ip = request()->ip();                                              // IP
@@ -126,14 +127,16 @@ class Payment
 
         // 获取 平台订单号，商户订单号，金额，实际支付金额，支付时间，支付状态
         $deposit_record = Deposits::select([
-            'id',
-            'amount',
-            'real_amount',
-            'status',
-            'done_at',
-            'created_at'
+            'deposits.id',
+            'payment_method.ident as method',
+            'deposits.amount',
+            'deposits.real_amount',
+            'deposits.status',
+            'deposits.done_at',
+            'deposits.created_at'
         ])
-            ->where('merchant_order_no',$this->decrypt_data['order_no'])
+            ->leftJoin('payment_method','payment_method.id','deposits.payment_method_id')
+            ->where('deposits.merchant_order_no',$this->decrypt_data['order_no'])
             ->first();
 
         if( empty($deposit_record) ){
@@ -147,7 +150,7 @@ class Payment
         // 此处订单ID加密转码返回
         $deposit_record['id'] = id_encode($deposit_record['id']);
         // 增加签名
-        $deposit_record['sign'] = $this->_sign($deposit_record);
+        $deposit_record['sign'] = md5_sign($deposit_record,$this->merchant['md5_key']);
 
         // 返回加密签名后的数据
         $return_data['code'] = 0;
@@ -158,12 +161,104 @@ class Payment
 
     /**
      * 第三方支付回调
+     * @param int $channel_detail_id
      * @param Request $request
      * @return array
+     * @throws \Exception
      */
-    public function callback(Request $request)
+    public function callback(int $channel_detail_id , $request_data )
     {
-       return [];
+        // 获取支付通道
+        $details = PaymentChannelDetail::select([
+            'payment_channel.id as channel_id',
+            'payment_channel.channel_param',
+            'payment_channel_detail.id as channel_detail_id',
+            'payment_category.ident as category_ident'
+        ])
+            ->leftJoin('payment_channel','payment_channel.id','payment_channel_detail.payment_channel_id')
+            ->leftJoin('payment_category','payment_category.id','payment_channel.payment_category_id')
+            ->where(['payment_channel_detail.id','=',$channel_detail_id])
+            ->first();
+
+        if( empty($details) ){
+            throw new \Exception('通道不存在！');
+        }
+
+        // TODO: 支付提交到第三方
+        // 获取支付模型，构建支付数据
+        $pay_model = $this->getPaymentModel($details['category_ident'],[
+            // 商户号
+            // 秘钥
+            // 支付通道ID
+            // API网关
+        ]);
+        if( !$pay_model ){
+            return [-11,'模型获取失败！'];
+        }
+
+        // 记录日志
+
+
+        // 如果是服务器回调，检查是否IP白名单
+
+        // 获取订单号,检查订单状态
+        $return_data = [
+            'money'      => 0,
+            'order_no'   => '',
+            'pay_status' => false,
+        ];
+
+        $third_order = $this->pay_model->getThirdOrder($request_data);
+        if (empty($third_order['order_no'])) {
+            \Log::error('订单号为空', ['third_order'=>$third_order]);
+            return $return_data;
+        }
+
+        // 获取数据库订单记录
+        $deposit_record = Deposits::select(['id','amount','merchant_order_no','status','callback_status','extra'])->where('id',id_decode($third_order['order_no']));
+        //订单不存在
+        if (empty($deposit_record)) {
+            \Log::error('订单不存在', ['third_order'=>$third_order]);
+            return $return_data;
+        }
+
+        // 金额检查是否相同
+
+        // 检查是否已支付成功
+        if ( $deposit_record->status == 2 ) {
+            $return_data['pay_status']  = true;
+            return $return_data;
+        }
+
+        // 检查回调结果
+        if( $pay_model->callback($request_data) ){
+            $query_status = $pay_model->query( $deposit_record );
+            if( in_array($query_status,[
+                $pay_model::QUERY_STATUS_SUCCESS,
+                $pay_model::QUERY_STATUS_UNDEFINED,
+            ],true)  ){
+                // 通过- 修改订单状态，增加账变记录
+                $deposit_record->status = 2;
+                $deposit_record->callback_status = 1;
+                $deposit_record->callback_at = (string)Carbon::now();
+                //
+                if( !empty($third_order['third_order_no']) ) {
+                    $deposit_record->third_order_no = $third_order['third_order_no'];
+                }
+                if( !empty($third_order['real_amount']) ){
+                    $deposit_record->real_amount = $third_order['real_amount'];
+                }
+
+                $deposit_record->done_at = (string)Carbon::now();
+                if( $deposit_record->save() ){
+                    // 增加账变
+
+                }
+            }
+        }
+
+        // 失败
+        return [];
     }
 
     /**
@@ -191,6 +286,7 @@ class Payment
             'payment_channel.channel_param',
             'payment_channel_detail.extra',
             'payment_channel_detail.id as channel_detail_id',
+            'payment_channel_detail.payment_method_id',
             'payment_category.ident as category_ident'
         ])
             ->leftJoin('payment_channel','payment_channel.id','payment_channel_detail.payment_channel_id')
@@ -325,7 +421,7 @@ class Payment
         }
 
         // 验证MD5签名
-        if( !$this->_verify($request_data) ){
+        if( !md5_verify($request_data) ){
             // 签名验证失败
             return [-7,'签名校验失败！'];
         }
@@ -354,39 +450,6 @@ class Payment
             \Log::error($e);
             return false;
         }
-    }
-
-    /**
-     * 签名验证
-     * @param array $data 参数
-     * @return boolean 验证通过：true 失败：false
-     */
-    public function _verify( $data )
-    {
-        if  ($this->_sign( $data) === $data['sign'] ) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * 签名
-     * @param array $data 参数
-     * @return boolean 验证通过：true 失败：false
-     */
-    public function _sign( $data )
-    {
-        ksort($data);
-
-        $sign_str = '';
-        foreach ($data as $k => $v) {
-            if ($k !== 'sign') {
-                $sign_str .= $k.'='.$v.'&';
-            }
-        }
-
-        return strtoupper(md5($sign_str . $this->merchant['md5_key']));
     }
 
     /**

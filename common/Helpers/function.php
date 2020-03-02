@@ -60,3 +60,38 @@ function id_decode($data)
 
     return '';
 }
+
+/**
+ * 签名验证
+ * @param array $data 参数
+ * @return boolean 验证通过：true 失败：false
+ */
+function md5_verify( $data )
+{
+    if  (md5_sign( $data) === $data['sign'] ) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * 签名
+ * @param array $data 参数
+ * @param $md5_key
+ * @return boolean 验证通过：true 失败：false
+ */
+function md5_sign( $data , $md5_key )
+{
+    ksort($data);
+
+    $sign_str = '';
+    foreach ($data as $k => $v) {
+        if ($k !== 'sign') {
+            $sign_str .= $k.'='.$v.'&';
+        }
+    }
+
+    return strtoupper(md5($sign_str . $md5_key));
+}
+

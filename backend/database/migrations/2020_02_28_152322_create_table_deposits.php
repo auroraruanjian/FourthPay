@@ -17,6 +17,7 @@ class CreateTableDeposits extends Migration
             $table->increments('id');
             $table->integer('merchant_id')->comment('商户ID');
             $table->smallInteger('payment_channel_detail_id')->comment('支付通道ID');
+            $table->smallInteger('payment_method_id')->comment('支付通道ID');
 
             $table->decimal('amount', 15, 4)->comment('交易金额');
             $table->decimal('real_amount', 15, 4)->default(0)->comment('实际支付金额');
@@ -57,6 +58,7 @@ class CreateTableDeposits extends Migration
             $table->index(['status', 'report_status']);
             $table->index(['status', 'created_at']);
             $table->index(['payment_channel_detail_id', 'created_at']);
+            $table->index('payment_method_id');
             $table->index(['status', 'merchant_id', 'done_at']);
             $table->unique(['merchant_id','merchant_order_no']);
         });
