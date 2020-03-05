@@ -182,7 +182,7 @@
                     </el-row>
                 </template>
             </el-form>
-            <div style="text-align:right;">
+            <div style="text-align:right;" v-if="dialogType!=='detail'">
                 <el-button type="danger" @click="dialogVisible=false">Cancel</el-button>
                 <el-button type="primary" @click="confirm">Confirm</el-button>
             </div>
@@ -268,9 +268,11 @@
                     this.dialogType = 'detail';
                 }else if(type == 2){
                     this.dialogType = 'verify';
+                    this.verify_form = Object.assign({}, defaultVerifyForm);
                     this.verify_form.id = this.deposit.id;
                 }else{
                     this.dialogType = 'deal';
+                    this.deal_form=Object.assign({}, defaultForm);
                     this.deal_form.id = this.deposit.id;
                 }
                 this.dialogVisible = true

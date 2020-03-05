@@ -150,14 +150,9 @@ class DepositsController extends Controller
         // 获取订单，检查订单状态
         $deposit = Deposits::where('id',id_decode($id))->first();
         if( $deposit->status == 1 ){
+            if( $status === '2' ){
+                DB::beginTransaction();
 
-            DB::beginTransaction();
-
-            $deposit->status = $status;
-            $deposit->cash_admin = auth()->user()->username;
-            $deposit->done_at = (string)Carbon::now();
-
-            if($deposit->save()){
                 // TODO:增加账变
                 $order = new Orders();
                 $order->from_merchant_id = $deposit->merchant_id;
@@ -165,21 +160,28 @@ class DepositsController extends Controller
                 $order->amount = $deposit->manual_amount;
                 $order->comment = $deposit->admin_remark;
                 $order->ip = request()->ip();
-                if (MerchantFund::modifyFund($order, 'ZXCZ')) {
-                    DB::commit();
-                    return $this->response(1, '操作成功');
-                }else{
+                if (!MerchantFund::modifyFund($order, 'ZXCZ')) {
                     DB::rollback();
                     return $this->response(1, MerchantFund::$error_msg);
                 }
-            }
-            DB::rollback();
-        }else{
-            $deposit->status = $status;
-            $deposit->cash_admin = auth()->user()->username;
 
-            if($deposit->save()){
-                return $this->response(1, '操作成功');
+                $deposit->status = $status;
+                $deposit->cash_admin = auth()->user()->username;
+                $deposit->done_at = (string)Carbon::now();
+                $deposit->order_id = $order->id;
+
+                if($deposit->save()){
+                    DB::commit();
+                    return $this->response(1, '操作成功');
+                }
+                DB::rollback();
+            }elseif( $status === '3' ){
+                $deposit->status = $status;
+                $deposit->cash_admin = auth()->user()->username;
+
+                if($deposit->save()){
+                    return $this->response(1, '操作成功');
+                }
             }
         }
 
