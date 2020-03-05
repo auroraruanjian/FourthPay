@@ -17,7 +17,6 @@ class CreateTableDeposits extends Migration
             $table->increments('id');
             $table->integer('merchant_id')->comment('商户ID');
             $table->smallInteger('payment_channel_detail_id')->comment('支付通道ID');
-            $table->smallInteger('payment_method_id')->comment('支付通道ID');
 
             $table->decimal('amount', 15, 4)->comment('交易金额');
             $table->decimal('real_amount', 15, 4)->default(0)->comment('实际支付金额');
@@ -34,11 +33,11 @@ class CreateTableDeposits extends Migration
             $table->string('manual_postscript')->default('')->comment('人工输入附言');
             $table->decimal('manual_amount', 15, 4)->default(0)->comment('人工输入实际充值金额');
             $table->decimal('manual_fee', 15, 4)->default(0)->comment('人工输入实际手续费');
-//
-//            $table->decimal('user_fee', 15, 4)->default(0)->comment('用户的手续费，负数扣除，整数返还');
-//            $table->decimal('platform_fee', 15, 4)->default(0)->comment('平台手续费');
-//            $table->string('account_number', 50)->default('')->comment('商户号或银行卡号');
-//            $table->string('error_type', 64)->default('')->comment('违规类型');
+
+            $table->decimal('merchant_fee', 15, 4)->default(0)->comment('用户的手续费，负数扣除，整数返还');
+            $table->decimal('third_fee', 15, 4)->default(0)->comment('平台手续费');
+            $table->string('account_number', 50)->default('')->comment('商户号或银行卡号');
+            $table->string('error_type', 64)->default('')->comment('违规类型');
 
             $table->tinyInteger('callback_status')->default(0)->comment('第三方回调状态，大于 0 为成功');
             $table->timestamp('callback_at')->nullable()->comment('第三方回调时间');
@@ -58,7 +57,6 @@ class CreateTableDeposits extends Migration
             $table->index(['status', 'report_status']);
             $table->index(['status', 'created_at']);
             $table->index(['payment_channel_detail_id', 'created_at']);
-            $table->index('payment_method_id');
             $table->index(['status', 'merchant_id', 'done_at']);
             $table->unique(['merchant_id','merchant_order_no']);
         });

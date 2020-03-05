@@ -29,6 +29,7 @@ const user = {
             state.role_name = data.role_name;
             state.last_ip   = data.last_ip;
             state.last_time = data.last_time;
+            state.id        = data.id;
         },
         SET_WECHAT_STATUS:( state , wechat_status ) => {
             state.wechat_status = wechat_status;

@@ -11,8 +11,8 @@ class MerchantsSeeder extends Seeder
      */
     public function run()
     {
-        $system = Common\Helper\RSA::new();
-        $merchant = Common\Helper\RSA::new();
+        $system = Common\Helpers\RSA::new();
+        $merchant = Common\Helpers\RSA::new();
 
         DB::table('merchants')->insert([
             [

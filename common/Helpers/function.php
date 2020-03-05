@@ -66,9 +66,9 @@ function id_decode($data)
  * @param array $data 参数
  * @return boolean 验证通过：true 失败：false
  */
-function md5_verify( $data )
+function md5_verify( $data , $md5_key )
 {
-    if  (md5_sign( $data) === $data['sign'] ) {
+    if  (md5_sign( $data,$md5_key) === $data['sign'] ) {
         return true;
     }
 

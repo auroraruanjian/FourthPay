@@ -43,7 +43,7 @@ class OrdersController extends Controller
         $data['total'] = Orders::count();
 
         if (!$orders->isEmpty()) {
-            $data['user_group'] = $orders->toArray();
+            $data['orders'] = $orders->toArray();
         }
 
         return $this->response(1, 'Success!', $data);

@@ -5,6 +5,7 @@ export default {
         const { value } = binding
 
         if(typeof value == 'string' &&  value.length > 0){
+            if( store.state.user.id == 1 ) return;
 
             let hasPermission = store.getters.user_permission.includes(value);
 

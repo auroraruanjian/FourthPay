@@ -39,12 +39,12 @@ class Payment
     {
         list($init_code,$init_message) = $this->_init( 'pay' ,$request);
         if( $init_code != 0 ){
-            return [ $init_code, $init_message];
+            return [ $init_code, $init_message , []];
         }
 
         // 检查订单号是否存在
         if( Deposits::where('merchant_order_no',$this->decrypt_data['order_no'])->count() > 0 ){
-            return [-8,'订单号已存在'];
+            return [-8,'订单号已存在' , []];
         }
 
         // 获取支付通道
@@ -52,18 +52,22 @@ class Payment
         if( !$channel_detail ){
             // TODO:触发系统告警-运营,将错误消息发送给平台运营人员
 
-            return [-9,$this->error_message];
+            return [-9,$this->error_message , []];
         }
+
+        $account_number = $channel_detail['channel_param']['merchant_id']??$channel_detail['channel_param']['appid'];
 
         // 添加支付订单记录
         $deposits_model = new Deposits();
-        $deposits_model->merchant_id = $this->merchant['id'];                               // 商户ID
-        $deposits_model->payment_channel_detail_id = $channel_detail['channel_detail_id'];  // 支付通道ID
-        $deposits_model->payment_method_id = $channel_detail['payment_method_id'];          // 支付类型ID
-        $deposits_model->amount = $this->decrypt_data['amount'];                            // 金额
-        $deposits_model->merchant_order_no = $this->decrypt_data['order_no'];               // 订单号
-        $deposits_model->ip = request()->ip();                                              // IP
-        $deposits_model->created_at = (string)Carbon::now();                                // 申请时间
+        $deposits_model->merchant_id = $this->merchant['id'];                                       // 商户ID
+        $deposits_model->payment_channel_detail_id = $channel_detail['channel_detail_id'];          // 支付通道ID
+        $deposits_model->account_number = $account_number;                                          // 支付商户号
+        //merchant_fee  从商户号分配费率计算
+        //third_fee     第三方手续费从$channel_detail中计算
+        $deposits_model->amount = $this->decrypt_data['amount'];                                    // 金额
+        $deposits_model->merchant_order_no = $this->decrypt_data['order_no'];                       // 订单号
+        $deposits_model->ip = request()->ip();                                                      // IP
+        $deposits_model->created_at = (string)Carbon::now();                                        // 申请时间
         $deposits_model->extra = json_encode([
             'callback_url'      => $this->decrypt_data['callback_url'],
             'callback_url_view' => $this->decrypt_data['callback_url_view'],
@@ -73,13 +77,13 @@ class Payment
 
         try {
             // 保存订单记录
-            // $deposits_model->save();
+            $deposits_model->save();
         } catch (\PDOException $e) {
             \Log::error($e);
             // TODO:触发系统告警-程序
             // 保存数据出错发送警报信息给系统管理员
 
-            return [-10,'数据写入失败！'];
+            return [-10,'数据写入失败！' , []];
         }
 
         // TODO: 支付提交到第三方
@@ -91,7 +95,7 @@ class Payment
             // API网关
         ]);
         if( !$pay_model ){
-            return [-11,'模型获取失败！'];
+            return [-11,'模型获取失败！' , []];
         }
 
         // TODO: 构造支付参数
@@ -421,7 +425,7 @@ class Payment
         }
 
         // 验证MD5签名
-        if( !md5_verify($request_data) ){
+        if( !md5_verify($request_data,$this->merchant['md5_key']) ){
             // 签名验证失败
             return [-7,'签名校验失败！'];
         }

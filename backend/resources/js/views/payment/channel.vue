@@ -160,7 +160,7 @@
         id: '',
         name:'',
         payment_category_id: '',
-        channel_param:[],
+        payment_method_id:[],
         detail:[],
         status: true,
     };

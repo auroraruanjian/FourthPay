@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Common\Helpers\RSA;
+use Common\Models\Merchants;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -36,35 +38,12 @@ class PaymentController extends Controller
     // 支付
     public function pay(Request $request)
     {
-        /*
-        // 构建请求测试代码
-        $request_data = [
-            // 金额
-            'amount'            => 100.01,
-            // 异步回调地址
-            'callback_url'      => 'http://www.baidu.com',
-            // 同步回调地址
-            'callback_url_view' => 'http://www.baidu.com',
-            // 商户订单号
-            'order_no'          => Str::random(10),
-            // 商品名
-            'goods_name'        => 'payment',
-            // 支付方式,对应payment_method表
-            'method'            => 'wechat_scan',
-        ];
-
-        // 签名
-        $request_data['sign'] = $this->payment_api->_sign($request_data);
-
-        dd($this->payment_api->_encrypt($request_data));
-        */
-
         // $code > 0 成功，其他统一失败
         // $message：错误消息
         // $data : 数据
 
         list($code,$message,$data) = $this->payment_api->pay($request);
-        dd($data);
+        dd($message,$data);
 
         // 解析参数
 //        switch( $data['type'] ){
@@ -120,5 +99,31 @@ class PaymentController extends Controller
     public function query(Request $request)
     {
         return response()->json($this->payment_api->query($request));
+    }
+
+    public function test(Request $request)
+    {
+        // 构建请求测试代码
+        $request_data = [
+            // 金额
+            'amount'            => 100.01,
+            // 异步回调地址
+            'callback_url'      => 'http://www.baidu.com',
+            // 同步回调地址
+            'callback_url_view' => 'http://www.baidu.com',
+            // 商户订单号
+            'order_no'          => Str::random(10),
+            // 商品名
+            'goods_name'        => 'payment',
+            // 支付方式,对应payment_method表
+            'method'            => 'wechat_scan',
+        ];
+
+        $merchant = Merchants::select(['merchant_private_key','md5_key'])->first()->toArray();
+
+        // 签名
+        $request_data['sign'] = md5_sign($request_data,$merchant['md5_key']);
+
+        dd(RSA::private_encrypt( json_encode($request_data) , $merchant['merchant_private_key'] ));
     }
 }

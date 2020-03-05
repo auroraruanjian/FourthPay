@@ -28,6 +28,7 @@ class CreateTablePaymentChannelDetail extends Migration
             $table->timestamps();
 
             $table->softDeletes();
+            $table->unique(['payment_channel_id','payment_method_id']);
         });
     }
 

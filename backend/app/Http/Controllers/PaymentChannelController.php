@@ -237,7 +237,7 @@ class PaymentChannelController extends Controller
         }
 
         // 删除不需要保存的通道详情
-        PaymentChannelDetail::whereNotIn('id',array_column($request_detail,'id'))->delete();
+        PaymentChannelDetail::whereNotIn('id',array_column($request_detail,'id'))->where('payment_channel_id',$payment_channel->id)->delete();
 
         DB::commit();
         return $this->response(1,'编辑成功');

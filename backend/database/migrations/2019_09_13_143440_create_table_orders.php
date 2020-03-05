@@ -17,8 +17,8 @@ class CreateTableOrders extends Migration
         //
         Schema::create('orders', function (Blueprint $table) {
             $table->bigIncrements('id')->comment('游戏帐变ID');
-            $table->integer('from_user_id')->default(0)->comment('(发起人)用户 ID');
-            $table->integer('to_user_id')->default(0)->comment('(关联人)用户 ID');
+            $table->integer('from_merchant_id')->default(0)->comment('(发起人)商户 ID');
+            $table->integer('to_merchant_id')->default(0)->comment('(关联人)商户 ID');
             $table->smallInteger('admin_user_id')->default(0)->comment('管理员 ID');
             $table->smallInteger('order_type_id')->comment('帐变类型');
             $table->decimal('amount', 14, 4)->comment('本条账变所产生的资金变化量');
@@ -35,7 +35,7 @@ class CreateTableOrders extends Migration
             $table->index(['ip', 'created_at']);
             $table->index(['admin_user_id', 'created_at']);
             $table->index(['order_type_id', 'created_at']);
-            $table->index(['from_user_id', 'order_type_id', 'created_at']);
+            $table->index(['from_merchant_id', 'order_type_id', 'created_at']);
         });
 
         $this->_permission();

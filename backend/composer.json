@@ -48,7 +48,7 @@
         "files" : [
             "app/Helpers/function.php",
             "./../common/Helpers/function.php"
-        ],
+        ]
     },
     "autoload-dev": {
         "psr-4": {

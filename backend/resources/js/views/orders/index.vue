@@ -73,7 +73,7 @@
             <el-table :data="orders" style="width: 100%;" border >
                 <el-table-column align="center" label="ID" prop="id"></el-table-column>
                 <el-table-column align="header-center" label="账变时间" prop="created_at"></el-table-column>
-                <el-table-column align="header-center" label="用户名" prop="from_user_id"></el-table-column>
+                <el-table-column align="header-center" label="商户ID" prop="from_merchant_id"></el-table-column>
                 <el-table-column align="header-center" label="账变类型" prop="order_type_id"></el-table-column>
                 <el-table-column align="header-center" label="支出" prop="amount">
                     <template slot-scope="scope">
