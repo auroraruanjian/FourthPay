@@ -1,5 +1,5 @@
-# Laravel System
-> 使用Laravel+Vue构建的一个集成前后台的项目，包含开箱即用的权限管理模块，日志管理模块，微信登录，系统配置，用户管理等功能
+# 四方支付系统
+> 使用Laravel+Vue构建的一个四方支付系统，包含API接口，管理后台，代理后台，网站前台，系统基础模板基于 [Laravel-admin](https://github.com/tuo0/laravel-admin) 构建，只做开发学习，请勿用作非法用途
 
 技术栈
 ----
@@ -29,6 +29,7 @@
 * backend       ：管理后台
 * frontend-api  ：前台API接口目录
 * frontend-web  ：前台前端文件
+* api           ：API请求接口
 * common        ：公共模块目录
 * doc           ：相关文档和配置目录
 
@@ -99,7 +100,7 @@ Ajax 接口返回json数据说明
 * msg:错误消息
 * data:返回数据 
 
-> ## 开发规范
+## 开发规范
 > * 如果控制器名称中含有大写，则权限表(`admin_role_permissions`)权限必须使用[_]分割，以及前台请求接口以及前台组件权限验证规则(`v-permission`标签)必须与权限表相同  
 > 例如：控制器名称`UserGroupController`方法`putEdit`，则请求接口以及权限验证标签为：`user_group/edit`  
 > * 网站所有小图标采用SVG格式可以在 [iconfont](https://www.iconfont.cn/) 中查找  
