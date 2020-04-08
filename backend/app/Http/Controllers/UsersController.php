@@ -40,7 +40,7 @@ class UsersController extends Controller
             'users.last_time',
             'users.created_at'
         ])
-            ->leftJoin('clients','clients.id','users.client_id')
+            ->leftJoin('merchants','merchants.id','users.merchants_id')
             ->leftJoin('user_group','user_group.id','users.user_group_id')
             ->orderBy('id', 'asc')
             ->skip($start)

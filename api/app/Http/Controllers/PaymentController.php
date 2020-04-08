@@ -85,7 +85,7 @@ class PaymentController extends Controller
      */
     public function callback_view( $channel_detail_id, Request $request)
     {
-        $res = $this->payment_api->callback( $channel_detail_id, $request->all());
+        $res = $this->payment_api->callback($channel_detail_id, $request->all());
         // TODO：如果第三方接口不安全（同步跳转接口无签名、参数可修改、订单状态检查失败等情况）本地渲染支付成功页面(不修改订单数据库状态)，提示稍后到账
         // TODO：如果接口安全且订单状态检查成功则同步跳转到商户回调域名
         return redirect('');

@@ -8,6 +8,8 @@
             <el-table :data="client_list" style="width: 100%;margin-top:30px;" border >
                 <el-table-column align="center" label="ID" prop="id"></el-table-column>
                 <el-table-column align="header-center" label="商户名称" prop="account"></el-table-column>
+                <el-table-column align="header-center" label="余额" prop="balance"></el-table-column>
+                <el-table-column align="header-center" label="冻结金额" prop="hold_balance"></el-table-column>
                 <el-table-column align="header-center" label="状态" >
                     <template slot-scope="scope">
                         <el-tag type="success" v-if="scope.row.status">正常</el-tag>

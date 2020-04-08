@@ -19,7 +19,6 @@ class CreateTableMerchants extends Migration
         Schema::create('merchants', function (Blueprint $table) {
             $table->increments('id');
             $table->string('account',60)->comment('商户号');
-            $table->string('password')->comment('密码');
             $table->text('system_public_key','')->comment('系统公钥');
             $table->text('system_private_key','')->comment('系统私钥');
             $table->text('merchant_public_key','')->comment('商户公钥');

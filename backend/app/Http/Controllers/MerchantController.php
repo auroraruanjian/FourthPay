@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ClientCreateRequest;
 use App\Http\Requests\CommonIndexRequest;
+use Common\Models\MerchantFund;
 use Common\Models\Merchants;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class MerchantController extends Controller
 {
@@ -32,11 +34,14 @@ class MerchantController extends Controller
         ];
 
         $clientlist = Merchants::select([
-            'id',
-            'account',
-            'status'
+            'merchants.id',
+            'merchants.account',
+            'merchants.status',
+            'merchant_fund.balance',
+            'merchant_fund.hold_balance',
         ])
-            ->orderBy('id', 'asc')
+            ->leftJoin('merchant_fund','merchant_fund.merchant_id','merchants.id')
+            ->orderBy('merchants.id', 'asc')
             ->skip($start)
             ->take($limit)
             ->get();
@@ -52,15 +57,26 @@ class MerchantController extends Controller
 
     public function postCreate(ClientCreateRequest $request)
     {
-        $client             = new Merchants();
-        $client->account    = $request->get('account')??0;
-        $client->status     = (int)$request->get('status',0)?true:false;
+        DB::beginTransaction();
+        $merchant             = new Merchants();
+        $merchant->account    = $request->get('account')??0;
+        $merchant->status     = (int)$request->get('status',0)?true:false;
 
-        if( $client->save() ){
-            return $this->response(1, '添加成功');
-        } else {
-            return $this->response(0, '添加失败');
+        if( $merchant->save() ){
+            // 新增商户资金记录
+            $merchant_fund = new MerchantFund();
+            $merchant_fund->merchant_id = $merchant->id;
+
+            // TODO:新增商户系统超级管理员
+
+            if($merchant_fund->save()){
+                DB::commit();
+                return $this->response(1, '添加成功');
+            }
         }
+
+        DB::rollBack();
+        return $this->response(0, '添加失败');
     }
 
     public function getEdit(Request $request)
