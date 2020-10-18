@@ -1,4 +1,35 @@
 <?php
+// 支付页类型错误
+define('PAY_VIEW_TYPE_ERROR',0);
+// 支付页类型网页
+define('PAY_VIEW_TYPE_HTML',1);
+// 支付页类型原生
+define('PAY_VIEW_TYPE_RAW',2);
+// 支付页类型跳转URL
+define('PAY_VIEW_TYPE_URL',3);
+// 支付页类型二维码
+define('PAY_VIEW_TYPE_QRCODE',4);
+
+
+/**
+ * 获取系统配置，从redis获取缓存2秒
+ * @param        $key
+ * @param string $default
+ * @return string
+ */
+function getSysConfig($key,$default='')
+{
+    $value = Cache::store('apc')->remember(
+        'redis:'.$key,
+        2,
+        function() use ($key,$default){
+            return Redis::hget('sys_config',$key);
+        }
+    );
+
+    return !empty($value)?$value:$default;
+}
+
 /**
  * ID 加密
  */

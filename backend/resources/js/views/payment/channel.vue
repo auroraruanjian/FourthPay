@@ -28,7 +28,7 @@
                         <el-tag type="danger" v-else>禁用</el-tag>
                     </template>
                 </el-table-column>
-                <el-table-column align="center" label="Operations">
+                <el-table-column align="启用的总代" label="Operations">
                     <template slot-scope="scope" >
                         <el-button type="primary" size="small" v-permission="'payment_channel/edit'" @click="handleEdit(scope)">Edit</el-button>
                         <el-button type="danger" size="small" v-permission="'payment_channel/delete'" @click="handleDelete(scope)">Delete</el-button>
@@ -58,24 +58,6 @@
                 </el-form-item>
 
                 <el-form-item label="支付渠道">
-                    <!--
-                    <el-row :gutter="5" style="margin-bottom:5px;">
-                        <el-col :span="4" style="text-align: center">接口名称</el-col>
-                        <el-col :span="15" style="text-align: center">费率</el-col>
-                        <el-col :span="4" style="text-align: center">状态</el-col>
-                    </el-row>
-                    <el-row :gutter="5" v-for="(method,key) in payment_channel.methods_param" :key="key" style="margin-bottom:5px;">
-                        <el-col :span="4" style="text-align: center">{{method.name}}</el-col>
-                        <el-col :span="15"><el-input  v-model="method.rate" placeholder="费率(%)"></el-input></el-col>
-                        <el-col :span="4" style="text-align: center">
-                            <el-switch
-                                v-model="method.status"
-                                active-color="#13ce66"
-                                inactive-color="#ddd">
-                            </el-switch>
-                        </el-col>
-                    </el-row>
-                    -->
                     <el-table class="no_padding" :data="payment_channel.detail"  style="width: 100%" size="medium" >
                         <el-table-column type="expand">
                             <template slot-scope="scope">
@@ -161,6 +143,7 @@
         name:'',
         payment_category_id: '',
         payment_method_id:[],
+        channel_param:[],
         detail:[],
         status: true,
     };
@@ -240,6 +223,7 @@
 
                     new_methods.push( this.make_detail_data(false,old_method!=null?{...old_method,...method}:method) );
                 }
+                console.log(new_methods);
                 this.payment_channel.detail = new_methods;
                 //console.log(this.payment_channel.detail,this.current_payment_categroy.methods);
             },

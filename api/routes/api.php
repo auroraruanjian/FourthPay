@@ -16,15 +16,3 @@ use Illuminate\Http\Request;
 //Route::middleware('auth:api')->get('/user', function (Request $request) {
 //    return $request->user();
 //});
-
-
-Route::prefix('payment')->group(function () {
-    // 支付
-    Route::post('pay', 'PaymentController@pay');
-
-    // 查询订单状态
-    Route::post('query', 'PaymentController@query');
-
-    // 查询订单状态
-    Route::get('test', 'PaymentController@test');
-});

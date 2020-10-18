@@ -1,5 +1,7 @@
 <?php
-namespace Common\API\Payment;
+namespace Common\API\Payment\Wechat;
+
+use Common\API\Payment\Base;
 
 class Wechat extends Base
 {
@@ -7,11 +9,16 @@ class Wechat extends Base
     /**
      * 构建支付数据
      * @param $data
-     * @return mixed
+     * @return Array
      */
     public function prepare_pay($data)
     {
         // TODO: Implement prepare_pay() method.
+        return [
+            PAY_VIEW_TYPE_HTML,
+            'Success',
+            []
+        ];
     }
 
     /**

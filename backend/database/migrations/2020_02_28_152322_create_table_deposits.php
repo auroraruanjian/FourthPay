@@ -19,13 +19,13 @@ class CreateTableDeposits extends Migration
             $table->smallInteger('payment_channel_detail_id')->comment('支付通道ID');
 
             $table->decimal('amount', 15, 4)->comment('交易金额');
-            $table->decimal('real_amount', 15, 4)->default(0)->comment('实际支付金额');
-            $table->string('merchant_order_no',32)->comment('商户订单号');
+            $table->decimal('real_amount', 15, 4)->nullable()->comment('实际支付金额');
+            $table->string('merchant_order_no',60)->comment('商户订单号');
 
             $table->string('third_order_no', 100)->default('')->comment('银行交易流水或是第三方交易流水');
-            $table->string('order_id', 64)->default('')->comment('本站帐变流水号');
-            $table->string('accountant_admin')->default('')->comment('会计，通过审核的管理员');
-            $table->string('cash_admin')->default('')->comment('出纳，确认充值的管理员');
+            $table->integer('order_id')->nullable()->comment('本站帐变流水号');
+            $table->string('accountant_admin_id')->nullable()->comment('会计，通过审核的管理员');
+            $table->string('cash_admin_id')->nullable()->comment('出纳，确认充值的管理员');
 
             $table->tinyInteger('status')->default(0)->comment('状态，０支付中，１已审核，２充值成功，３充值失败');
             $table->tinyInteger('report_status')->default(0)->comment('报表汇总状态：0. 未开始; 1. 进行中; 2. 完成');
@@ -46,7 +46,7 @@ class CreateTableDeposits extends Migration
 
             $table->string('remark', 64)->default('')->comment('订单备注');
             $table->string('admin_remark', 64)->default('')->comment('管理员备注');
-            $table->jsonb('extra')->nullable()->comment('扩展字段');
+            $table->jsonb('extra')->default(json_encode([]))->comment('扩展字段');
             $table->ipAddress('ip')->nullable()->comment("用户IP地址");
             $table->timestamp('deal_at')->nullable()->comment("管理处理时间");
             $table->timestamp('done_at')->nullable()->comment("到账实际");

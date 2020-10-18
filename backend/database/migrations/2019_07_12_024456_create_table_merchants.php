@@ -24,6 +24,7 @@ class CreateTableMerchants extends Migration
             $table->text('merchant_public_key','')->comment('商户公钥');
             $table->text('merchant_private_key','')->comment('商户私钥');
             $table->string('md5_key','')->comment('MD5签名校验秘钥');
+            $table->jsonb('payment_channel')->default(json_encode([]))->comment('分配的支付通道以及费率');
 
             $table->tinyInteger('status')->default(0)->comment('状态:0 正常，1 冻结');
 

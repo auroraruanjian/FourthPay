@@ -51,8 +51,8 @@
                 </el-form-item>
                 <el-form-item label="参数">
                     <el-row :gutter="5" v-for="(param,key) in payment_category.param" :key="key" style="margin-bottom:5px;">
-                        <el-col :span="5"><el-input v-model="param.ident" placeholder="字段名称"></el-input></el-col>
-                        <el-col :span="5"><el-input v-model="param.name" placeholder="英文名称"></el-input></el-col>
+                        <el-col :span="5"><el-input v-model="param.name" placeholder="字段名称"></el-input></el-col>
+                        <el-col :span="5"><el-input v-model="param.ident" placeholder="英文名称"></el-input></el-col>
                         <el-col :span="4">
                             <el-select v-model="param.type" placeholder="字段类型">
                                 <el-option

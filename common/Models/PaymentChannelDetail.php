@@ -13,7 +13,7 @@ class PaymentChannelDetail extends Model
     protected $table='payment_channel_detail';
 
     /**
-     * 获取此评论所属文章
+     * 获取对应的支付通道
      */
     public function channel()
     {

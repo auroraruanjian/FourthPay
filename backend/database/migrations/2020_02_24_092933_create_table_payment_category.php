@@ -74,21 +74,21 @@ class CreateTablePaymentCategory extends Migration
                     [
                         'name'          => '公众账号ID',
                         'ident'         => 'appid',
-                        'type'          => '1',  // 0.文本 1.下拉
+                        'type'          => 1,  // 0.文本 1.下拉
                         'default_value' => '',
                         'require'       => true, // 是否为必须参数
                     ],
                     [
                         'name'          => '商户号',
                         'ident'         => 'merchant_id',
-                        'type'          => '1', // 0.文本 1.下拉
+                        'type'          => 1, // 0.文本 1.下拉
                         'default_value' => '',
                         'require'       => true, // 是否为必须参数
                     ],
                     [
                         'name'          => '商户密钥',
                         'ident'         => 'key1',
-                        'type'          => '1', // 0.文本 1.下拉
+                        'type'          => 1, // 0.文本 1.下拉
                         'default_value' => '',
                         'require'       => true, // 是否为必须参数
                     ],
@@ -103,21 +103,21 @@ class CreateTablePaymentCategory extends Migration
                     [
                         'name'          => '应用ID',
                         'ident'         => 'appid',
-                        'type'          => '1',  // 0.文本 1.下拉
+                        'type'          => 1,  // 0.文本 1.下拉
                         'default_value' => '',
                         'require'       => true, // 是否为必须参数
                     ],
                     [
                         'name'          => '商户私钥',
                         'ident'         => 'key1',
-                        'type'          => '1', // 0.文本 1.下拉
+                        'type'          => 1, // 0.文本 1.下拉
                         'default_value' => '',
                         'require'       => true, // 是否为必须参数
                     ],
                     [
                         'name'          => '支付宝公钥',
                         'ident'         => 'key2',
-                        'type'          => '1', // 0.文本 1.下拉
+                        'type'          => 1, // 0.文本 1.下拉
                         'default_value' => '',
                         'require'       => true, // 是否为必须参数
                     ],

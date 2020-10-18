@@ -10,7 +10,7 @@ class PaymentChannel extends Model
     protected $table='payment_channel';
 
     /**
-     * 获取博客文章的评论
+     * 获取支付通道详情
      */
     public function detail()
     {

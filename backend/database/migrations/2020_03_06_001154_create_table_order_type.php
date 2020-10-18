@@ -20,7 +20,7 @@ class CreateTableOrderType extends Migration
             $table->tinyInteger('display')->default(0)->comment('是否显示给用户，0：不显示，1：显示）');
             $table->tinyInteger('operation')->default(0)->comment('账变对余额影响的操作, 0：无操作, 1：加钱，2：扣钱');
             $table->tinyInteger('hold_operation')->default(0)->comment('冻结金额影响的操作, 0：无操作, 1：加钱，2：扣钱');
-            $table->smallInteger('category')->default(0)->comment('分类，彩票:1, 冲提:2, 三方：3');
+            $table->smallInteger('category')->default(0)->comment('分类，1, 冲提:2, 三方：3');
             $table->string('description', 32)->default('')->comment('帐变类型描述');
         });
 

@@ -12,11 +12,6 @@ use Validator;
 
 class Payment
 {
-    const PAY_CODE_HTML     = 2;          // 渲染HTML页面
-    const PAY_CODE_STRING   = 3;          // 字符串输出
-    const PAY_CODE_URL      = 4;          // URL跳转
-    const PAY_CODE_QRCODE   = 5;          // 页面渲染二维码
-
     // 商户信息
     private $merchant       = [];
 
@@ -25,6 +20,9 @@ class Payment
 
     // 错误消息
     public $error_message   = '';
+
+    // 支付模型
+    public $pay_model;
 
     public function __construct()
     {
@@ -38,12 +36,17 @@ class Payment
     public function pay(Request $request)
     {
         list($init_code,$init_message) = $this->_init( 'pay' ,$request);
-        if( $init_code != 0 ){
+        if( $init_code != 1 ){
             return [ $init_code, $init_message , []];
         }
 
         // 检查订单号是否存在
-        if( Deposits::where('merchant_order_no',$this->decrypt_data['order_no'])->count() > 0 ){
+        if( Deposits::where([
+                ['merchant_id','=',$this->merchant['id']],
+                ['merchant_order_no',$this->decrypt_data['order_no']],
+            ])
+            ->count() > 0
+        ){
             return [-8,'订单号已存在' , []];
         }
 
@@ -69,10 +72,11 @@ class Payment
         $deposits_model->ip = request()->ip();                                                      // IP
         $deposits_model->created_at = (string)Carbon::now();                                        // 申请时间
         $deposits_model->extra = json_encode([
-            'callback_url'      => $this->decrypt_data['callback_url'],
-            'callback_url_view' => $this->decrypt_data['callback_url_view'],
+            'notify_url'        => $this->decrypt_data['notify_url'],
+            'return_url'        => $this->decrypt_data['return_url'],
             'goods_name'        => $this->decrypt_data['goods_name'],
             'method'            => $this->decrypt_data['method'],
+            'bank_code'         => $this->decrypt_data['bank_code']??'',
         ]);
 
         try {
@@ -88,25 +92,35 @@ class Payment
 
         // TODO: 支付提交到第三方
         // 获取支付模型，构建支付数据
-        $pay_model = $this->getPaymentModel($channel_detail['category_ident'],[
-            // 商户号
-            // 秘钥
-            // 支付通道ID
-            // API网关
-        ]);
-        if( !$pay_model ){
+        $this->pay_model = $this->getPaymentModel($channel_detail);
+        if( !$this->pay_model ){
             return [-11,'模型获取失败！' , []];
         }
 
         // TODO: 构造支付参数
-        return $pay_model->prepare_pay([
+        list($pay_type,$message,$pay_data) =  $this->pay_model->prepare_pay([
             // 支付金额
+            'amount'    => $this->decrypt_data['amount'],
             // 平台订单号
+            'order_no'  => id_encode($deposits_model->id),
             // 商品名
+            'good_name' => $this->decrypt_data['goods_name'],
             // 支付类型
+            'method'    => $this->decrypt_data['method'],
             // 支付银行
+            'bank_code' => $this->decrypt_data['bank_code']??'',
             // 客户IP
+            'ip'        => $this->decrypt_data['ip'],
         ]);
+
+        if( $pay_type == PAY_VIEW_TYPE_ERROR ){
+            return [ -12, $message, []];
+        }
+
+        return [ 1, $message, [
+            'type'  => $pay_type,
+            'data'  => $pay_data
+        ]];
     }
 
     /**
@@ -123,7 +137,7 @@ class Payment
         ];
 
         list($init_code,$init_message) = $this->_init( 'query' , $request );
-        if( $init_code != 0 ){
+        if( $init_code != 1 ){
             $return_data['code'] = $init_code;
             $return_data['message'] = $init_message;
             return $return_data;
@@ -190,13 +204,8 @@ class Payment
 
         // TODO: 支付提交到第三方
         // 获取支付模型，构建支付数据
-        $pay_model = $this->getPaymentModel($details['category_ident'],[
-            // 商户号
-            // 秘钥
-            // 支付通道ID
-            // API网关
-        ]);
-        if( !$pay_model ){
+        $this->pay_model = $this->getPaymentModel();
+        if( !$this->pay_model ){
             return [-11,'模型获取失败！'];
         }
 
@@ -219,7 +228,10 @@ class Payment
         }
 
         // 获取数据库订单记录
-        $deposit_record = Deposits::select(['id','amount','merchant_order_no','status','callback_status','extra'])->where('id',id_decode($third_order['order_no']));
+        $deposit_record = Deposits::select(['id','amount','merchant_order_no','status','callback_status','extra'])->where([
+                ['id','=',id_decode($third_order['order_no'])],
+            ])
+            ->first();
         //订单不存在
         if (empty($deposit_record)) {
             \Log::error('订单不存在', ['third_order'=>$third_order]);
@@ -235,11 +247,11 @@ class Payment
         }
 
         // 检查回调结果
-        if( $pay_model->callback($request_data) ){
-            $query_status = $pay_model->query( $deposit_record );
+        if( $this->pay_model->callback($request_data) ){
+            $query_status = $this->pay_model->query( $deposit_record );
             if( in_array($query_status,[
-                $pay_model::QUERY_STATUS_SUCCESS,
-                $pay_model::QUERY_STATUS_UNDEFINED,
+                $this->pay_model::QUERY_STATUS_SUCCESS,
+                $this->pay_model::QUERY_STATUS_UNDEFINED,
             ],true)  ){
                 // 通过- 修改订单状态，增加账变记录
                 $deposit_record->status = 2;
@@ -291,7 +303,7 @@ class Payment
             'payment_channel_detail.extra',
             'payment_channel_detail.id as channel_detail_id',
             'payment_channel_detail.payment_method_id',
-            'payment_category.ident as category_ident'
+            'payment_category.ident as category_ident',
         ])
             ->leftJoin('payment_channel','payment_channel.id','payment_channel_detail.payment_channel_id')
             ->leftJoin('payment_category','payment_category.id','payment_channel.payment_category_id')
@@ -303,19 +315,19 @@ class Payment
                 ['payment_channel_detail.top_merchant_ids','@>',$this->merchant['id']],
                 ['payment_channel.status','=',0],
             ])
-            ->where( function($query)use($now_time){
-                // 正常时间区间
-                $query->where([
-                    ['payment_channel_detail.start_time','<=',$now_time],
-                    ['payment_channel_detail.end_time','>=',$now_time],
-                ])
-                // 如果跨天，当前时间大于开始时间
-                ->orWhereRaw(" ( payment_channel_detail.start_time > payment_channel_detail.end_time AND payment_channel_detail.start_time <= ? ) ",[$now_time])
-                // 如果跨天，当前时间小于结束时间
-                ->orWhereRaw(" ( payment_channel_detail.start_time > payment_channel_detail.end_time AND payment_channel_detail.end_time >= ? ) ",[$now_time])
-                // 或者开始时间和结束时间相同
-                ->orWhereRaw("payment_channel_detail.start_time = payment_channel_detail.end_time");
-            })
+//            ->where( function($query)use($now_time){
+//                // 正常时间区间
+//                $query->where([
+//                    ['payment_channel_detail.start_time','<=',$now_time],
+//                    ['payment_channel_detail.end_time','>=',$now_time],
+//                ])
+//                // 如果跨天，当前时间大于开始时间
+//                ->orWhereRaw(" ( payment_channel_detail.start_time > payment_channel_detail.end_time AND payment_channel_detail.start_time <= ? ) ",[$now_time])
+//                // 如果跨天，当前时间小于结束时间
+//                ->orWhereRaw(" ( payment_channel_detail.start_time > payment_channel_detail.end_time AND payment_channel_detail.end_time >= ? ) ",[$now_time])
+//                // 或者开始时间和结束时间相同
+//                ->orWhereRaw("payment_channel_detail.start_time = payment_channel_detail.end_time");
+//            })
             ->get();
 
         if( $details->isEmpty() ){
@@ -357,7 +369,7 @@ class Payment
             //'system_public_key',
             //'system_private_key',
             'merchant_public_key',
-            'merchant_private_key',
+            //'merchant_private_key',
             'md5_key'
         ])
             ->where('account',$merchant_id)
@@ -399,6 +411,9 @@ class Payment
         if( !$this->decrypt_data ){
             return [-4, '数据解密失败！'];
         }
+        if( $this->merchant['account'] != $this->decrypt_data['merchant_id'] ){
+            return [-5, '对不起，账户校验失败！'];
+        }
 
         $validator = $this->_validator($api_name,$this->decrypt_data);
         // 验证失败
@@ -408,9 +423,9 @@ class Payment
 
         $keys = [];
         if($api_name == 'pay'){
-            $keys = ['amount','callback_url','callback_url_view','order_no','goods_name','method'];
+            $keys = ['merchant_id','amount','notify_url','return_url','order_no','goods_name','method','ip','bank_code'];
         }elseif($api_name == 'query'){
-            $keys = ['order_no'];
+            $keys = ['merchant_id','order_no'];
         }
         $keys[] = 'sign';
 
@@ -430,7 +445,7 @@ class Payment
             return [-7,'签名校验失败！'];
         }
 
-        return [0, 'success'];
+        return [1, 'success'];
     }
 
     /**
@@ -440,16 +455,17 @@ class Payment
      * @return object
      * @throws /Exception
      */
-    private function getPaymentModel($ident, $channel)
+    private function getPaymentModel($channel)
     {
-        $ident = ucfirst($ident);
 
-        $class = "Comment\\API\\Payment\\{$ident}";
+        $ident = ucfirst($channel['category_ident']);
+
+        $class = "Common\\API\\Payment\\{$ident}\\{$ident}";
 
         try {
-            $pay_model_reflection = new \ReflectionClass($class);
+            $this->pay_model_reflection = new \ReflectionClass($class);
 
-            return $pay_model_reflection->newInstance($channel);
+            return $this->pay_model_reflection->newInstance($channel);
         } catch (Exception $e) {
             \Log::error($e);
             return false;
@@ -463,7 +479,7 @@ class Payment
      */
     public function _encrypt( $data )
     {
-        return RSA::private_encrypt( json_encode($data) , $this->merchant['merchant_private_key'] );
+        return RSA::private_encrypt( json_encode($data) , $this->merchant['system_private_key'] );
     }
 
     /**
@@ -511,34 +527,37 @@ class Payment
             // 验证数据类型是否正确
             $rule = [
                 'amount'            => 'bail|required|numeric|min:0.01',
-                'callback_url'      => 'bail|required|url|max:255',
-                'callback_url_view' => 'bail|required|url|max:255',
-                'order_no'          => 'bail|required|string|between:8,32',
+                'notify_url'        => 'bail|required|url|max:255',
+                'return_url'        => 'bail|required|url|max:255',
+                'order_no'          => 'bail|required|alpha_dash|between:8,32',
                 'method'            => 'bail|required|alpha_dash|exists:payment_method,ident',
                 'bank_code'         => 'bail|required_if:method,netbank|alpha',
-                'sign'              => 'bail|required|alpha_dash',
+                'ip'                => 'bail|required|ip',
+                'sign'              => 'bail|required|string',
             ];
 
             $messages = [
                 'amount.required'               => '金额不能为空！',
                 'amount.numeric'                => '金额类型不正确！',
                 'amount.min'                    => '金额不正确！',
-                'callback_url.required'         => '异步回调地址不能不空！',
-                'callback_url.url'              => '异步回调地址格式不正确！',
-                'callback_url.max'              => '异步回调地址长度不能超过255个字符！',
-                'callback_url_view.required'    => '同步回调地址不能不空！',
-                'callback_url_view.url'         => '同步回调地址格式不正确！',
-                'callback_url_view.max'         => '同步回调地址长度不能超过255个字符！',
+                'notify_url.required'           => '异步回调地址不能不空！',
+                'notify_url.url'                => '异步回调地址格式不正确！',
+                'notify_url.max'                => '异步回调地址长度不能超过255个字符！',
+                'return_url.required'           => '同步回调地址不能不空！',
+                'return_url.url'                => '同步回调地址格式不正确！',
+                'return_url.max'                => '同步回调地址长度不能超过255个字符！',
                 'order_no.required'             => '订单号不能为空！',
-                'order_no.string'               => '订单号格式不正确！',
+                'order_no.alpha_dash'           => '订单号格式不正确！',
                 'order_no.between'              => '订单号长度不正确！',
                 'method.required'               => '支付类型不能为空！',
                 'method.alpha_dash'             => '支付类型格式不正确！',
                 'method.exists'                 => '支付类型不存在！',
                 'bank_code.required_if'         => '银行代码不能为空！',
                 'bank_code.alpha'               => '银行代码格式不正确！',
+                'ip.required'                   => 'IP不能为空！',
+                'ip.ip'                         => 'IP格式不正确！',
                 'sign.required'                 => '签名不能为空！',
-                'sign.alpha_dash'               => '签名格式不正确！',
+                'sign.string'                   => '签名格式不正确！',
             ];
         }elseif( $api_name == 'query' ){
 

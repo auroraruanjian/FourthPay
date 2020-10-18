@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Common\Helpers\RSA;
 use Common\Models\Merchants;
+use Common\Models\Orders;
+use Common\Models\PaymentChannel;
+use Common\Models\PaymentOrder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -15,11 +18,11 @@ class PaymentController extends Controller
     {
         // 接口版本号
         $version      = $request->get('version');
-        if( empty($version) || !preg_match("/^V[0-9]{0,3}(\.[0-9]{0,3}){1,2}$/",$version) ){
+        if( !empty($version) && !preg_match("/^V[0-9]{0,3}(\.[0-9]{0,3}){1,2}$/",$version) ){
             abort(403,'接口版本号错误！');
         }
 
-        $class_name = 'Common\\API\\'.(($version!='V1.0')?$version.'\\':'').'Payment';
+        $class_name = 'Common\\API\\'.((!empty($version)&&$version!='V1.0')?$version.'\\':'').'Payment';
 
         // 根据版本号构建接口模型
         try{
@@ -28,7 +31,7 @@ class PaymentController extends Controller
             $this->payment_api = $payment_ref->newInstance();
         }catch(\ReflectionException $e){
 
-            abort(403,'接口版本号错误！');
+            abort(403,'接口版本号错误2！');
         }catch(\Exception $e){
 
             abort(403,'未知的异常！');
@@ -38,31 +41,40 @@ class PaymentController extends Controller
     // 支付
     public function pay(Request $request)
     {
-        // $code > 0 成功，其他统一失败
-        // $message：错误消息
-        // $data : 数据
+        /**
+         * $code    : 类型
+         * $message : 消息内容
+         * $data    : 数据
+         */
+        list($code , $message ,$data) = $this->payment_api->pay($request);
 
-        list($code,$message,$data) = $this->payment_api->pay($request);
-        dd($message,$data);
+        if( $code != 1 ){
+            return $this->response($code,$message);
+        }
 
-        // 解析参数
-//        switch( $data['type'] ){
-//            case $this->payment_api::PAY_TYPE_HTML:
-//                $a= '';
-//                break;
-//            case $this->payment_api::PAY_TYPE_STRING:
-//                $a= '';
-//                break;
-//            case $this->payment_api::PAY_TYPE_URL:
-//                $a= '';
-//                break;
-//            case $this->payment_api::PAY_TYPE_QRCODE:
-//                $a= '';
-//                break;
-//            default:;
-//        }
-//
-//        return response()->json(['222']);
+         // 解析参数
+        switch( $data['type'] ){
+            case PAY_VIEW_TYPE_HTML:
+                return view('pay', [
+                    'request_url'   => $this->payment_api->pay_model->request_url,
+                    'data'          => $data['data'],
+                ]);
+            case PAY_VIEW_TYPE_RAW:
+                return $data['data'];
+            case PAY_VIEW_TYPE_URL:
+                return redirect()->away($data['data']);
+            case PAY_VIEW_TYPE_QRCODE:
+                return view('qrcode_pay', [
+                    'order_no'      => ssl_encrypt($data['order_no'], env('SECURITY_KEY')),
+                    'pay_cn_name'   => $this->payment_api->pay_model->getCnname($data['bank_code']),
+                    'bank_code'     => $data['bank_code'],
+                    'amount'        => $data['amount'],
+                    'qrcode'        => $data['url'],
+                    'type'          => $data['type'],
+                ]);
+            default:
+                return $this->response(-1,'未知的异常！');
+        }
     }
 
     /**

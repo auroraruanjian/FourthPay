@@ -19,7 +19,7 @@ class PaymentChannelController extends Controller
     ];
 
     private $detail_filed = [
-        'top_merchant_ids'      => [],
+        'top_merchant_ids'  => [],
         'start_time'        => '00:00:00',
         'end_time'          => '00:00:00',
         'rate'              => 0,
