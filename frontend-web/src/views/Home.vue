@@ -17,7 +17,8 @@ export default {
     },
     methods:{
         async getTest(){
-            let result = await getTest();console.log(result);
+            let result = await getTest();
+            //console.log(result);
             if( result.status == 200 ){
                 this.$message({
                     message: '跨域接口请求测试成功，返回内容：' + JSON.stringify(result.data),
