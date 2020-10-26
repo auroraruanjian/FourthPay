@@ -19,10 +19,15 @@ class Controller extends BaseController
      */
     public function response(int $code ,string $msg = '',array $data = [] )
     {
-        return response()->json([
-            'code'  => $code,
-            'msg'   => $msg,
-            'data'  => $data,
-        ]);
+        if( request()->ajax() ){
+            return response()->json([
+                'code'  => $code,
+                'msg'   => $msg,
+                'data'  => $data,
+            ]);
+        }else{
+            return $msg;
+        }
+
     }
 }

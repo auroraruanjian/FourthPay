@@ -57,11 +57,13 @@ class PaymentController extends Controller
 
         $post_data['sign'] = md5_sign($post_data,$merchant['md5_key']);
 
-        return redirect('http://api.laravel_admin.me/payment/pay?'.
-            http_build_query([
-                'merchant_id'   => $merchant->account,
-                'data'          => RSA::private_encrypt( json_encode($post_data) , $merchant['merchant_private_key'] )
-            ])
-        );
+        return $this->response(1,'success',[
+            'url'   => 'http://api.laravel_admin.me/payment/pay?'.
+                http_build_query([
+                        'merchant_id'   => $merchant->account,
+                        'data'          => RSA::private_encrypt( json_encode($post_data) , $merchant['merchant_private_key'] )
+                    ]
+            ),
+        ]);
     }
 }

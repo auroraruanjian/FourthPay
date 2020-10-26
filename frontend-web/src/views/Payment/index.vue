@@ -18,7 +18,7 @@
                     <p style="margin-top: 20px;margin-bottom: 15px;font-size: 13px;">请选择付款方式</p>
                 </el-row>
                 <el-row class="ways">
-                    <div class="borders ali_pay" :class="(post_form.payment_method==item.ident?'click_active':'')" v-for="(item,key) in payment_method" :key="key" @click="post_form.payment_method=item.ident">
+                    <div class="borders ali_pay" :class="(post_form.method==item.ident?'click_active':'')" v-for="(item,key) in payment_method" :key="key" @click="post_form.method=item.ident">
                         <p>
                             <img :src="'/img/'+item.ident+'.png'" :alt="item.name">
                         </p>
@@ -26,7 +26,7 @@
                 </el-row>
                 <el-row class="pay_row">
                     <span>测试体验商品不会发货</span>
-                    <el-button type="primary">立即支付</el-button>
+                    <el-button type="primary" @click="pay">立即支付</el-button>
                 </el-row>
             </el-card>
 
@@ -36,6 +36,8 @@
 </template>
 
 <script>
+import { postPay } from '@/api/payment.js';
+
 export default {
     name: "Payment",
     data(){
@@ -56,9 +58,30 @@ export default {
             },
             post_form:{
                 amount:'0.01',
-                payment_method:'wechat_scan',
+                method:'wechat_scan',
             }
         };
+    },
+    methods:{
+        async pay(){
+            let result = await postPay( this.post_form );
+
+            if( result.status == 200 ){
+                if( result.data.code == 1 ){
+                    window.open(result.data.data.url );
+                }else{
+                    this.$message({
+                        message: result.data.msg,
+                        type: 'error'
+                    });
+                }
+            }else{
+                this.$message({
+                    message: JSON.stringify(result.data),
+                    type: 'error'
+                });
+            }
+        },
     },
     mounted() {
         this.$store.dispatch('app/toggleHeaderModel', 'light');
