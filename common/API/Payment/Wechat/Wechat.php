@@ -26,9 +26,13 @@ class Wechat extends Base
      * @param $data
      * @return mixed
      */
-    public function prepare_query($data)
+    public function query($data)
     {
         // TODO: Implement prepare_query() method.
+
+        // request to server check order status
+
+        return parent::QUERY_CHECK_SUCCESS;
     }
 
     /**
@@ -36,8 +40,36 @@ class Wechat extends Base
      * @param $data
      * @return mixed
      */
-    public function prepare_callback($data)
+    public function check_callback($data)
     {
         // TODO: Implement prepare_callback() method.
+        // check callback status
+
+        // check sign
+
+        return true;
+    }
+
+    /**
+     * 获取订单信息
+     * @param $data
+     */
+    public function getThirdOrder( $data )
+    {
+        return [
+            // 平台订货单号
+            'order_no'          => $data['id'],
+            // 第三方订单号
+            'third_order_no'    => $data['order_no'],
+            // 真实支付金额
+            'real_amount'       => $data['amount'],
+        ];
+    }
+
+    public function getResponse($pay_status)
+    {
+        // TODO: Implement getResponse() method.
+
+        return 'success';
     }
 }

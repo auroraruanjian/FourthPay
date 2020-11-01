@@ -16,3 +16,20 @@ use Illuminate\Http\Request;
 //Route::middleware('auth:api')->get('/user', function (Request $request) {
 //    return $request->user();
 //});
+
+Route::prefix('payment')->group(function () {
+    // 支付
+    Route::get('pay', 'PaymentController@pay');
+
+    // 用户支付异步返回
+    Route::match(['get', 'post'], 'callback/{channel_detail_id}', 'PaymentController@callback');
+
+    // 用户支付同步返回
+    Route::get('callback_view/{channel_detail_id}', 'PaymentController@callback_view');
+
+    // 查询订单状态
+    Route::post('query', 'PaymentController@query');
+
+    // 查询订单状态
+    Route::get('test', 'PaymentController@test');
+});

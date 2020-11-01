@@ -20,9 +20,10 @@ class CreateTableDeposits extends Migration
 
             $table->decimal('amount', 15, 4)->comment('交易金额');
             $table->decimal('real_amount', 15, 4)->nullable()->comment('实际支付金额');
-            $table->string('merchant_order_no',60)->comment('商户订单号');
 
+            $table->string('merchant_order_no',60)->comment('商户订单号');
             $table->string('third_order_no', 100)->default('')->comment('银行交易流水或是第三方交易流水');
+
             $table->integer('order_id')->nullable()->comment('本站帐变流水号');
             $table->string('accountant_admin_id')->nullable()->comment('会计，通过审核的管理员');
             $table->string('cash_admin_id')->nullable()->comment('出纳，确认充值的管理员');

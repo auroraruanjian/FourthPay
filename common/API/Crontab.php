@@ -7,13 +7,14 @@ use Common\Models\Deposits;
 use Illuminate\Console\Command;
 
 use App\Model\PaymentOrder;
+use Illuminate\Support\Facades\DB;
 
 class Crontab
 {
     /**
      * @var Command
      */
-    public $command;
+    protected $command;
 
     public function __construct(Command $command)
     {
@@ -39,17 +40,18 @@ class Crontab
             'deposits.status',
             'deposits.amount',
             'deposits.real_amount',
-            'deposits.extra.callback_url',
+            DB::raw('deposits.extra->>\'notify_url\' as notify_url'),
             'merchants.account',
-            'account.system_private_key',
-            'account.md5_key',
+            'merchants.system_private_key',
+            'merchants.md5_key',
             'payment_method.ident as method'
         ])
-        ->leftJoin('payment_method','payment_method.id','deposits.payment_method_id')
-        ->leftJoin('merchants','merchant_id.id','deposits.merchant_id')
+        ->leftJoin('payment_channel_detail','payment_channel_detail.id','deposits.payment_channel_detail_id')
+        ->leftJoin('payment_method','payment_method.id','payment_channel_detail.payment_method_id')
+        ->leftJoin('merchants','merchants.id','deposits.merchant_id')
         ->where([
-            ['status','=',2],
-            ['push_status','=',0]
+            ['deposits.status','=',2],
+            ['deposits.push_status','=',0]
         ]);
 
 
@@ -73,15 +75,15 @@ class Crontab
                     ];
 
                     // 增加签名
-                    $deposit_record['sign'] = md5_sign($post_data,$order->md5_key);
+                    $post_data['sign'] = md5_sign($post_data,$order->md5_key);
 
                     $response = $client->request(
                         'POST',
-                        $order->callback_url,
+                        $order->notify_url,
                         [
                             'form_params' => [
                                 'merchant_id'   => $order->account,
-                                'data'          => RSA::private_encrypt($post_data,$order->system_private_key)
+                                'data'          => RSA::private_encrypt(json_encode($post_data),$order->system_private_key)
                             ]
                         ]
                     );

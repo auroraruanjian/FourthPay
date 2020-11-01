@@ -186,6 +186,14 @@ class Payment
      */
     public function callback(int $channel_detail_id , $request_data )
     {
+        // 获取订单号,检查订单状态
+        $return_data = [
+            'money'      => 0,
+            'order_no'   => '',
+            'pay_status' => false,
+            'return_url' => '',
+        ];
+
         // 获取支付通道
         $details = PaymentChannelDetail::select([
             'payment_channel.id as channel_id',
@@ -195,31 +203,32 @@ class Payment
         ])
             ->leftJoin('payment_channel','payment_channel.id','payment_channel_detail.payment_channel_id')
             ->leftJoin('payment_category','payment_category.id','payment_channel.payment_category_id')
-            ->where(['payment_channel_detail.id','=',$channel_detail_id])
+            ->where('payment_channel_detail.id','=',$channel_detail_id)
             ->first();
 
         if( empty($details) ){
-            throw new \Exception('通道不存在！');
+            \Log::error('通道不存在', ['third_order'=>$channel_detail_id,'data'=>$request_data]);
+            return $return_data;
         }
 
         // TODO: 支付提交到第三方
         // 获取支付模型，构建支付数据
-        $this->pay_model = $this->getPaymentModel();
+        $this->pay_model = $this->getPaymentModel($details);
         if( !$this->pay_model ){
-            return [-11,'模型获取失败！'];
+            \Log::error('模型获取失败', ['third_order'=>$channel_detail_id,'data'=>$request_data]);
+            return $return_data;
         }
 
         // 记录日志
 
 
         // 如果是服务器回调，检查是否IP白名单
-
-        // 获取订单号,检查订单状态
-        $return_data = [
-            'money'      => 0,
-            'order_no'   => '',
-            'pay_status' => false,
-        ];
+        if( request()->route()->getActionMethod() != 'callback_view' ){
+            if( !$this->pay_model->is_allow_ip(request()->ip())) {
+                \Log::error('IP ERROR', ['third_order'=>$channel_detail_id,'data'=>$request_data]);
+                return $return_data;
+            }
+        }
 
         $third_order = $this->pay_model->getThirdOrder($request_data);
         if (empty($third_order['order_no'])) {
@@ -228,10 +237,42 @@ class Payment
         }
 
         // 获取数据库订单记录
-        $deposit_record = Deposits::select(['id','amount','merchant_order_no','status','callback_status','extra'])->where([
-                ['id','=',id_decode($third_order['order_no'])],
+        if( request()->route()->getActionMethod() == 'callback_view' ){
+            $deposit_record = Deposits::select([
+                'deposits.id',
+                'deposits.amount',
+                'deposits.real_amount',
+                'deposits.merchant_order_no',
+                'deposits.status',
+                'deposits.callback_status',
+                DB::raw("deposits.extra->>'return_url'"),
+                'merchants.account',
+                'merchants.system_private_key',
+                'merchants.md5_key',
+                'payment_method.ident as method'
             ])
-            ->first();
+                ->leftJoin('payment_channel_detail','payment_channel_detail.id','deposits.payment_channel_detail_id')
+                ->leftJoin('payment_method','payment_method.id','payment_channel_detail.payment_method_id')
+                ->leftJoin('merchants','merchants.id','deposits.merchant_id')
+                ->where([
+                    ['deposits.id','=',id_decode($third_order['order_no'])],
+                ])
+                ->first();
+        }else{
+            $deposit_record = Deposits::select([
+                'deposits.id',
+                'deposits.amount',
+                'deposits.real_amount',
+                'deposits.merchant_order_no',
+                'deposits.status',
+                'deposits.callback_status',
+                DB::raw("deposits.extra->>'return_url'"),
+            ])
+                ->where([
+                    ['deposits.id','=',id_decode($third_order['order_no'])],
+                ])
+                ->first();
+        }
         //订单不存在
         if (empty($deposit_record)) {
             \Log::error('订单不存在', ['third_order'=>$third_order]);
@@ -240,6 +281,35 @@ class Payment
 
         // 金额检查是否相同
 
+        $return_data['money']       = $deposit_record->amount;
+        $return_data['order_no']    = $deposit_record->merchant_order_no;
+        $return_data['return_url']  = $deposit_record->return_url;
+
+        if( request()->route()->getActionMethod() == 'callback_view' ){
+            // create callback view data
+            $post_data = [
+                'order_no'          => $deposit_record->merchant_order_no,
+                'method'            => $deposit_record->method,
+                'amount'            => $deposit_record->amount,
+                'real_amount'       => $deposit_record->real_amount,
+                'platform_order_id' => id_encode($deposit_record->id),
+                'status'            => $deposit_record->status,
+            ];
+
+            // 增加签名
+            $post_data['sign'] = md5_sign($post_data,$deposit_record->md5_key);
+
+            $symbol = '?';
+            if( strpos($return_data['return_url'],'?') ){
+                $symbol = '&';
+            }
+
+            $return_data['return_url'] = $return_data['return_url'].$symbol.http_build_query([
+                'merchant_id'   => $deposit_record->account,
+                'data'          => RSA::private_encrypt(json_encode($post_data),$deposit_record->system_private_key)
+            ]);
+        }
+
         // 检查是否已支付成功
         if ( $deposit_record->status == 2 ) {
             $return_data['pay_status']  = true;
@@ -247,11 +317,11 @@ class Payment
         }
 
         // 检查回调结果
-        if( $this->pay_model->callback($request_data) ){
+        if( $this->pay_model->check_callback($request_data) ){
             $query_status = $this->pay_model->query( $deposit_record );
             if( in_array($query_status,[
-                $this->pay_model::QUERY_STATUS_SUCCESS,
-                $this->pay_model::QUERY_STATUS_UNDEFINED,
+                $this->pay_model::QUERY_CHECK_SUCCESS,
+                $this->pay_model::QUERY_CHECK_UNDEFINED,
             ],true)  ){
                 // 通过- 修改订单状态，增加账变记录
                 $deposit_record->status = 2;
@@ -267,14 +337,16 @@ class Payment
 
                 $deposit_record->done_at = (string)Carbon::now();
                 if( $deposit_record->save() ){
-                    // 增加账变
+                    // TODO 增加账变
 
+                    $return_data['pay_status']  = true;
+                    return $return_data;
                 }
             }
         }
 
         // 失败
-        return [];
+        return $return_data;
     }
 
     /**
@@ -470,6 +542,11 @@ class Payment
             \Log::error($e);
             return false;
         }
+    }
+
+    public function getResponse( $pay_status )
+    {
+        return $this->pay_model->getResponse( $pay_status );
     }
 
     /**

@@ -3,6 +3,9 @@ namespace Common\API\Payment;
 
 abstract class Base
 {
+    // 商户参数
+    protected $channel_param;
+
     // 支付请求URL
     public $request_url;
 
@@ -144,12 +147,30 @@ abstract class Base
      * @param $data
      * @return mixed
      */
-    abstract public function prepare_query( $data );
+    abstract public function query( $data );
 
     /**
-     * 构建第三方回调数据
+     * CHECK第三方回调数据
      * @param $data
      * @return mixed
      */
-    abstract public function prepare_callback( $data );
+    abstract public function check_callback( $data );
+
+    abstract public function getResponse( $pay_status );
+
+    /**
+     * 获取订单信息
+     * @param $data
+     */
+    public function getThirdOrder( $data )
+    {
+        return [
+            // 平台订货单号
+            'order_no'          => '',
+            // 第三方订单号
+            'third_order_no'    => '',
+            // 真实支付金额
+            'real_amount'       => '',
+        ];
+    }
 }

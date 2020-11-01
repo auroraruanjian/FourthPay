@@ -66,4 +66,22 @@ class PaymentController extends Controller
             ),
         ]);
     }
+
+    /**
+     * async notice to client
+     * @param Request $request
+     */
+    public function postNotify(Request $request)
+    {
+        return 'success';
+    }
+
+    /**
+     * sync return to client
+     * @param Request $request
+     */
+    public function getReturn(Request $request)
+    {
+        return 'view';
+    }
 }
