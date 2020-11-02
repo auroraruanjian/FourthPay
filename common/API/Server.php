@@ -67,14 +67,11 @@ class Server
 
                 $this->_info(date('Y-m-d H:i:s').'订单已推送:');
 
-                $this->_info('post_data');
-                $this->_info(print_r($post_data, true));
+                $this->_info('post_data:'.print_r($post_data, true));
 
-                $this->_info('order:');
-                $this->_info(print_r($order->toArray(), true));
+                $this->_info('order:'.print_r($order->toArray(), true));
 
-                $this->_info('result:');
-                $this->_info($response->getBody());
+                $this->_info('result:'.$response->getBody());
             }
         });
 

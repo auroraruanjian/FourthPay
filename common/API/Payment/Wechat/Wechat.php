@@ -5,6 +5,9 @@ use Common\API\Payment\Base;
 
 class Wechat extends Base
 {
+    public $order_id_filed          = 'id';         //商户订单号字段
+    public $third_order_id_filed    = 'order_no';   //第三方平台订单号字段
+    public $third_amount_filed      = 'amount';     //第三方回调金额字段
 
     /**
      * 构建支付数据
@@ -50,26 +53,10 @@ class Wechat extends Base
         return true;
     }
 
-    /**
-     * 获取订单信息
-     * @param $data
-     */
-    public function getThirdOrder( $data )
-    {
-        return [
-            // 平台订货单号
-            'order_no'          => $data['id'],
-            // 第三方订单号
-            'third_order_no'    => $data['order_no'],
-            // 真实支付金额
-            'real_amount'       => $data['amount'],
-        ];
-    }
-
     public function getResponse($pay_status)
     {
         // TODO: Implement getResponse() method.
 
-        return 'success';
+        return $pay_status?'success':'error';
     }
 }

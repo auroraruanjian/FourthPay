@@ -101,8 +101,8 @@
                         </el-table-column>
                         <el-table-column label="限额">
                             <template slot-scope="scope">
-                                <el-input size="medium" placeholder="最高金额"  v-model="scope.row.max_amount" class="amount_input"></el-input>
                                 <el-input size="medium" placeholder="最低金额" v-model="scope.row.min_amount" class="amount_input"></el-input>
+                                <el-input size="medium" placeholder="最高金额"  v-model="scope.row.max_amount" class="amount_input"></el-input>
                             </template>
                         </el-table-column>
                         <el-table-column label="状态" width="100">

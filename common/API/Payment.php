@@ -5,9 +5,11 @@ use Carbon\Carbon;
 use Common\Helpers\RSA;
 use Common\Models\Deposits;
 use Common\Models\Merchants;
+use Common\Models\Orders;
 use Common\Models\PaymentChannelDetail;
 use Common\Models\PaymentMethod;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Validator;
 
 class Payment
@@ -66,7 +68,7 @@ class Payment
         $deposits_model->payment_channel_detail_id = $channel_detail['channel_detail_id'];          // 支付通道ID
         $deposits_model->account_number = $account_number;                                          // 支付商户号
         //merchant_fee  从商户号分配费率计算
-        //third_fee     第三方手续费从$channel_detail中计算
+        $deposits_model->third_fee = $this->decrypt_data['amount'] * $channel_detail['rate'];       // 第三方手续费
         $deposits_model->amount = $this->decrypt_data['amount'];                                    // 金额
         $deposits_model->merchant_order_no = $this->decrypt_data['order_no'];                       // 订单号
         $deposits_model->ip = request()->ip();                                                      // IP
@@ -221,7 +223,6 @@ class Payment
 
         // 记录日志
 
-
         // 如果是服务器回调，检查是否IP白名单
         if( request()->route()->getActionMethod() != 'callback_view' ){
             if( !$this->pay_model->is_allow_ip(request()->ip())) {
@@ -231,7 +232,8 @@ class Payment
         }
 
         $third_order = $this->pay_model->getThirdOrder($request_data);
-        if (empty($third_order['order_no'])) {
+
+        if (empty($third_order['order_id'])) {
             \Log::error('订单号为空', ['third_order'=>$third_order]);
             return $return_data;
         }
@@ -240,8 +242,10 @@ class Payment
         if( request()->route()->getActionMethod() == 'callback_view' ){
             $deposit_record = Deposits::select([
                 'deposits.id',
+                'deposits.merchant_id',
                 'deposits.amount',
                 'deposits.real_amount',
+                'deposits.merchant_fee',
                 'deposits.merchant_order_no',
                 'deposits.status',
                 'deposits.callback_status',
@@ -255,24 +259,27 @@ class Payment
                 ->leftJoin('payment_method','payment_method.id','payment_channel_detail.payment_method_id')
                 ->leftJoin('merchants','merchants.id','deposits.merchant_id')
                 ->where([
-                    ['deposits.id','=',id_decode($third_order['order_no'])],
+                    ['deposits.id','=',id_decode($third_order['order_id'])],
                 ])
                 ->first();
         }else{
             $deposit_record = Deposits::select([
                 'deposits.id',
+                'deposits.merchant_id',
                 'deposits.amount',
                 'deposits.real_amount',
+                'deposits.merchant_fee',
                 'deposits.merchant_order_no',
                 'deposits.status',
                 'deposits.callback_status',
                 DB::raw("deposits.extra->>'return_url'"),
             ])
                 ->where([
-                    ['deposits.id','=',id_decode($third_order['order_no'])],
+                    ['deposits.id','=',id_decode($third_order['order_id'])],
                 ])
                 ->first();
         }
+
         //订单不存在
         if (empty($deposit_record)) {
             \Log::error('订单不存在', ['third_order'=>$third_order]);
@@ -323,25 +330,59 @@ class Payment
                 $this->pay_model::QUERY_CHECK_SUCCESS,
                 $this->pay_model::QUERY_CHECK_UNDEFINED,
             ],true)  ){
+                DB::beginTransaction();
+
                 // 通过- 修改订单状态，增加账变记录
                 $deposit_record->status = 2;
                 $deposit_record->callback_status = 1;
                 $deposit_record->callback_at = (string)Carbon::now();
                 //
-                if( !empty($third_order['third_order_no']) ) {
-                    $deposit_record->third_order_no = $third_order['third_order_no'];
+                if( !empty($third_order['third_order_id']) ) {
+                    $deposit_record->third_order_no = $third_order['third_order_id'];
                 }
                 if( !empty($third_order['real_amount']) ){
                     $deposit_record->real_amount = $third_order['real_amount'];
                 }
 
                 $deposit_record->done_at = (string)Carbon::now();
+
                 if( $deposit_record->save() ){
                     // TODO 增加账变
+                    $order = new Orders();
+                    $order->from_merchant_id = $deposit_record->merchant_id;
+                    $order->amount = $deposit_record->amount;
+                    $order->client_type = 1;
+                    $order->comment = $deposit_record->id;
+                    $order->ip = request()->ip();
+
+                    if( !MerchantFund::modifyFund( $order , 'ZXCZ' ) ){
+                        DB::rollBack();
+                        \Log::error('充提帐变写入失败！：'.MerchantFund::$error_msg, ['third_order'=>$third_order]);
+                        return $return_data;
+                    }
+
+                    // TODO ： 扣除手续费
+                    if( $deposit_record->merchant_fee > 0 ){
+                        $order = new Orders();
+                        $order->from_merchant_id = $deposit_record->merchant_id;
+                        $order->amount = $deposit_record->merchant_fee;
+                        $order->client_type = 1;
+                        $order->comment = $deposit_record->id;
+                        $order->ip = request()->ip();
+                        if( !MerchantFund::modifyFund( $order , 'CZSXF' ) ){
+                            DB::rollBack();
+                            \Log::error('手续费帐变写入失败！'.MerchantFund::$error_msg, ['third_order'=>$third_order]);
+                            return $return_data;
+                        }
+                    }
+
+                    DB::commit();
 
                     $return_data['pay_status']  = true;
                     return $return_data;
                 }
+
+                DB::rollBack();
             }
         }
 
@@ -369,6 +410,7 @@ class Payment
         $now_time = Carbon::now()->format('H:i:s');
 
         $details = PaymentChannelDetail::select([
+            'payment_channel_detail.rate',
             'payment_channel.id as channel_id',
             'payment_channel.max_amount',
             'payment_channel.channel_param',

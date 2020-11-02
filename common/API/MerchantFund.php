@@ -3,17 +3,17 @@ namespace Common\API;
 
 use Common\Models\Orders;
 use Common\Models\OrderType;
-use Cache;
-use DB;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class MerchantFund
 {
-
     public static $error_msg = "数据更新失败";
     public static $order_type = [];
 
+
     /**
-     * 用户账号资金变动以及生成账变记录
+     * 商户账号资金变动以及生成账变记录
      * @param Orders $order
      * @param string $order_type
      * @param boolean $allow_minus 是否允许负数
@@ -22,7 +22,6 @@ class MerchantFund
      */
     public static function modifyFund(Orders $order, $order_type_ident, $allow_minus = false)
     {
-
         if ($order->amount <= 0.0) {
             self::$error_msg = "账变为负数或者 0 !";
             return false;
@@ -73,7 +72,7 @@ class MerchantFund
             $affected = DB::update(
                 "update merchant_fund set balance = balance + :amount where merchant_id = :merchant_id",
                 [
-                    'amount'        => $order->amount,
+                    'amount'    => $order->amount,
                     'merchant_id'   => $order->from_merchant_id
                 ]
             );
@@ -103,7 +102,7 @@ class MerchantFund
 
         if ($order_type->hold_operation == 1) {
             $affected = DB::update(
-                "update user_fund set hold_balance = hold_balance + :amount where user_id = :user_id",
+                "update merchant_fund set hold_balance = hold_balance + :amount where merchant_id = :merchant_id",
                 [
                     'amount'        => $order->amount,
                     'merchant_id'   => $order->from_merchant_id

@@ -22,6 +22,14 @@ abstract class Base
     const QUERY_CHECK_ERROR              = -1;     // 第三方订单查询失败
     const QUERY_CHECK_UNDEFINED          = 0;      // 第三方未定义订单查询接口
 
+    //第三方通知IP白名单列表
+    public $white_ip_list               = [];
+
+    public $order_id_filed          = '';   //第三方商户订单号字段
+    public $third_order_id_filed    = '';   //第三方平台订单号字段
+    public $third_amount_filed      = '';   //第三方回调金额字段
+    public $third_amount_type       = 1;    //第三方金額模式 1:元 0.1角 0.01分
+
     //平台和第三方银行对照数组
     public $bank_codes  = [
         /*收银台*/
@@ -150,13 +158,31 @@ abstract class Base
     abstract public function query( $data );
 
     /**
-     * CHECK第三方回调数据
+     * 检查第三方回调数据
      * @param $data
      * @return mixed
      */
     abstract public function check_callback( $data );
 
+    /**
+     * 获取返回数据
+     * @param $pay_status
+     * @return mixed
+     */
     abstract public function getResponse( $pay_status );
+
+    /**
+     * 检查是否百名单IP
+     * @param $ip
+     * @return bool
+     */
+    public function is_allow_ip( $ip )
+    {
+        if (in_array($ip, $this->white_ip_list, true) || empty($this->white_ip_list)) {
+            return true;
+        }
+        return false;
+    }
 
     /**
      * 获取订单信息
@@ -164,13 +190,27 @@ abstract class Base
      */
     public function getThirdOrder( $data )
     {
-        return [
-            // 平台订货单号
-            'order_no'          => '',
-            // 第三方订单号
-            'third_order_no'    => '',
-            // 真实支付金额
-            'real_amount'       => '',
+        $order_ids = [
+            'order_id'          => '',
+            'third_order_id'    => '',
+            'amount'            => null,
+            'third_amount'      => null,
         ];
+        if (!empty($data[$this->third_order_id_filed])&&$this->third_order_id_filed!='') {
+            $order_ids['third_order_id'] = $data[$this->third_order_id_filed];
+        }
+
+        if (isset($data[$this->third_amount_filed])&&$this->third_amount_filed!='') {
+            $order_ids['amount'] = $data[$this->third_amount_filed] * $this->third_amount_type;
+            //第三方实际充值金额
+            $order_ids['third_amount'] = $data[$this->third_amount_filed] * $this->third_amount_type;
+        }
+
+        if (!empty($data[$this->order_id_filed])&&$this->order_id_filed!='') {
+            $order_ids['order_id'] = $data[$this->order_id_filed];
+            return $order_ids;
+        }
+
+        return false;
     }
 }
