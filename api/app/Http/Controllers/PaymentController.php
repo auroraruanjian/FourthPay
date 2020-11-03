@@ -116,6 +116,15 @@ class PaymentController extends Controller
         return response()->json($this->payment_api->query($request));
     }
 
+    /**
+     * 检查订单状态
+     * @param Request $request
+     */
+    public function orderStatus(Request $request)
+    {
+        return $this->response(1,'Success');
+    }
+
     public function test(Request $request)
     {
         // 构建请求测试代码
