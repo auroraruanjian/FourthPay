@@ -11,7 +11,7 @@
     "axios": "^0.19.2",
     "core-js": "^3.6.4",
     "element-ui": "^2.13.0",
-    "node-sass": "^4.14.1",
+    "node-sass": "^7.0.0",
     "reset-css": "^5.0.1",
     "sass-loader": "^10.0.3",
     "vue": "^2.6.11",
