@@ -32,7 +32,7 @@
         "resolve-url-loader": "^2.3.1",
         "screenfull": "^4.2.0",
         "socket.io-client": "^2.2.0",
-        "svg-sprite-loader": "^4.1.6",
+        "svg-sprite-loader": "^6.0.11",
         "vue": "^2.5.17",
         "vue-cookie": "^1.1.4",
         "vue-particle-line": "^0.1.4",
